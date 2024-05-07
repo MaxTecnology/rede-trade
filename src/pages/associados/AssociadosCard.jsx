@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/tooltip"
 
 function truncarTexto(texto, comprimentoMaximo) {
-    if (texto.length > comprimentoMaximo) {
-        texto = texto.slice(0, comprimentoMaximo - 3) + "...";
+    if (texto?.length > comprimentoMaximo) {
+        texto = texto?.slice(0, comprimentoMaximo - 3) + "...";
     }
     return texto;
 }
@@ -27,7 +27,7 @@ const AssociadosCard = ({ associado, index }) => {
     const navigate = useNavigate();
     const data = associado
 
-    const associadoCategoria = categorias && categorias.categorias ? categorias.categorias.find(categoria => categoria.idCategoria === data.categoriaId)?.nomeCategoria || "Sem Categoria" : "Sem Categoria"
+    const associadoCategoria = categorias && categorias?.categorias ? categorias?.categorias.find(categoria => categoria.idCategoria === data.categoriaId)?.nomeCategoria || "Sem Categoria" : "Sem Categoria"
 
     useEffect(() => {
         activePage("associados")
@@ -102,7 +102,7 @@ const AssociadosCard = ({ associado, index }) => {
             <div className="associadoCardIconsContainer">
                 <div>
                     <BsGlobe />
-                    {truncarTexto(data.conta.nomeFranquia, 10) || truncarTexto(data.nomeFantasia, 10)}
+                    {truncarTexto(data?.conta?.nomeFranquia, 10) || truncarTexto(data?.nomeFantasia, 10)}
                 </div>
                 <div className="flex2">
                     <BsUniversalAccessCircle />

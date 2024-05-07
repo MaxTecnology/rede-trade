@@ -19,8 +19,8 @@ const Associados = () => {
         activePage("associados")
     }, []);
 
-    const filteredData = data && data.data ? data.data.filter(associado => associado.status === true && associado.id !== user.id) : [];
-
+    const filteredData = data && data.data ? data.data : [];
+    
     const lastCardIndex = currentPage * cardsPerPage;
     const firstCardIndex = lastCardIndex - cardsPerPage;
     const currentCards = filteredData ? filteredData.slice(firstCardIndex, lastCardIndex) : [];

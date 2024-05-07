@@ -13,10 +13,8 @@ export const getUserInfo = async () => {
         .then((response) => {
             state.user = response.data
             state.logged = true
-            console.log(response.data)
             return true
         }).catch((error) => {
-            console.log("erro no login", error)
             return false
         })
 }

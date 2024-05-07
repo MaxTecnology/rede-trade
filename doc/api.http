@@ -1,0 +1,11 @@
+
+/buscar-usuario-params
+    ?nome=Davi%20Garcia
+    &nomeFantasia=Click%20Dogs
+    &razaoSocial=Canil%20Click%20Dogs%20LTDA
+    &nomeContato=Davi%20Garcia
+    &estado=SP
+    &cidade=Ara%C3%A7oiaba%20da%20Serra
+    &usuarioCriadorId=1
+    &tipoDaConta=Associado
+
