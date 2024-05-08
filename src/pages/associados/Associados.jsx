@@ -9,8 +9,18 @@ import { useSnapshot } from "valtio";
 import state from "@/store";
 
 const Associados = () => {
+
+    const params = new URLSearchParams(window.location.search);
+    let search = params.get('search');
+    let agencia = params.get('agencia');
+    let categoriaId = params.get('categoriaId');
+    let account = params.get('account');
+    let estado = params.get('estado');
+    let cidade = params.get('cidade');
+    let page = params.get('page') || 1;
+
     useSnapshot(state);
-    const { data } = useQueryAssociados();
+    const { data } = useQueryAssociados(page, 'Associado', search, search, '', '', estado, cidade  );
     const [currentPage, setCurrentPage] = useState(1);
     const [cardsPerPage, setCardsPerPage] = useState(6);
     const user = state.user
@@ -27,7 +37,7 @@ const Associados = () => {
 
     return (
         <div className="container">
-            <div className="containerHeader">Associados</div>
+            <div className="containerHeader">Associados </div>
             <SearchField />
             <div className="associadosCardContainer">
                 {currentCards.map((filho, index) => (

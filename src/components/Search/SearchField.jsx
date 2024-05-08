@@ -11,9 +11,20 @@ import ButtonMotion from '@/components/FramerMotion/ButtonMotion';
 
 const SearchField = () => {
     const navigate = useNavigate();
+
+    const params = new URLSearchParams(window.location.search);
+    let search = params.get('search');
+    let agencia = params.get('agencia');
+    let categoriaId = params.get('categoriaId');
+    let account = params.get('account');
+    let estado = params.get('estado');
+    let cidade = params.get('cidade');
+    let page = params.get('page') || 1;
+
     const handleclick = () => {
         navigate("/associadosCadastrar")
     }
+
     useEffect(() => {
         filters.table = {}
     }, [])
