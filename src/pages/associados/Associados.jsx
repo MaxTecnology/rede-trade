@@ -23,7 +23,7 @@ const Associados = () => {
     const { data } = useQueryAssociados(page, 'Associado', search, search, '', '', estado, cidade  );
     const [currentPage, setCurrentPage] = useState(1);
     const [cardsPerPage, setCardsPerPage] = useState(6);
-    const user = state.user
+    const user = state.user;
 
     useEffect(() => {
         activePage("associados")

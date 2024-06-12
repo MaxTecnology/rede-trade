@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
+Modal.setAppElement('#root');
 import { editUser } from '@/hooks/ListasHook';
 import { closeModal } from '@/hooks/Functions';
 import { GrFormClose } from "react-icons/gr";
@@ -21,7 +22,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const info = associadoInfo
 
     useEffect(() => {
-        setImageReference(info.imagem)
+        setImageReference(info.imagem);
     }, [info]);
 
     const revalidate = useRevalidate();
@@ -222,7 +223,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label>Gerente de Conta</label>
                     <select defaultValue={info.nomeFranquia ? info.nomeFranquia : info.idUsuario} className="form-control" id="gerentesSelect" name="gerente">
                         <option value="" disabled>Selecionar</option>
-                        <option value={info.conta.gerenteContaId ? info.conta.gerenteContaId : info.idUsuario}>Sem Gerente</option>
+                        <option value={info.conta && info.conta.gerenteContaId ? info.conta.gerenteContaId : info.idUsuario}>Sem Gerente</option>
                     </select>
                 </div>
                 <div className="form-group">
@@ -294,8 +295,8 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label className="required-field-label ">E-mail</label>
                     <input defaultValue={info.email} type="email" className="form-control" id="email" name="email" required />
                 </div>
-                <input type="hidden" name="contaId" value={info.conta.idConta} />
-                <input type="hidden" name="taxaRepasseMatriz" value={info.conta.taxaRepasseMatriz} />
+                {info.conta && <input type="hidden" name="contaId" value={info.conta.idConta} />}
+                {info.conta && <input type="hidden" name="taxaRepasseMatriz" value={info.conta.taxaRepasseMatriz} />}
                 <input type="hidden" name="idUsuario" value={info.idUsuario} />
 
                 <div className="buttonContainer">

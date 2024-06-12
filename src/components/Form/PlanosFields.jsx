@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import PlanosOptions from "../Options/PlanosOptions";
 import { useQueryPlanos } from "@/hooks/ReactQuery/useQueryPlanos";
+import Modal from 'react-modal'; // Importe o react-modal
+
+Modal.setAppElement('#root'); // Defina o elemento raiz da sua aplicação para o modal
 
 const PlanosFields = ({ type, defaultValue }) => {
     const { data } = useQueryPlanos()
@@ -8,53 +11,51 @@ const PlanosFields = ({ type, defaultValue }) => {
     const [defaultPlano, setDefaultPlano] = useState(null);
 
     useEffect(() => {
-        if (defaultValue) {
-            const defaultPlan = data ? data.planos.find(p => p.idPlano === defaultValue.conta.planoId) : null
-            setDefaultPlano(defaultPlan)
+        if (defaultValue && data && data.planos) {
+            const defaultPlan = data.planos.find(p => p.idPlano === defaultValue?.conta?.planoId); // Adicione verificações para defaultValue
+            setDefaultPlano(defaultPlan);
         }
-    }, [defaultValue, data, defaultPlano])
+    }, [defaultValue, data]);
+    
 
-    return <>
-        <div className="form-group">
-            <label className="required">Plano de Inscrição</label>
-            <select id="planoAssociado" defaultValue={defaultValue && defaultValue.conta.planoId ? defaultValue.conta.planoId : ""} onChange={(e) => setSelected(JSON.parse(e.target.value))} required>
-                <option value="" disabled>
-                    Selecione
-                </option>
-                <PlanosOptions type={type} complex />
-            </select>
-        </div>
-        {type === "Associado" ?
+    return (
+        <>
             <div className="form-group">
-                <label className="required">Valor do Plano</label>
+                <label className="required">Plano de Inscrição</label>
+                <select id="planoAssociado" defaultValue={defaultValue && defaultValue.conta ? defaultValue.conta.planoId : ""} onChange={(e) => setSelected(JSON.parse(e.target.value))} required>
+                    <option value="" disabled>
+                        Selecione
+                    </option>
+                    <PlanosOptions type={type} complex />
+                </select>
+            </div>
+            {type === "Associado" &&
+                <div className="form-group">
+                    <label className="required">Valor do Plano</label>
+                    <input
+                        type="text"
+                        className="readOnly"
+                        readOnly
+                        required
+                        value={selected ? selected.taxaInscricao : defaultPlano?.taxaInscricao}
+                    />
+                </div>
+            }
+            <div className="form-group">
+                <label className="required">Percentual de Comissão %</label>
                 <input
-                    type="text"
-                    className="readOnly"
-                    readOnly
-                    required
-                    value={selected ? selected?.taxaInscricao
-                        : defaultPlano?.taxaInscricao}
-                />
+                    type="text" className="readOnly" readOnly required value={selected ? selected.taxaComissao : defaultPlano?.taxaComissao} />
             </div>
-            :
-            <input type="hidden" value={selected?.idPlano} />
-        }
-        <div className="form-group">
-            <label className="required">Percentual de Comissão %</label>
-            <input
-                type="text" className="readOnly" readOnly required value={selected ? selected?.taxaComissao : defaultPlano?.taxaComissao} />
-        </div>
-        {type === "Associado" ?
-            <div className="form-group">
-                <label className="required">Taxa Anual</label>
-                <input type="text" className="readOnly" readOnly required value={selected ? selected?.taxaManutencaoAnual : defaultPlano?.taxaManutencaoAnual} />
-            </div>
-            :
-            <input type="hidden" value={selected?.idPlano} />
-        }
+            {type === "Associado" &&
+                <div className="form-group">
+                    <label className="required">Taxa Anual</label>
+                    <input type="text" className="readOnly" readOnly required value={selected ? selected.taxaManutencaoAnual : defaultPlano?.taxaManutencaoAnual} />
+                </div>
+            }
 
-        <input type="hidden" name="planoId" value={selected ? selected?.idPlano : defaultValue?.conta.planoId} />
-    </>
+            <input type="hidden" name="planoId" value={selected ? selected.idPlano : defaultValue?.conta?.planoId} />
+        </>
+    );
 };
 
 export default PlanosFields;
