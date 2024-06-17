@@ -1071,6 +1071,7 @@ input[type="file"] {
 .buttonEdit,
 .buttonDelete,
 .buttonBloq,
+.buttonUnbloq,
 .buttonEye,
 .buttonInfo,
 .buttonUndo,
@@ -1089,6 +1090,10 @@ input[type="file"] {
 }
 
 .buttonBloq {
+  background-color: var(--mainColor) !important;
+}
+
+.buttonUnbloq {
   background-color: var(--mainColor) !important;
 }
 

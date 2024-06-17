@@ -480,16 +480,31 @@ export const negate = (url, item) => {
 
 
 export const bloqUser = (userId) => {
-    console.log(userId)
+    console.log(userId);
     const url = `usuarios/atualizar-usuario/${userId}`
     const item = {
         "bloqueado": true,
         "status": false
     }
+    console.log(item)
     axios.put(`${mainUrl}${url}`, item, config, config)
         .then((result) => console.log(result))
         .catch(error => console.log(error))
 }
+
+export const unBloqUser = (userId) => {
+    console.log(userId);
+    const url = `usuarios/atualizar-usuario/${userId}`
+    const item = {
+        "bloqueado": false,
+        "status": false
+    }
+    console.log(item)
+    axios.put(`${mainUrl}${url}`, item, config, config)
+        .then((result) => console.log(result))
+        .catch(error => console.log(error))
+}
+
 // EXTORNO
 export const refound = async (id, revalidate) => {
     axios.post(`${mainUrl}transacoes/encaminhar-estorno/${id}`, config)

@@ -18,7 +18,7 @@ const AssociadosLista = () => {
     useEffect(() => {
         activePage("associados")
         console.log(data)
-    }, []);
+    }, [data]);
 
     return (
         <div className="container">
@@ -33,7 +33,7 @@ const AssociadosLista = () => {
             <div className="containerHeader">Lista de Associados</div>
             <SearchField />
             <div className="containerList">
-                <AssociadosTable 
+                <AssociadosTable
                     columns={columns}
                     data={data && data.data ? data.data : []}
                     setId={setUserId}

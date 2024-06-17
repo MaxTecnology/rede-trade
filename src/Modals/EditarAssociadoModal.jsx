@@ -36,6 +36,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 setReference(true)
                 modalToggle()
                 revalidate("associados")
+                console.log(info)
                 return "Associado editado com sucesso!"
             },
             error: (error) => {

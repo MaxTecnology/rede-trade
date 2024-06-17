@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 const AssociadosTable = ({
     columns,
     data,
+    info,
     setId,
     setInfo,
     modaltoggle, type }) => {
@@ -33,7 +34,6 @@ const AssociadosTable = ({
         getPaginationRowModel: getPaginationRowModel(),
     })
 
-
     const invisibleFields = ["Agência", "Categoria", "Estado", "Cidade",]
 
     useEffect(() => {
@@ -48,7 +48,6 @@ const AssociadosTable = ({
         table.setGlobalFilter(snap?.search);
         setColumnFilters(filters);
     }, [table, snap]);
-
 
     return (
         <div className="w-full">
@@ -85,15 +84,24 @@ const AssociadosTable = ({
                                     value={row.original.idPlano}
                                     modal={modaltoggle}
                                 />
-                                {type === "Matriz" ?
-                                    <Buttons type="Bloq" userId={row.original.idUsuario} />
-                                    : null}
+                                {type === "Matriz" ? (
+                                    row.original.bloqueado === true ? (
+                                        <Buttons
+                                            type="Unbloq"
+                                            userId={row.original.idUsuario}
+                                        />
+                                    ) : (
+                                        <Buttons
+                                            type="Bloq"
+                                            userId={row.original.idUsuario}
+                                        />
+                                    )
+                                ) : null}
                                 <Buttons
                                     type="Eye"
                                     associado
                                     info={row.original}
                                 />
-
                             </td>
                         </tr>
                     ))}

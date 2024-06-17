@@ -1,10 +1,10 @@
 import { FaPencilAlt, FaTrash, FaEye, FaMoneyBill } from "react-icons/fa";
-import { TbLockOff } from "react-icons/tb";
+import { TbLock, TbLockOpen } from "react-icons/tb";
 import { TbEyeSearch } from "react-icons/tb";
 import { useNavigate } from 'react-router-dom';
 import { popup } from "@/hooks/Popup";
 import state from "@/store";
-import { aproveRefound, bloqUser, deleteItem, refound, sendRefound } from "@/hooks/ListasHook";
+import { aproveRefound, bloqUser, unBloqUser, deleteItem, refound, sendRefound } from "@/hooks/ListasHook";
 import ButtonMotion from "./FramerMotion/ButtonMotion";
 import { FaMoneyCheckAlt } from 'react-icons/fa';
 import { FaShareFromSquare } from "react-icons/fa6";
@@ -13,6 +13,7 @@ import { updateCharge } from "@/utils/functions/api";
 
 const Buttons = ({ type, value, modal, setInfo, info, setId, url, userId, confirm, resultDelete, titulo, revalidate, associado }) => {
     const navigate = useNavigate();
+
     const handleButtonClick = () => {
         if (type === "Edit") {
             console.log("INFO", info)
@@ -28,7 +29,19 @@ const Buttons = ({ type, value, modal, setInfo, info, setId, url, userId, confir
         }
         else if (type === 'Bloq') {
             bloqUser(userId)
-            return
+            setTimeout(() => {
+                window.location.reload();
+            }, 100)
+            console.log(userId)
+            return;
+        }
+        else if (type === 'Unbloq') {
+            unBloqUser(userId)
+            setTimeout(() => {
+                window.location.reload();
+            }, 100)
+            console.log(userId)
+            return;
         }
         else if (type === 'Eye') {
             if (associado) {
@@ -75,7 +88,9 @@ const Buttons = ({ type, value, modal, setInfo, info, setId, url, userId, confir
     } else if (type === 'Delete') {
         icon = <FaTrash />; // Ícone de deletar
     } else if (type === 'Bloq') {
-        icon = <TbLockOff />; // Ícone de bloquear
+        icon = <TbLockOpen />; // Ícone de bloquear
+    } else if (type === 'Unbloq') {
+        icon = <TbLock />; // Ícone de visualizar
     } else if (type === 'Eye') {
         icon = <TbEyeSearch />;
     } else if (type === 'Info') {
