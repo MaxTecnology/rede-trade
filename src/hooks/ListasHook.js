@@ -417,6 +417,14 @@ export const editUser = async (event) => {
     if (!account) {
         throw new Error("Erro ao editar usuário")
     }
+
+    axios.get(`${mainUrl}contas/listar-contas`)
+    .then(response => {
+        console.log(response)
+    })
+    .catch(error => {
+        console.log(error)
+    })
     // const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${contaId}/${gerente}`).catch(error => console.log(error))
     // if (!addManager) {
     //     throw new Error("Erro ao adicionar gerente a conta, por favor entre em contato com suporte")

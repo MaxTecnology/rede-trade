@@ -1090,11 +1090,11 @@ input[type="file"] {
 }
 
 .buttonBloq {
-  background-color: var(--mainColor) !important;
+  background-color: green !important;
 }
 
 .buttonUnbloq {
-  background-color: var(--mainColor) !important;
+  background-color: red !important;
 }
 
 .buttonUndo {

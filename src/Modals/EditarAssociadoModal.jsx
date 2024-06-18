@@ -20,6 +20,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [error, setError] = useState(false)
     const [sucess, setSucess] = useState(false)
     const info = associadoInfo
+    console.log(info)
 
     useEffect(() => {
         setImageReference(info.imagem);
