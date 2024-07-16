@@ -18,8 +18,8 @@ const Form_InformacoesUsuario = ({ form, type }) => {
             <FormInput form={form} name="inscEstadual" label="Insc. Estadual" placeholder="Insc. Estadual" />
             <FormInput form={form} name="inscMunicipal" label="Insc. Municipal" placeholder="Insc. Municipal" />
             <FormInput form={form} name="restricao" label="Restrições" placeholder="Restrições.." />
-            <FormSelect form={form} name="categoriaId" label="Categoria" placeholder="Selecionar" empty options={<CategoriesOptions />} />
-            <FormSubcategoria form={form} name="subcategoriaId" label="Subcategoria" placeholder="Selecione" />
+            <FormSelect required form={form} name="categoriaId" label="Categoria" placeholder="Selecionar" empty options={<CategoriesOptions />} />
+            <FormSubcategoria  form={form} name="subcategoriaId" label="Subcategoria" placeholder="Selecione" />
             <FormSelect required form={form} name="mostrarNoSite" label="Mostrar no site" placeholder="Selecionar" items={[
                 { label: "Sim", value: "true" },
                 { label: "Não", value: "false" },
