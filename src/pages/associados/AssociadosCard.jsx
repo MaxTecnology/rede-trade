@@ -69,7 +69,8 @@ const AssociadosCard = ({ associado, index }) => {
       window.open(data.site, "_blank"); // Abre o site em uma nova aba
     }
   };
-
+  console.clear();
+  console.log(data);
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -127,8 +128,8 @@ const AssociadosCard = ({ associado, index }) => {
           }
         >
           <BsGlobe />
-          {truncarTexto(data?.conta?.nomeFranquia, 15) ||
-            truncarTexto(data?.nomeFantasia, 15)}
+          {truncarTexto(data?.nomeFantasia, 15) ||
+            truncarTexto(data?.conta?.nomeFranquia, 15)}
         </div>
         <div className="flex2">
           <BsUniversalAccessCircle />
