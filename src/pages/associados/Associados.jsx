@@ -31,20 +31,21 @@ const Associados = () => {
 
     const filteredData = data && data.data ? data.data : [];
     
+    const activeCards = filteredData.filter( c => !c.bloqueado )
     const lastCardIndex = currentPage * cardsPerPage;
     const firstCardIndex = lastCardIndex - cardsPerPage;
-    const currentCards = filteredData ? filteredData.slice(firstCardIndex, lastCardIndex) : [];
-
+    const currentCards = activeCards ? activeCards.slice(firstCardIndex, lastCardIndex) : [];
+ 
     return (
         <div className="container">
-            <div className="containerHeader">Associados </div>
+            <div className="containerHeader">Associados  </div>
             <SearchField />
             <div className="associadosCardContainer">
                 {currentCards.map((filho, index) => (
                     <AssociadosCard associado={filho} key={index} index={index} />
                 ))}
             </div>
-            <PaginationCards cardsPerPage={cardsPerPage} totalCards={data && data.data ? data.data.length : 0} setCurrentPage={setCurrentPage} currentPage={currentPage} />
+            <PaginationCards cardsPerPage={cardsPerPage} totalCards={data && data.data ? currentCards.length : 0} setCurrentPage={setCurrentPage} currentPage={currentPage} />
             <Footer />
         </div>
     )
