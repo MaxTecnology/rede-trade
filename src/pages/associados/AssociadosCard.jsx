@@ -58,7 +58,7 @@ const AssociadosCard = ({ associado, index }) => {
         navigator.userAgent
       );
     let phoneClean = celular.replace(/\D/g, "");
-    let url = `https://wa.me/${phoneClean}`;
+    let url = `https://wa.me/55${phoneClean}`;
 
     // Abre uma nova aba ou janela com a URL do WhatsApp
     window.open(url, "_blank");
@@ -119,10 +119,16 @@ const AssociadosCard = ({ associado, index }) => {
       </div>
       <div className="associadoCardDesc">{data.descricao}</div>
       <div className="associadoCardIconsContainer">
-        <div>
+        <div
+          title={
+            data?.conta?.gerenteConta?.nomeFranquia ||
+            data?.conta?.nomeFranquia ||
+            data?.nomeFantasia
+          }
+        >
           <BsGlobe />
-          {truncarTexto(data?.conta?.nomeFranquia, 10) ||
-            truncarTexto(data?.nomeFantasia, 10)}
+          {truncarTexto(data?.conta?.nomeFranquia, 15) ||
+            truncarTexto(data?.nomeFantasia, 15)}
         </div>
         <div className="flex2">
           <BsUniversalAccessCircle />
@@ -130,7 +136,7 @@ const AssociadosCard = ({ associado, index }) => {
             data?.conta?.gerenteConta?.nomeFranquia ||
               data?.conta?.nomeFranquia ||
               data?.nomeFantasia,
-            25
+            15
           )}
         </div>
         <div className="whats" onClick={data.celular ? handleWhats : null}>
