@@ -57,8 +57,8 @@ const AssociadosCard = ({ associado, index }) => {
       /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
       );
-
-    let url = `https://wa.me/${celular}`;
+    let phoneClean = celular.replace(/\D/g, "");
+    let url = `https://wa.me/${phoneClean}`;
 
     // Abre uma nova aba ou janela com a URL do WhatsApp
     window.open(url, "_blank");
