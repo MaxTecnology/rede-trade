@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  traefik:
+    image: traefik:v2.5
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Porta para o dashboard do Traefik (opcional)
+    command:
+      - "--api.insecure=true" # Ativa o dashboard do Traefik
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=maximizebot@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - web
+
+  react-app:
+    image: nginx:alpine
+    container_name: react-app
+    volumes:
+      - ./dist:/usr/share/nginx/html
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.react-app.rule=Host(`tradefront.maximizebot.com.br`)"
+      - "traefik.http.routers.react-app.entrypoints=web"
+      - "traefik.http.routers.react-app.entrypoints=websecure"
+      - "traefik.http.routers.react-app.tls.certresolver=myresolver"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
