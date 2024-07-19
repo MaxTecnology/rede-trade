@@ -30,7 +30,7 @@ const Associados = () => {
     }, []);
 
     const filteredData = data && data.data ? data.data : [];
-    
+    console.log(filteredData);
     const activeCards = filteredData.filter( c => !c.bloqueado )
     const lastCardIndex = currentPage * cardsPerPage;
     const firstCardIndex = lastCardIndex - cardsPerPage;

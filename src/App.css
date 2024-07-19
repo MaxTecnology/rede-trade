@@ -1564,6 +1564,7 @@ input[type="file"] {
   align-items: center;
   border-radius: 3px;
   color: #550389;
+  padding: 0 16px;
 }
 
 .associadoCardIconsContainer div {

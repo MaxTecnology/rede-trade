@@ -124,12 +124,11 @@ const AssociadosCard = ({ associado, index }) => {
           title={
             data?.conta?.gerenteConta?.nomeFranquia ||
             data?.conta?.nomeFranquia ||
-            data?.nomeFantasia
+            data?.usuarioCriador.nomeFantasia
           }
         >
           <BsGlobe />
-          {truncarTexto(data?.nomeFantasia, 15) ||
-            truncarTexto(data?.conta?.nomeFranquia, 15)}
+          {truncarTexto(data?.usuarioCriador.nomeFantasia, 15)}
         </div>
         <div className="flex2">
           <BsUniversalAccessCircle />
