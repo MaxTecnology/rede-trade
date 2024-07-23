@@ -120,13 +120,7 @@ const AssociadosCard = ({ associado, index }) => {
       </div>
       <div className="associadoCardDesc">{data.descricao}</div>
       <div className="associadoCardIconsContainer">
-        <div
-          title={
-            data?.conta?.gerenteConta?.nomeFranquia ||
-            data?.conta?.nomeFranquia ||
-            data?.usuarioCriador.nomeFantasia
-          }
-        >
+        <div>
           <BsGlobe />
           {truncarTexto(data?.usuarioCriador.nomeFantasia, 15)}
         </div>

@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { associadoSchema } from "@/models/schemas/associadoSchema";
 import { createUser } from "@/utils/functions/api";
+import { useNavigate } from 'react-router-dom';
 
 const CadastrarAssociado = () => {
     const snap = useSnapshot(state);

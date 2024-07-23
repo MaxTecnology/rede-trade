@@ -13,7 +13,7 @@ export const useQueryAssociados = (
     pageSize = 12
 ) => {
     var url = "usuarios/buscar-usuario-params"
-    url += `?page=${page}` 
+    url += `?page=${page}`
     url += `&pageSize=12`
     url += `nome=${nome}`
     url += `nomeFantasia=${nomeFantasia}`
@@ -24,20 +24,23 @@ export const useQueryAssociados = (
     url += `usuarioCriadorId=${usuarioCriadorId}`
     url += `tipoDaConta=${tipoDaConta}`
 
-    async function mergeContaUsers(){
+    async function mergeContaUsers() {
         const { contas } = await getApiData("contas/listar-contas");
         const { data } = await getApiData(url);
+        console.clear()
+        console.log("testes")
+        console.log(data)
         const response = data.map((user) => {
             contas.forEach(conta => {
-                if(conta.usuarioId === user.idUsuario){
+                if (conta.usuarioId === user.idUsuario) {
                     user.conta = conta
                 }
             });
             return user
         })
-        return {data: response};
+        return { data: response };
     }
-    
+
     //alert(teste)
     return useQuery({
         queryKey: ['associados'],

@@ -17,7 +17,6 @@ const AssociadosLista = () => {
 
     useEffect(() => {
         activePage("associados")
-        console.log(data)
     }, [data]);
 
     return (
