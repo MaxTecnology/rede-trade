@@ -52,6 +52,8 @@ const CadastrarAssociado = () => {
 
             // INVISIBLE
             reputacao: 0,
+            saldoDinheiro: 0,
+            saldoPermuta: 0,
             nomeFranquia: snap.user.nomeFantasia,
             usuarioCriadorId: snap.user.idUsuario,
             tipoDeMoeda: "R$",
@@ -68,12 +70,14 @@ const CadastrarAssociado = () => {
             loading: 'Cadastrando Associado...',
             success: () => {
                 setLoading(false)
-                form.reset()
+                // form.reset()
                 revalidate("associados")
+                console.log('Cadastrado sucesso')
                 return "Associado Cadastrado com sucesso!"
             },
             error: (error) => {
                 setLoading(false)
+                console.log('Erro de cadastro',error.message )
                 return `Erro: ${error.message}`
             },
         })

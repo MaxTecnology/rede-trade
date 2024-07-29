@@ -30,9 +30,10 @@ export const createUser = async (event, url) => {
     event.imagem = imagem
     const formatedEvent = formatForm(event)
     const {
-        taxaRepasseMatriz, limiteCredito, limiteCreditoPermuta, limiteVendaMensal, limiteVendaTotal, limiteVendaEmpresa, diaFechamentoFatura, dataVencimentoFatura, formaPagamento, nomeFranquia, planoId, gerente: accountManager, tipo: accountType, plano: accountPlan
+        taxaRepasseMatriz, limiteCredito, limiteCreditoPermuta, saldoDinheiro, saldoPermuta, limiteVendaMensal, limiteVendaTotal, limiteVendaEmpresa, diaFechamentoFatura, dataVencimentoFatura, formaPagamento, nomeFranquia, planoId, gerente: accountManager, tipo: accountType, plano: accountPlan, ...params
     } = formatedEvent
-
+    console.log("Dinheiro", saldoDinheiro)
+    console.log("Parametros", params)
     delete formatedEvent.taxaRepasseMatriz
     delete formatedEvent.limiteCredito
     delete formatedEvent.limiteCreditoPermuta
@@ -56,12 +57,13 @@ export const createUser = async (event, url) => {
         });
 
 
-    console.log('Usuário criado:', response.data);
+    console.log('Usuário criado teste:', response.data);
     await new Promise(resolve => setTimeout(resolve, 1000));
     const userAccount = await axios.post(`${mainUrl}contas/criar-conta-para-usuario/${response.data.idUsuario}`, {
         "planoId": planoId,
         'tipoDaConta': accountType,
-        "saldoPermuta": 0,
+        "saldoPermuta": saldoPermuta || 0,
+        "saldoDinheiro": saldoDinheiro || 0,
         "limiteCredito": limiteCredito,
         "limiteVendaMensal": limiteVendaMensal,
         "limiteVendaTotal": limiteVendaTotal,

@@ -2,6 +2,7 @@ import FormSelect from "./formItens/FormSelect";
 import FormInput from "./formItens/FormInput";
 import FormPlano from "./formItens/FormPlano";
 import { useState } from "react";
+import FormInputMoney from "./formItens/FormInputMoney";
 
 const Form_Agencia = ({ form, type }) => {
   const [pagamentoValue, setPagamento] = useState(100);
@@ -25,21 +26,20 @@ const Form_Agencia = ({ form, type }) => {
       />
       {pagamentoValue == 50 && (
         <>
-          <FormInput
+          <FormInputMoney
             required
             form={form}
-            name="dinheiro"
+            name="saldoDinheiro"
             label="Dinheiro"
             placeholder="R$ 0,00"
-            divClassName={""}
           />
-          <FormInput
+
+          <FormInputMoney
             required
             form={form}
-            name="permulta"
-            label="Permulta"
+            name="saldoPermuta"
+            label="Permuta"
             placeholder="R$ 0,00"
-            divClassName={""}
           />
         </>
       )}
