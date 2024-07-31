@@ -66,4 +66,7 @@ export const associadoSchema = z.object({
     tipoDeMoeda: z.string().optional(),
     statusConta: z.boolean().optional(),
     taxaRepasseMatriz: z.any().optional(),
+
+    saldoDinheiro: z.string(),
+    saldoPermuta: z.string(),
 })

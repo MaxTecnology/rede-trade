@@ -32,6 +32,9 @@ const Form_Agencia = ({ form, type }) => {
             name="saldoDinheiro"
             label="Dinheiro"
             placeholder="R$ 0,00"
+            onInput={(e) => {
+              setPagamento(e.target.value);
+            }}
           />
 
           <FormInputMoney
@@ -40,6 +43,9 @@ const Form_Agencia = ({ form, type }) => {
             name="saldoPermuta"
             label="Permuta"
             placeholder="R$ 0,00"
+            onInput={(e) => {
+              setPagamento(e.target.value);
+            }}
           />
         </>
       )}
