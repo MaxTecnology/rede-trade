@@ -70,7 +70,7 @@ const CadastrarAssociado = () => {
             loading: 'Cadastrando Associado...',
             success: () => {
                 setLoading(false)
-                // form.reset()
+                form.reset()
                 revalidate("associados")
                 console.log('Cadastrado sucesso')
                 return "Associado Cadastrado com sucesso!"

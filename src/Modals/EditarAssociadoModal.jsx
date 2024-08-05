@@ -217,6 +217,14 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                         <option>30</option>
                     </select>
                 </div>
+                <div className="form-group">
+                    <label>Dinheiro</label>
+                    <input type="text" className='readOnly' value={info.conta.saldoDinheiro} disabled/>
+                </div>
+                <div className="form-group">
+                    <label>Permuta</label>
+                    <input type="text" className='readOnly' value={info.conta.saldoPermuta} disabled/>
+                </div>
                 <div className="formDivider">
                     <p>Operações</p>
                 </div>
