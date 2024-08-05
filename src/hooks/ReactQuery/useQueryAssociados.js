@@ -14,15 +14,15 @@ export const useQueryAssociados = (
 ) => {
     var url = "usuarios/buscar-usuario-params"
     url += `?page=${page}`
-    url += `&pageSize=12`
-    url += `nome=${nome}`
-    url += `nomeFantasia=${nomeFantasia}`
-    url += `razaoSocial=${razaoSocial}`
-    url += `nomeContato=${nomeContato}`
-    url += `estado=${estado}`
-    url += `cidade=${cidade}`
-    url += `usuarioCriadorId=${usuarioCriadorId}`
-    url += `tipoDaConta=${tipoDaConta}`
+    url += `&pageSize=100`
+    url += `&nome=${nome}`
+    url += `&nomeFantasia=${nomeFantasia}`
+    url += `&razaoSocial=${razaoSocial}`
+    url += `&nomeContato=${nomeContato}`
+    url += `&estado=${estado}`
+    url += `&cidade=${cidade}`
+    url += `&usuarioCriadorId=${usuarioCriadorId}`
+    url += `&tipoDaConta=${tipoDaConta}`
 
     async function mergeContaUsers() {
         const { contas } = await getApiData("contas/listar-contas");
