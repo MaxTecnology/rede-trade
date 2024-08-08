@@ -1,0 +1,25 @@
+# Agencia 
+[ ]  https://tradefront.maximizebot.com.br/agencias
+[ ]  https://tradefront.maximizebot.com.br/agenciasCadastrar
+
+# Rotas API
+[ ] https://tradeapi.maximizebot.com.br/usuarios/listar-tipo-usuarios
+
+# Bloquear desbloaqueas
+[ ] mudar o icone de cadeado
+[ ] mudar o estado para bloqueado
+[ ] não esta bloqueando
+
+
+# Popup editar
+[x] trazer os dados
+[x] Abrir e fechar
+[ ] pra min editando
+
+
+# Filtro 
+[x] pra min esta filtrando
+
+# Cadastro
+[ ] erro ao cadastrar tipo vem indefinido 
+[ ] apos cadastro com sucesso bate em 2 rotas uma para criar conta e outra de informa usuário bloqueado
