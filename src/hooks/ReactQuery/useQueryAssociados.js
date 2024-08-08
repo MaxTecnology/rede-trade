@@ -15,21 +15,36 @@ export const useQueryAssociados = (
     var url = "usuarios/buscar-usuario-params"
     url += `?page=${page}`
     url += `&pageSize=100`
-    url += `&nome=${nome}`
-    url += `&nomeFantasia=${nomeFantasia}`
-    url += `&razaoSocial=${razaoSocial}`
-    url += `&nomeContato=${nomeContato}`
-    url += `&estado=${estado}`
-    url += `&cidade=${cidade}`
-    url += `&usuarioCriadorId=${usuarioCriadorId}`
-    url += `&tipoDaConta=${tipoDaConta}`
+
+
+    if( !!nome ) {
+        url += `&nome=${nome}`
+    }
+    if( !!nomeFantasia ) {
+        url += `&nomeFantasia=${nomeFantasia}`
+    }
+    if( !!razaoSocial ) {
+        url += `&razaoSocial=${razaoSocial}`
+    }
+    if( !!nomeContato ) {
+        url += `&nomeContato=${nomeContato}`
+    }
+    if( !!estado ) {
+        url += `&estado=${estado}`
+    }
+    if( !!cidade ) {
+        url += `&cidade=${cidade}`
+    }
+    if( !!usuarioCriadorId ) {
+        url += `&usuarioCriadorId=${usuarioCriadorId}`
+    }
+    if( !!tipoDaConta ) {
+        url += `&tipoDaConta=${tipoDaConta}`
+    }
 
     async function mergeContaUsers() {
         const { contas } = await getApiData("contas/listar-contas");
         const { data } = await getApiData(url);
-        console.clear()
-        console.log("testes")
-        console.log(data)
         const response = data.map((user) => {
             contas.forEach(conta => {
                 if (conta.usuarioId === user.idUsuario) {
