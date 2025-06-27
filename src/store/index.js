@@ -2,7 +2,8 @@ import { proxy } from "valtio";
 
 
 const state = proxy({
-    url: "https://api.rt.maximizebot.com.br/",
+    url: "http://localhost:3024/",
+    //url: "https://api.rt.maximizebot.com.br/",
     //url: "https://api.redetrade.com.br/",
     logged: false,
     titulo: "Operação Concluida!",

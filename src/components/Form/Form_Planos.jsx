@@ -1,50 +1,118 @@
-import PlanosOptions from "../Options/PlanosOptions";
-import { useQueryPlanos } from "@/hooks/ReactQuery/useQueryPlanos";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { useEffect } from "react";
 
-const Form_Planos = ({ type, form }) => {
-    const { data } = useQueryPlanos()
+const FormPlano = ({ type, form, planos }) => {
+    const planoId = form.watch("planoId");
+    const planoSelecionado = planos?.find(p => p.idPlano === parseInt(planoId));
 
-    return <>
-        <div className="form-group">
-            <label className="required">Plano de Inscrição</label>
-            <select id="planoAssociado" defaultValue={defaultValue && defaultValue.conta.planoId ? defaultValue.conta.planoId : ""} onChange={(e) => setSelected(JSON.parse(e.target.value))} required>
-                <option value="" disabled>
-                    Selecione
-                </option>
-                <PlanosOptions type={type} complex />
-            </select>
-        </div>
-        {type === "Associado" ?
-            <div className="form-group">
-                <label className="required">Valor do Plano</label>
-                <input
-                    type="text"
-                    className="readOnly"
-                    readOnly
-                    required
-                    value={selected ? selected?.taxaInscricao
-                        : defaultPlano?.taxaInscricao}
-                />
-            </div>
-            :
-            <input type="hidden" value={selected?.idPlano} />
+    useEffect(() => {
+        if (planoSelecionado) {
+            form.setValue("valorPlano", planoSelecionado.taxaInscricao || 0);
+            form.setValue("percentualComissao", planoSelecionado.taxaComissao || 0);
+            form.setValue("taxaAnual", planoSelecionado.taxaManutencaoAnual || 0);
         }
-        <div className="form-group">
-            <label className="required">Percentual de Comissão %</label>
-            <input
-                type="text" className="readOnly" readOnly required value={selected ? selected?.taxaComissao : defaultPlano?.taxaComissao} />
-        </div>
-        {type === "Associado" ?
-            <div className="form-group">
-                <label className="required">Taxa Anual</label>
-                <input type="text" className="readOnly" readOnly required value={selected ? selected?.taxaManutencaoAnual : defaultPlano?.taxaManutencaoAnual} />
-            </div>
-            :
-            <input type="hidden" value={selected?.idPlano} />
-        }
+    }, [planoSelecionado, form]);
 
-        <input type="hidden" name="planoId" value={selected ? selected?.idPlano : defaultValue?.conta.planoId} />
-    </>
+    return (
+        <>
+            <FormField
+                control={form.control}
+                name="planoId"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Plano de Inscrição *</FormLabel>
+                        <Select 
+                            onValueChange={field.onChange} 
+                            value={field.value?.toString() || ""}
+                        >
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {planos?.map((plano) => (
+                                    <SelectItem 
+                                        key={plano.idPlano} 
+                                        value={plano.idPlano.toString()}
+                                    >
+                                        {plano.nomePlano}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+
+            {type === "Associado" && (
+                <>
+                    <FormField
+                        control={form.control}
+                        name="valorPlano"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Valor do Plano *</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        {...field} 
+                                        type="text"
+                                        readOnly 
+                                        className="readOnly"
+                                        value={planoSelecionado?.taxaInscricao || ""}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="percentualComissao"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Percentual de Comissão % *</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        {...field} 
+                                        type="text"
+                                        readOnly 
+                                        className="readOnly"
+                                        value={planoSelecionado?.taxaComissao || ""}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="taxaAnual"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Taxa Anual *</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        {...field} 
+                                        type="text"
+                                        readOnly 
+                                        className="readOnly"
+                                        value={planoSelecionado?.taxaManutencaoAnual || ""}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </>
+            )}
+        </>
+    );
 };
 
-export default Form_Planos;
+export default FormPlano;

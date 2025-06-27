@@ -4,11 +4,11 @@ import FormPlano from "./formItens/FormPlano";
 import { useState } from "react";
 import FormInputMoney from "./formItens/FormInputMoney";
 
-const Form_Agencia = ({ form, type }) => {
+const Form_Agencia = ({ form, type, planos }) => {
   const [pagamentoValue, setPagamento] = useState(100);
   return (
     <>
-      <FormPlano type={type} form={form} />
+      <FormPlano type={type} form={form} planos={planos} />
       <FormSelect
         required
         form={form}

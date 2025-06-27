@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getApiData } from '../ListasHook';
+
 export const useQueryAssociados = (
     page = 1,
     tipoDaConta = 'Associado',
@@ -10,55 +11,66 @@ export const useQueryAssociados = (
     estado = '',
     cidade = '',
     usuarioCriadorId = '',
-    pageSize = 12
+    pageSize = 12,
+    categoriaId = '',
+    agencia = '',
+    account = ''
 ) => {
-    var url = "usuarios/buscar-usuario-params"
+    // MUDAR PARA A ROTA QUE TEM OS FILTROS FUNCIONANDO
+    var url = "usuarios/listar-usuarios"  // ← MUDANÇA PRINCIPAL
     url += `?page=${page}`
     url += `&pageSize=100`
-
-
-    if( !!nome ) {
-        url += `&nome=${nome}`
-    }
-    if( !!nomeFantasia ) {
-        url += `&nomeFantasia=${nomeFantasia}`
-    }
-    if( !!razaoSocial ) {
-        url += `&razaoSocial=${razaoSocial}`
-    }
-    if( !!nomeContato ) {
-        url += `&nomeContato=${nomeContato}`
+      
+    // Usar 'search' para busca por nome/nomeFantasia
+    if( !!nome || !!nomeFantasia ) {
+        const searchTerm = nome || nomeFantasia;
+        url += `&search=${encodeURIComponent(searchTerm)}`
     }
     if( !!estado ) {
-        url += `&estado=${estado}`
+        url += `&estado=${encodeURIComponent(estado)}`
     }
     if( !!cidade ) {
-        url += `&cidade=${cidade}`
+        url += `&cidade=${encodeURIComponent(cidade)}`
     }
-    if( !!usuarioCriadorId ) {
-        url += `&usuarioCriadorId=${usuarioCriadorId}`
+    if( !!categoriaId ) {
+        url += `&categoriaId=${categoriaId}`
     }
-    if( !!tipoDaConta ) {
-        url += `&tipoDaConta=${tipoDaConta}`
+    if( !!agencia ) {
+        url += `&agencia=${encodeURIComponent(agencia)}`
     }
-
-    async function mergeContaUsers() {
-        const { contas } = await getApiData("contas/listar-contas");
-        const { data } = await getApiData(url);
-        const response = data.map((user) => {
-            contas.forEach(conta => {
-                if (conta.usuarioId === user.idUsuario) {
-                    user.conta = conta
-                }
-            });
-            return user
-        })
-        return { data: response };
+    if( !!account ) {
+        url += `&account=${encodeURIComponent(account)}`
     }
 
-    //alert(teste)
+    async function getData() {
+        console.log('🌐 URL da requisição:', url);
+        
+        // Usar a rota corrigida que já tem os filtros
+        const response = await getApiData(url);
+        
+        console.log('📊 Dados recebidos da API:', response);
+        
+        // A nova rota já retorna no formato correto { data: [...], meta: {...} }
+        return response;
+    }
+
+    // QueryKey com TODOS os parâmetros
     return useQuery({
-        queryKey: ['associados'],
-        queryFn: async () => mergeContaUsers(),
+        queryKey: [
+            'associados', 
+            page, 
+            tipoDaConta, 
+            nome, 
+            nomeFantasia, 
+            estado, 
+            cidade, 
+            categoriaId,
+            agencia,
+            account,
+            pageSize
+        ],
+        queryFn: async () => getData(),
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
     });
 };

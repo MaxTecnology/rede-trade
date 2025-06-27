@@ -42,7 +42,7 @@ const Sidebar = () => {
   };
 
   const handleSidebarItemClick = (route) => {
-    navigate(route); // Navega para a rota especificada
+    navigate(route);
   };
 
   const logout = async () => {
@@ -66,7 +66,71 @@ const Sidebar = () => {
     return state.user?.nomeFantasia;
   }
 
+  // 🔑 SISTEMA DE PERMISSÕES GRANULAR
+  const getUserPermissions = () => {
+    try {
+      const permissions = JSON.parse(state.user?.permissoesDoUsuario || "[]");
+      console.log('👤 Permissões do usuário:', permissions);
+      return permissions;
+    } catch (error) {
+      console.error('Erro ao parsear permissões:', error);
+      return [];
+    }
+  };
+
+  const hasPermission = (permission) => {
+    const userPermissions = getUserPermissions();
+    return userPermissions.includes(permission) || userPermissions.includes("ADMIN");
+  };
+
+  const hasAnyPermission = (permissions) => {
+    return permissions.some(permission => hasPermission(permission));
+  };
+
+  // Função para identificar se é usuário Matriz (sem matriz superior)
+  const isMatrizUser = () => {
+    return state.user?.matrizId === null || userType === "Matriz";
+  };
+
+  // Para compatibilidade com sistema antigo
   const userType = getType();
+
+  // 🔒 DEFINIÇÃO DE PERMISSÕES POR FUNCIONALIDADE
+  const menuPermissions = {
+    INICIO: [], // Todos podem ver
+    ASSOCIADOS: ["READ"], // Precisa pelo menos READ
+    AGENCIAS: ["MANAGE_FRANCHISES", "MANAGE_ACCOUNTS", "ADMIN"], // Ajustado para incluir MANAGE_ACCOUNTS
+    TRANSACOES: ["READ"], // Todos com READ
+    OFERTAS: ["READ"], // Todos com READ
+    VOUCHER: ["READ"], // Todos com READ
+    CREDITOS: ["READ"], // Todos com READ
+    EXTRATOS: ["READ"], // Todos com READ
+    CONTAS: ["MANAGE_ACCOUNTS", "ADMIN"], // Gerenciar contas ou admin
+    PLANOS: ["ADMIN", "MANAGE_ACCOUNTS"], // Admin ou manage accounts (para Matriz)
+    CATEGORIAS: ["ADMIN", "MANAGE_ACCOUNTS"], // Admin ou manage accounts (para Matriz)
+    GERENTES: ["MANAGE_ACCOUNTS", "MANAGE_FRANCHISES", "ADMIN"], // Gerenciar contas/franquias ou admin
+    USUARIOS: ["MANAGE_ACCOUNTS", "ADMIN"], // Gerenciar contas ou admin
+  };
+
+  const canShowMenuItem = (menuItem) => {
+    const requiredPermissions = menuPermissions[menuItem];
+    
+    // Se não há permissões definidas, mostra para todos
+    if (!requiredPermissions || requiredPermissions.length === 0) return true;
+    
+    // LÓGICA ESPECIAL: PLANOS e CATEGORIAS são exclusivos da Matriz
+    if (menuItem === 'PLANOS' || menuItem === 'CATEGORIAS') {
+      return hasAnyPermission(requiredPermissions) || isMatrizUser();
+    }
+    
+    // COMPATIBILIDADE: Para AGENCIAS e GERENTES, verificar se NÃO é Associado
+    if (menuItem === 'AGENCIAS' || menuItem === 'GERENTES') {
+      return hasAnyPermission(requiredPermissions) || userType !== "Associado";
+    }
+    
+    // Se tem permissões definidas, verifica se o usuário tem alguma delas
+    return hasAnyPermission(requiredPermissions);
+  };
 
   return (
     <div className={`sidebar ${sidebarClosed ? "sidebarClosed" : ""}`}>
@@ -100,25 +164,30 @@ const Sidebar = () => {
         </div>
       </div>
       <ul className="sideContent">
-        {/* <li className="search">
-          <FaSearch />
-          <input placeholder="Search..." />
-        </li> */}
-        <li
-          className={state.activePage === "home" ? "active" : "search"}
-          onClick={() => handleSidebarItemClick("/")}
-        >
-          <FaHome className="sideContentIcon" />
-          <p>INÍCIO</p>
-        </li>
-        <li
-          className={state.activePage === "associados" ? "active" : ""}
-          onClick={() => modalHandler("Associado")}
-        >
-          <FaUsers className="sideContentIcon" />
-          <p>ASSOCIADOS</p>
-        </li>
-        {userType !== "Associado" ? (
+        {/* INÍCIO - Todos podem ver */}
+        {canShowMenuItem('INICIO') && (
+          <li
+            className={state.activePage === "home" ? "active" : "search"}
+            onClick={() => handleSidebarItemClick("/")}
+          >
+            <FaHome className="sideContentIcon" />
+            <p>INÍCIO</p>
+          </li>
+        )}
+
+        {/* ASSOCIADOS - Precisa READ */}
+        {canShowMenuItem('ASSOCIADOS') && (
+          <li
+            className={state.activePage === "associados" ? "active" : ""}
+            onClick={() => modalHandler("Associado")}
+          >
+            <FaUsers className="sideContentIcon" />
+            <p>ASSOCIADOS</p>
+          </li>
+        )}
+
+        {/* AGÊNCIAS - Precisa MANAGE_FRANCHISES ou ADMIN */}
+        {canShowMenuItem('AGENCIAS') && (
           <li
             className={state.activePage === "agencias" ? "active" : ""}
             onClick={() => modalHandler("Agencias")}
@@ -126,51 +195,76 @@ const Sidebar = () => {
             <FaBuilding className="sideContentIcon" />
             <p>AGÊNCIAS</p>
           </li>
-        ) : null}
-        <li
-          className={state.activePage === "transações" ? "active" : ""}
-          onClick={() => modalHandler("Transações")}
-        >
-          <FaHandshake className="sideContentIcon" />
-          <p>TRANSAÇÕES</p>
-        </li>
-        <li
-          className={state.activePage === "ofertas" ? "active" : ""}
-          onClick={() => modalHandler("Ofertas")}
-        >
-          <FaTags className="sideContentIcon" />
-          <p>OFERTAS</p>
-        </li>
-        <li
-          className={state.activePage === "voucher" ? "active" : ""}
-          onClick={() => modalHandler("Voucher")}
-        >
-          <FaPercentage className="sideContentIcon" />
-          <p>VOUCHER</p>
-        </li>
-        <li
-          className={state.activePage === "creditos" ? "active" : ""}
-          onClick={() => modalHandler("Créditos")}
-        >
-          <BsCashCoin className="sideContentIcon orange" />
-          <p>CRÉDITOS</p>
-        </li>
-        <li
-          className={state.activePage === "extratos" ? "active" : ""}
-          onClick={() => modalHandler("Estratos")}
-        >
-          <FaFileInvoiceDollar className="sideContentIcon" />
-          <p>EXTRATOS</p>
-        </li>
-        <li
-          className={state.activePage === "contas" ? "active" : ""}
-          onClick={() => modalHandler("Conta")}
-        >
-          {/* <BsCashCoin /> */}
-          <FaHandHoldingUsd className="sideContentIcon" />
-          <p>CONTAS</p>
-        </li>
-        {userType == "Matriz" ? (
+        )}
+
+        {/* TRANSAÇÕES - Precisa READ */}
+        {canShowMenuItem('TRANSACOES') && (
+          <li
+            className={state.activePage === "transações" ? "active" : ""}
+            onClick={() => modalHandler("Transações")}
+          >
+            <FaHandshake className="sideContentIcon" />
+            <p>TRANSAÇÕES</p>
+          </li>
+        )}
+
+        {/* OFERTAS - Precisa READ */}
+        {canShowMenuItem('OFERTAS') && (
+          <li
+            className={state.activePage === "ofertas" ? "active" : ""}
+            onClick={() => modalHandler("Ofertas")}
+          >
+            <FaTags className="sideContentIcon" />
+            <p>OFERTAS</p>
+          </li>
+        )}
+
+        {/* VOUCHER - Precisa READ */}
+        {canShowMenuItem('VOUCHER') && (
+          <li
+            className={state.activePage === "voucher" ? "active" : ""}
+            onClick={() => modalHandler("Voucher")}
+          >
+            <FaPercentage className="sideContentIcon" />
+            <p>VOUCHER</p>
+          </li>
+        )}
+
+        {/* CRÉDITOS - Precisa READ */}
+        {canShowMenuItem('CREDITOS') && (
+          <li
+            className={state.activePage === "creditos" ? "active" : ""}
+            onClick={() => modalHandler("Créditos")}
+          >
+            <BsCashCoin className="sideContentIcon orange" />
+            <p>CRÉDITOS</p>
+          </li>
+        )}
+
+        {/* EXTRATOS - Precisa READ */}
+        {canShowMenuItem('EXTRATOS') && (
+          <li
+            className={state.activePage === "extratos" ? "active" : ""}
+            onClick={() => modalHandler("Estratos")}
+          >
+            <FaFileInvoiceDollar className="sideContentIcon" />
+            <p>EXTRATOS</p>
+          </li>
+        )}
+
+        {/* CONTAS - Precisa MANAGE_ACCOUNTS ou ADMIN */}
+        {canShowMenuItem('CONTAS') && (
+          <li
+            className={state.activePage === "contas" ? "active" : ""}
+            onClick={() => modalHandler("Conta")}
+          >
+            <FaHandHoldingUsd className="sideContentIcon" />
+            <p>CONTAS</p>
+          </li>
+        )}
+
+        {/* PLANOS - Só ADMIN */}
+        {canShowMenuItem('PLANOS') && (
           <li
             className={
               state.activePage === "planos" ? "active planos" : "planos"
@@ -180,9 +274,10 @@ const Sidebar = () => {
             <BsBookmarkFill className="sideContentIcon orange" />
             <p>PLANOS</p>
           </li>
-        ) : null}
+        )}
 
-        {userType == "Matriz" ? (
+        {/* CATEGORIAS - Só ADMIN */}
+        {canShowMenuItem('CATEGORIAS') && (
           <li
             className={state.activePage === "categorias" ? "active" : ""}
             onClick={() => modalHandler("Categorias")}
@@ -190,8 +285,10 @@ const Sidebar = () => {
             <FaAdjust className="sideContentIcon" />
             <p>CATEGORIAS</p>
           </li>
-        ) : null}
-        {userType !== "Associado" ? (
+        )}
+
+        {/* GERENTES - Precisa MANAGE_ACCOUNTS, MANAGE_FRANCHISES ou ADMIN */}
+        {canShowMenuItem('GERENTES') && (
           <li
             className={state.activePage === "gerentes" ? "active" : ""}
             onClick={() => modalHandler("Gerentes")}
@@ -199,14 +296,20 @@ const Sidebar = () => {
             <FaUserPlus className="sideContentIcon" />
             <p>GERENTES</p>
           </li>
-        ) : null}
-        <li
-          className={state.activePage === "usuarios" ? "active" : ""}
-          onClick={() => modalHandler("Usuarios")}
-        >
-          <FaUsers className="sideContentIcon" />
-          <p>USUÁRIOS</p>
-        </li>
+        )}
+
+        {/* USUÁRIOS - Precisa MANAGE_ACCOUNTS ou ADMIN */}
+        {canShowMenuItem('USUARIOS') && (
+          <li
+            className={state.activePage === "usuarios" ? "active" : ""}
+            onClick={() => modalHandler("Usuarios")}
+          >
+            <FaUsers className="sideContentIcon" />
+            <p>USUÁRIOS</p>
+          </li>
+        )}
+
+        {/* SAIR - Todos podem */}
         <li className="pb-20" onClick={logout}>
           <FaSignOutAlt className="sideContentIcon" />
           <p>SAIR</p>

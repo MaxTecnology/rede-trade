@@ -121,7 +121,7 @@ const AssociadosCard = ({ associado, index }) => {
       <div className="associadoCardIconsContainer">
         <div>
           <BsGlobe />
-          {truncarTexto(data?.usuarioCriador.nomeFantasia, 15)}
+          {truncarTexto(data?.usuarioCriador?.nomeFantasia || 'Sem criador', 15)}
         </div>
         <div className="flex2">
           <BsUniversalAccessCircle />

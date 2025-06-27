@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { BiSolidImageAdd } from "react-icons/bi";
 import { imageReferenceHandler } from "@/utils/functions/formHandler";
 import { useEffect, useState } from "react";
-import InputMask from 'react-input-mask';
+
 const Form_Dados = ({ form, setImagem }) => {
     const [imagemReference, setImageReference] = useState(null)
     const watch = form.watch("imagem")
+    
     useEffect(() => {
         if (watch && watch.length) {
             setImageReference(watch)
@@ -15,6 +16,20 @@ const Form_Dados = ({ form, setImagem }) => {
             setImageReference(null)
         }
     }, [watch])
+    
+    // Função para aplicar máscara de CPF
+    const applyCPFMask = (value) => {
+        if (!value) return '';
+        
+        const numbers = value.replace(/\D/g, '');
+        
+        return numbers
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1-$2')
+            .replace(/(-\d{2})\d+?$/, '$1');
+    };
+    
     return (
         <>
             <div className="formImage">
@@ -24,7 +39,7 @@ const Form_Dados = ({ form, setImagem }) => {
                 control={form.control}
                 name="imagem"
                 type="file"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...field } }) => (
                     <FormItem className="form-group">
                         <div className="flex flex-col h-full">
                             <FormMessage />
@@ -32,13 +47,21 @@ const Form_Dados = ({ form, setImagem }) => {
                                 <BiSolidImageAdd /> Selecione uma imagem
                             </FormLabel>
                         </div>
-                        <FormControl
-                            onChange={(event) => {
-                                imageReferenceHandler(event, setImageReference, setImagem);
-                            }}
-                            type="file"
-                        >
-                            <Input type="file" {...field} accept="image/*" className="custom-file-input" />
+                        <FormControl>
+                            <Input 
+                                type="file" 
+                                {...field}
+                                value={undefined}
+                                accept="image/*" 
+                                className="custom-file-input"
+                                onChange={(event) => {
+                                    // Atualizar o campo do formulário
+                                    if (event.target.files && event.target.files[0]) {
+                                        onChange("imagem_selecionada"); // Marca que uma imagem foi selecionada
+                                    }
+                                    imageReferenceHandler(event, setImageReference, setImagem);
+                                }}
+                            />
                         </FormControl>
                     </FormItem>
                 )}
@@ -68,10 +91,16 @@ const Form_Dados = ({ form, setImagem }) => {
                             <FormMessage />
                         </div>
                         <FormControl>
-                            <InputMask mask="999.999.999-99" maskChar={null} {...field}
-                                onChange={field.onChange} >
-                                {(inputProps) => <Input className="mt-0" placeholder="999.999.999-99" {...inputProps} />}
-                            </InputMask>
+                            <Input 
+                                className="mt-0" 
+                                placeholder="999.999.999-99" 
+                                {...field}
+                                onChange={(e) => {
+                                    const masked = applyCPFMask(e.target.value);
+                                    field.onChange(masked);
+                                }}
+                                maxLength={14}
+                            />
                         </FormControl>
                     </FormItem>
                 )}
@@ -108,7 +137,6 @@ const Form_Dados = ({ form, setImagem }) => {
             />
         </>
     )
-
 };
 
 export default Form_Dados;

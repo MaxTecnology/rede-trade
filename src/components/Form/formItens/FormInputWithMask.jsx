@@ -2,8 +2,9 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import InputMask from 'react-input-mask';
+
 const FormInputWithMask = ({ form, name, label, placeholder, required, mask, divClassName }) => {
-    return (<>
+    return (
         <FormField
             control={form.control}
             name={name}
@@ -16,14 +17,23 @@ const FormInputWithMask = ({ form, name, label, placeholder, required, mask, div
                         <FormMessage />
                     </div>
                     <FormControl>
-                        <InputMask mask={mask} maskChar={null} {...field} >
-                            {(inputProps) => <Input className="mt-0" placeholder={mask} {...inputProps} />}
+                        <InputMask 
+                            mask={mask} 
+                            maskChar={null} 
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                        >
+                            <Input 
+                                className="mt-0" 
+                                placeholder={placeholder || mask}
+                            />
                         </InputMask>
                     </FormControl>
                 </FormItem>
             )}
         />
-    </>);
+    );
 };
 
 export default FormInputWithMask;
