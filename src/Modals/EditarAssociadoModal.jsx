@@ -64,19 +64,35 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Razão Social</label>
                     <input
-                        defaultValue={info.razaoSocial
-                        } type="text" className="form-control" id="razaoSocial" name="razaoSocial" required />
+                        defaultValue={info.razaoSocial} 
+                        type="text" 
+                        className="form-control" 
+                        id="razaoSocial" 
+                        name="razaoSocial" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Nome Fantasia</label>
                     <input
-                        defaultValue={info.nomeFantasia
-                        } type="text" className="form-control" id="nomeFantasia" name="nomeFantasia" required />
+                        defaultValue={info.nomeFantasia} 
+                        type="text" 
+                        className="form-control" 
+                        id="nomeFantasia" 
+                        name="nomeFantasia" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Descrição</label>
                     <input
-                        defaultValue={info.descricao} type="text" className="form-control" id="descricao" name="descricao" required />
+                        defaultValue={info.descricao} 
+                        type="text" 
+                        className="form-control" 
+                        id="descricao" 
+                        name="descricao" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label>Status</label>
@@ -88,24 +104,47 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">CNPJ</label>
-                    <InputMask mask="99.999.999/9999-99" maskChar={null} defaultValue={info.cnpj}>
-                        {(inputProps) => <input {...inputProps} type="text" id="cnpj" name="cnpj" required />}
-                    </InputMask>
+                    <InputMask 
+                        mask="99.999.999/9999-99" 
+                        maskChar={null} 
+                        defaultValue={info.cnpj}
+                        type="text" 
+                        className="form-control"
+                        id="cnpj" 
+                        name="cnpj" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label>Insc. Estadual</label>
                     <input
-                        defaultValue={info.inscEstadual} type="text" className="form-control" id="inscEstadual" name="inscEstadual" />
+                        defaultValue={info.inscEstadual} 
+                        type="text" 
+                        className="form-control" 
+                        id="inscEstadual" 
+                        name="inscEstadual" 
+                    />
                 </div>
                 <div className="form-group">
                     <label>Insc. Municipal</label>
                     <input
-                        defaultValue={info.inscMunicipal} type="text" className="form-control" id="inscMunicipal" name="inscMunicipal" />
+                        defaultValue={info.inscMunicipal} 
+                        type="text" 
+                        className="form-control" 
+                        id="inscMunicipal" 
+                        name="inscMunicipal" 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Restrições</label>
                     <input
-                        defaultValue={info.restricao} type="text" className="form-control" id="restricoes" name="restricao" required />
+                        defaultValue={info.restricao} 
+                        type="text" 
+                        className="form-control" 
+                        id="restricoes" 
+                        name="restricao" 
+                        required 
+                    />
                 </div>
                 <Categoria_SubCategoriaOptions defaultValue={info} required />
                 <div className="form-group">
@@ -130,33 +169,69 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f2">
                     <label className="required-field-label">Nome</label>
                     <input
-                        defaultValue={info.nomeContato} type="text" className="form-control" id="nomeContato" name="nomeContato" required />
+                        defaultValue={info.nomeContato} 
+                        type="text" 
+                        className="form-control" 
+                        id="nomeContato" 
+                        name="nomeContato" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label>Telefone</label>
-                    <InputMask mask="(99)9999-9999" maskChar={null} defaultValue={info.telefone}>
-                        {(inputProps) => <input {...inputProps} type="text" className="form-control" id="telefone" name="telefone" required />}
-                    </InputMask>
+                    <InputMask 
+                        mask="(99)9999-9999" 
+                        maskChar={null} 
+                        defaultValue={info.telefone}
+                        type="text" 
+                        className="form-control"
+                        id="telefone" 
+                        name="telefone"
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required-field-label">Celular</label>
-                    <InputMask mask="(99)99999-9999" maskChar={null} defaultValue={info.celular}>
-                        {(inputProps) => <input {...inputProps} type="text" className="form-control" id="celular" name="celular" required />}
-                    </InputMask>
+                    <InputMask 
+                        mask="(99)99999-9999" 
+                        maskChar={null} 
+                        defaultValue={info.celular}
+                        type="text" 
+                        className="form-control"
+                        id="celular" 
+                        name="celular" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required-field-label">E-mail</label>
                     <input
-                        defaultValue={info.emailContato} type="email" className="form-control" id="emailContato" name="emailContato" required />
+                        defaultValue={info.emailContato} 
+                        type="email" 
+                        className="form-control" 
+                        id="emailContato" 
+                        name="emailContato" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label>E-mail secundário</label>
                     <input
-                        defaultValue={info.emailSecundario} type="email" className="form-control" id="emailSecundario" name="emailSecundario" />
+                        defaultValue={info.emailSecundario} 
+                        type="email" 
+                        className="form-control" 
+                        id="emailSecundario" 
+                        name="emailSecundario" 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label>Site</label>
-                    <input defaultValue={info.site} type="text" className="form-control" id="site" name="site" />
+                    <input 
+                        defaultValue={info.site} 
+                        type="text" 
+                        className="form-control" 
+                        id="site" 
+                        name="site" 
+                    />
                 </div>
                 <div className="formDivider">
                     <p>Endereço</p>
@@ -165,43 +240,90 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Logradouro</label>
                     <input
-                        defaultValue={info.logradouro} type="text" className="form-control" id="logradouro" name="logradouro" required />
+                        defaultValue={info.logradouro} 
+                        type="text" 
+                        className="form-control" 
+                        id="logradouro" 
+                        name="logradouro" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Número</label>
                     <input
-                        defaultValue={info.numero} type="number" className="form-control" id="numero" name="numero" required />
+                        defaultValue={info.numero} 
+                        type="number" 
+                        className="form-control" 
+                        id="numero" 
+                        name="numero" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">CEP</label>
-                    <InputMask mask="99999-999" maskChar={null} defaultValue={info.cep}>
-                        {(inputProps) => <input {...inputProps} type="text" id="cep" name="cep" />}
-                    </InputMask>
+                    <InputMask 
+                        mask="99999-999" 
+                        maskChar={null} 
+                        defaultValue={info.cep}
+                        type="text" 
+                        className="form-control"
+                        id="cep" 
+                        name="cep" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label>Complemento</label>
                     <input
-                        defaultValue={info.complemento} type="text" className="form-control" id="complemento" name="complemento" />
+                        defaultValue={info.complemento} 
+                        type="text" 
+                        className="form-control" 
+                        id="complemento" 
+                        name="complemento" 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Bairro</label>
                     <input
-                        defaultValue={info.bairro} type="text" className="form-control" id="bairro" name="bairro" required />
+                        defaultValue={info.bairro} 
+                        type="text" 
+                        className="form-control" 
+                        id="bairro" 
+                        name="bairro" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required-field-label">Cidade</label>
                     <input
-                        defaultValue={info.cidade} type="text" className="form-control" id="cidade" name="cidade" required />
+                        defaultValue={info.cidade} 
+                        type="text" 
+                        className="form-control" 
+                        id="cidade" 
+                        name="cidade" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f1">
                     <label className="required-field-label">Estado</label>
                     <input
-                        defaultValue={info.estado} type="text" className="form-control" id="estado" name="estado" required />
+                        defaultValue={info.estado} 
+                        type="text" 
+                        className="form-control" 
+                        id="estado" 
+                        name="estado" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label>Região</label>
                     <input
-                        defaultValue={info.regiao} type="text" className="form-control" id="regiao" name="regiao" />
+                        defaultValue={info.regiao} 
+                        type="text" 
+                        className="form-control" 
+                        id="regiao" 
+                        name="regiao" 
+                    />
                 </div>
                 <div className="formDivider">
                     <p>Agência</p>
@@ -239,7 +361,12 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Taxa Gerente Conta em %</label>
                     <input
-                        defaultValue={info.taxaGerenteConta} type="number" className="form-control readOnly" id="taxaGerenteConta" readOnly />
+                        defaultValue={info.taxaGerenteConta} 
+                        type="number" 
+                        className="form-control readOnly" 
+                        id="taxaGerenteConta" 
+                        readOnly 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo de Operação</label>
@@ -292,18 +419,38 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Nome</label>
-                    <input defaultValue={info.nome} type="text" className="form-control" id="nome" name="nome" required />
+                    <input 
+                        defaultValue={info.nome} 
+                        type="text" 
+                        className="form-control" 
+                        id="nome" 
+                        name="nome" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Cpf</label>
-                    <InputMask mask="999.999.999-99" maskChar={null} defaultValue={info.cpf}>
-                        {(inputProps) => <input  {...inputProps} type="text" className="form-control" id="cpf" name="cpf" required />}
-                    </InputMask>
-
+                    <InputMask 
+                        mask="999.999.999-99" 
+                        maskChar={null} 
+                        defaultValue={info.cpf}
+                        type="text" 
+                        className="form-control"
+                        id="cpf" 
+                        name="cpf" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label ">E-mail</label>
-                    <input defaultValue={info.email} type="email" className="form-control" id="email" name="email" required />
+                    <input 
+                        defaultValue={info.email} 
+                        type="email" 
+                        className="form-control" 
+                        id="email" 
+                        name="email" 
+                        required 
+                    />
                 </div>
                 {info.conta && <input type="hidden" name="contaId" value={info.conta.idConta} />}
                 {info.conta && <input type="hidden" name="taxaRepasseMatriz" value={info.conta.taxaRepasseMatriz} />}
