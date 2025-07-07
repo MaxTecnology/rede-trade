@@ -70,7 +70,7 @@ const Sidebar = () => {
   const getUserPermissions = () => {
     try {
       const permissions = JSON.parse(state.user?.permissoesDoUsuario || "[]");
-      console.log('👤 Permissões do usuário:', permissions);
+      //console.log('👤 Permissões do usuário:', permissions);
       return permissions;
     } catch (error) {
       console.error('Erro ao parsear permissões:', error);
