@@ -1,10 +1,22 @@
 import filters from "@/store/filters";
 import { FaSearch } from "react-icons/fa";
+import { useState, useEffect } from "react";
 
 const SearchInput = () => {
+    // Estado local para sincronizar com a URL
+    const [searchValue, setSearchValue] = useState('');
+
+    // Sincronizar com parâmetros da URL ao carregar
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const search = params.get('search') || '';
+        setSearchValue(search);
+    }, []);
+
     const handleSearch = (e) => {
-        filters.table[e.target.name] = e.target.value
-        console.log(filters)
+        const value = e.target.value;
+        setSearchValue(value);
+        filters.table[e.target.name] = value;
     }
 
     return (
@@ -14,6 +26,7 @@ const SearchInput = () => {
                 type="text"
                 id="search"
                 name="search"
+                value={searchValue}
                 onChange={handleSearch}
                 placeholder="Pesquisar..."
             />

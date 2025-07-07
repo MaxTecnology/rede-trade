@@ -66,11 +66,21 @@ const SearchField = () => {
             }
         });
 
-        // Navegar com os filtros aplicados
+        // Detectar página atual e navegar para a página correta
+        const currentPath = window.location.pathname;
         const queryString = queryParams.toString();
-        const newUrl = `/associados${queryString ? `?${queryString}` : ''}`;
-        console.log('🔍 Navegando para:', newUrl);
-        navigate(newUrl);
+        
+        let targetUrl;
+        if (currentPath.includes('associadosLista')) {
+            // Se estiver na página de lista, manter na lista
+            targetUrl = `/associadosLista${queryString ? `?${queryString}` : ''}`;
+        } else {
+            // Caso contrário, ir para a página de cards
+            targetUrl = `/associados${queryString ? `?${queryString}` : ''}`;
+        }
+        
+        console.log('🔍 Navegando para:', targetUrl);
+        navigate(targetUrl);
     }
 
     // Função para limpar todos os filtros (VERSÃO MELHORADA)
@@ -95,8 +105,14 @@ const SearchField = () => {
         // INVALIDAR O CACHE do React Query
         await queryClient.invalidateQueries({ queryKey: ['associados'] });
         
-        // Navegar para página sem filtros
-        navigate('/associados', { replace: true });
+        // Detectar página atual e navegar para a página correta
+        const currentPath = window.location.pathname;
+        
+        if (currentPath.includes('associadosLista')) {
+            navigate('/associadosLista', { replace: true });
+        } else {
+            navigate('/associados', { replace: true });
+        }
     }
 
     // Verificar se há filtros ativos
