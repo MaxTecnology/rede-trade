@@ -8,6 +8,7 @@ import { useQueryFundoPermuta } from "@/hooks/ReactQuery/dashboard/useQueryFundo
 const FundoPermutaCard_Dashboard = () => {
     const [geral, setGeral] = useState({});
     const { data: unidade } = useQueryFundoPermuta()
+
     useEffect(() => {
         getApiData("dashboard/total-fundo-permuta-matriz/1", setGeral)
     }, []);
@@ -15,7 +16,7 @@ const FundoPermutaCard_Dashboard = () => {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1, translate: 0 }}
+            animate={{ opacity: 1, scale: 1 }} // ❌ Removido: translate: 0
             transition={{ duration: 0.7, delay: time * 0.6 }}
             exit={{ opacity: 0, scale: 0 }}
             className="homeCard"

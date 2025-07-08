@@ -6,31 +6,38 @@ import Resultado from './Modals/Resultado';
 import { useSnapshot } from 'valtio';
 import state from './store';
 import { useQueryLogin } from './hooks/ReactQuery/useQueryLogin';
+import { useEffect } from 'react'; // <-- Adicionar
 
 function App() {
-  const { data, isLoading } = useQueryLogin();
-  const snap = useSnapshot(state);
+    const { data, isLoading } = useQueryLogin();
+    const snap = useSnapshot(state);
+    const navigate = useNavigate();
 
-  const navigate = useNavigate();
+    // MUDANÇA: Usar useEffect para navegação
+    useEffect(() => {
+        if (!isLoading && !snap.logged) {
+            navigate("/login");
+        }
+    }, [isLoading, snap.logged, navigate]);
 
-  if (isLoading) {
-    return null
-  }
-  if (!snap.logged) {
-    return navigate("/login")
-  }
+    if (isLoading) {
+        return null;
+    }
 
+    if (!snap.logged) {
+        return null; // <-- Mudança: retornar null em vez de navigate
+    }
 
-  return (
-    <div className="app-container">
-      <Resultado />
-      <Sidebar />
-      <div className="main-container">
-        <Header />
-        <Outlet />
-      </div>
-    </div>
-  );
+    return (
+        <div className="app-container">
+            <Resultado />
+            <Sidebar />
+            <div className="main-container">
+                <Header />
+                <Outlet />
+            </div>
+        </div>
+    );
 }
 
-export default App
+export default App;

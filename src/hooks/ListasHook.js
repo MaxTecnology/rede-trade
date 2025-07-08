@@ -4,13 +4,16 @@ import { popup } from "./Popup";
 import { toast } from "sonner";
 import { uploadFile } from "../FirebaseConfig";
 import { formHandler } from "../utils/functions/formHandler";
-const config = {
+
+// ✅ Configuração dinâmica de headers
+const getConfig = () => ({
     headers: {
         Authorization: `Bearer ${localStorage.getItem('tokenRedeTrade')}`
     }
-};
+});
 
-const mainUrl = `${state.url}`
+const mainUrl = `${state.url}`;
+
 function formatarData(dataString) {
     // Criar um objeto Date com a data fornecida
     const dataOriginal = new Date(dataString);
@@ -22,6 +25,7 @@ function formatarData(dataString) {
     const dataFormatada = dataOriginal.toISOString();
     return dataFormatada;
 }
+
 export const loginUser = (event, setLoading, revalidate) => {
     event.preventDefault()
     setLoading(true)
@@ -52,7 +56,7 @@ export const loginUser = (event, setLoading, revalidate) => {
 }
 
 export const getApiData = async (url, setState) => {
-    return axios.get(`${mainUrl}${url}`, config)
+    return axios.get(`${mainUrl}${url}`, getConfig())
         .then((response) => {
             if (setState) {
                 setState(response.data)
@@ -60,12 +64,16 @@ export const getApiData = async (url, setState) => {
             return response.data
         })
         .catch((error) => {
-            console.log(error)
-            return error
+            // Só faz log de erros que NÃO são 404 esperados
+            if (error.response?.status !== 404 || !url.includes('usuarios-criados')) {
+                console.log(error);
+            }
+            throw error;
         })
 }
+
 export const postItem = async (url, body, setData) => {
-    return axios.post(`${mainUrl}${url}`, body, config)
+    return axios.post(`${mainUrl}${url}`, body, getConfig())
         .then((response) => {
             if (setData) {
                 setData(response.data)
@@ -96,7 +104,7 @@ export const requestCredit = async (event, url) => {
     const formData = new FormData(event.target)
     const data = formHandler(formData)
     console.table(data)
-    await axios.post(`${mainUrl}${url}`, data, config)
+    await axios.post(`${mainUrl}${url}`, data, getConfig())
         .then(response => {
             console.log(response)
         })
@@ -110,7 +118,7 @@ export const aproveCreditos = async (id, modalHandler, setState) => {
     const body = {
         "status": "Aprovado"
     }
-    toast.promise(axios.put(`${mainUrl}creditos/finalizar-analise/${id}`, body, config), {
+    toast.promise(axios.put(`${mainUrl}creditos/finalizar-analise/${id}`, body, getConfig()), {
         loading: 'Aprovando crédito...',
         success: (data) => {
             modalHandler()
@@ -123,11 +131,12 @@ export const aproveCreditos = async (id, modalHandler, setState) => {
         },
     })
 }
+
 export const negateCreditos = async (id, modalHandler, setState) => {
     const body = {
         "status": "Negado"
     }
-    toast.promise(axios.put(`${mainUrl}creditos/finalizar-analise/${id}`, body, config), {
+    toast.promise(axios.put(`${mainUrl}creditos/finalizar-analise/${id}`, body, getConfig()), {
         loading: 'Negando crédito...',
         success: (data) => {
             modalHandler()
@@ -140,12 +149,13 @@ export const negateCreditos = async (id, modalHandler, setState) => {
         },
     })
 }
+
 export const forwardCreditos = async (id, modalHandler, setState) => {
     const body = {
         "status": "Encaminhado para a matriz",
         "matrizId": 1
     }
-    toast.promise(axios.put(`${mainUrl}creditos/encaminhar/${id}`, body, config), {
+    toast.promise(axios.put(`${mainUrl}creditos/encaminhar/${id}`, body, getConfig()), {
         loading: 'Encaminhando crédito...',
         success: (data) => {
             modalHandler()
@@ -158,8 +168,9 @@ export const forwardCreditos = async (id, modalHandler, setState) => {
         },
     })
 }
+
 export const deleteCreditos = async (id, modalHandler, setState) => {
-    toast.promise(axios.delete(`${mainUrl}creditos/apagar/${id}`, config), {
+    toast.promise(axios.delete(`${mainUrl}creditos/apagar/${id}`, getConfig()), {
         loading: 'Deletando solicitação...',
         success: (data) => {
             modalHandler()
@@ -172,11 +183,12 @@ export const deleteCreditos = async (id, modalHandler, setState) => {
         },
     })
 }
+
 export const atualizarCreditos = async (event, id, modalHandler, setState) => {
     event.preventDefault()
     const formData = new FormData(event.target)
     const data = formHandler(formData)
-    toast.promise(axios.put(`${mainUrl}creditos/editar/${id}`, data, config), {
+    toast.promise(axios.put(`${mainUrl}creditos/editar/${id}`, data, getConfig()), {
         loading: 'Editando solicitação...',
         success: (data) => {
             modalHandler()
@@ -189,29 +201,7 @@ export const atualizarCreditos = async (event, id, modalHandler, setState) => {
         },
     })
 }
-// export const createItem = async (event, url) => {
-//     event.preventDefault()
-//     const formData = new FormData(event.target)
-//     const object = formHandler(formData)
-//
-//     console.log("OBJETO", object)
-//     console.log("URL", `${mainUrl}${url}`)
-//     await axios.post(`${mainUrl}${url}`, object, config)
-//         .then(response => {
-//             console.log(response)
-//         })
-//         .catch(() => {
-//             throw "Algo de errado aconteceu"
-//         })
-// }
 
-const getConfig = () => ({
-    headers: {
-        Authorization: `Bearer ${localStorage.getItem('tokenRedeTrade')}`
-    }
-});
-
-// Substituir todas as chamadas que usam config por getConfig()
 export const createItem = async (event, url) => {
     event.preventDefault()
     const formData = new FormData(event.target)
@@ -219,7 +209,7 @@ export const createItem = async (event, url) => {
 
     console.log("OBJETO", object)
     console.log("URL", `${mainUrl}${url}`)
-    await axios.post(`${mainUrl}${url}`, object, getConfig()) // <-- Aqui
+    await axios.post(`${mainUrl}${url}`, object, getConfig())
         .then(response => {
             console.log(response)
         })
@@ -238,7 +228,7 @@ export const createItemWithImage = async (event, url) => {
     const object = formHandler(formData)
     console.log("OBJETO", object)
     console.log("URL", `${mainUrl}${url}`)
-    await axios.post(`${mainUrl}${url}`, object, config)
+    await axios.post(`${mainUrl}${url}`, object, getConfig())
         .then(response => {
             console.log(response)
         })
@@ -276,7 +266,7 @@ export const createOferta = async (event, url) => {
     });
     console.log("OBJETO", object)
     console.log("URL", `${mainUrl}${url}`)
-    await axios.post(`${mainUrl}${url}`, object, config)
+    await axios.post(`${mainUrl}${url}`, object, getConfig())
         .then(response => {
             console.log(response)
             event.target.reset()
@@ -294,7 +284,7 @@ export const createSubAccount = async (event) => {
     const object = formHandler(formData)
     console.table("OBJETO", object)
     return
-    await axios.post(`${mainUrl}contas/criar-subconta/${state.user.idUsuario}`, object, config)
+    await axios.post(`${mainUrl}contas/criar-subconta/${state.user.idUsuario}`, object, getConfig())
         .then(response => {
             console.log(response)
             event.target.reset()
@@ -303,6 +293,7 @@ export const createSubAccount = async (event) => {
             throw "Algo de errado aconteceu"
         })
 }
+
 export const createUser = async (event, url) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -328,10 +319,9 @@ export const createUser = async (event, url) => {
     delete object.plano
     delete object.formaPagamento
 
-
     console.log("O QUE FOI ENVIADO")
     console.table(object)
-    const response = await axios.post(`${mainUrl}${url}`, object, config);
+    const response = await axios.post(`${mainUrl}${url}`, object, getConfig());
     if (!response) {
         throw new Error("Erro ao criar usuário, por favor cheque os campos e tente novamente")
     }
@@ -353,7 +343,7 @@ export const createUser = async (event, url) => {
         "diaFechamentoFatura": dataVencimentoFatura,
         "dataVencimentoFatura": dataVencimentoFatura,
         "nomeFranquia": nomeFranquia,
-    }, config).catch((error) => console.log(error))
+    }, getConfig()).catch((error) => console.log(error))
     if (!userAccount) {
         throw new Error("Erro ao criar conta do usuário, por favor entrar em contato com suporte")
     }
@@ -361,12 +351,12 @@ export const createUser = async (event, url) => {
     const payPlan = await axios.post(`${mainUrl}contas/pagamento-do-plano/${response.data.idUsuario}`, {
         "formaPagamento": formaPagamento || 0,
         "idPlano": planoId,
-    }, config)
+    }, getConfig())
     if (!payPlan) {
         throw new Error("Erro ao cobrar plano do usuário, por favor entrar em contato com suporte")
     }
     console.log("Plano pago")
-    const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${userAccount.data.idConta}/${accountManager}`, {}, config).catch((error) => console.log(error))
+    const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${userAccount.data.idConta}/${accountManager}`, {}, getConfig()).catch((error) => console.log(error))
     if (!addManager) {
         throw new Error("Erro ao adicionar gerente a conta, por favor entre em contato com suporte")
     }
@@ -378,12 +368,12 @@ export const createT = async (event) => {
     console.table(object)
     const { voucher } = object
     delete object.voucher
-    const response = await axios.post(`${mainUrl}transacoes/inserir-transacao`, object, config)
+    const response = await axios.post(`${mainUrl}transacoes/inserir-transacao`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao criar transação, por favor cheque os campos e tente novamente")
     }
     if (voucher) {
-        const voucherResponse = await axios.post(`${mainUrl}transacoes/criar-voucher/${response.data.novaTransacao.idTransacao}`, config)
+        const voucherResponse = await axios.post(`${mainUrl}transacoes/criar-voucher/${response.data.novaTransacao.idTransacao}`, getConfig())
         if (!voucherResponse) {
             throw new Error("Erro ao criar voucher, por favor entre em contato com suporte")
         }
@@ -417,10 +407,9 @@ export const editUser = async (event) => {
     delete object.dataVencimentoFatura
     delete object.taxaRepasseMatriz
 
-
     console.log("O QUE FOI ENVIADO", object)
     console.log(`url : ${mainUrl}usuarios/atualizar-usuario/${idUsuario}`)
-    const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario/${idUsuario}`, object, config)
+    const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario/${idUsuario}`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao editar usuário, por favor cheque os campos e tente novamente")
     }
@@ -436,23 +425,19 @@ export const editUser = async (event) => {
         "dataVencimentoFatura": dataVencimentoFatura,
         "nomeFranquia": nomeFranquia,
         "taxaRepasseMatriz": taxaRepasseMatriz,
-    }, config).catch(error => console.log(error))
+    }, getConfig()).catch(error => console.log(error))
     if (!account) {
         throw new Error("Erro ao editar usuário")
     }
 
     axios.get(`${mainUrl}contas/listar-contas`)
-    .then(response => {
-        console.log(response)
-    })
-    .catch(error => {
-        console.log(error)
-    })
-    // const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${contaId}/${gerente}`).catch(error => console.log(error))
-    // if (!addManager) {
-    //     throw new Error("Erro ao adicionar gerente a conta, por favor entre em contato com suporte")
-    // }
-};
+        .then(response => {
+            console.log(response)
+        })
+        .catch(error => {
+            console.log(error)
+        })
+}
 
 export const updateUser = () => { }
 
@@ -476,7 +461,7 @@ export const editItem = async (event, url, setState, oferta) => {
         object.imagem = [object.imagem]
     }
     console.log("O QUE FOI ENVIADO", object)
-    const response = await axios.put(`${mainUrl}${url}`, object, config)
+    const response = await axios.put(`${mainUrl}${url}`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao editar item, por favor cheque os campos e tente novamente")
     }
@@ -487,7 +472,7 @@ export const editItem = async (event, url, setState, oferta) => {
 
 export const deleteItem = (url, revalidate, message, titulo) => {
     console.log(url)
-    axios.delete(`${mainUrl}${url}`, config)
+    axios.delete(`${mainUrl}${url}`, getConfig())
         .then(response => {
             console.log(response)
             popup(message, titulo)
@@ -496,19 +481,19 @@ export const deleteItem = (url, revalidate, message, titulo) => {
 }
 
 export const deleteCredito = (url, item) => {
-    axios.put(`${mainUrl}${url}`, item, config)
+    axios.put(`${mainUrl}${url}`, item, getConfig())
         .then((result) => console.log(result))
 }
+
 export const aprove = (url, item) => {
-    axios.put(`${mainUrl}${url}`, item, config)
+    axios.put(`${mainUrl}${url}`, item, getConfig())
         .then((result) => console.log(result))
 }
 
 export const negate = (url, item) => {
-    axios.put(`${mainUrl}${url}`, item, config)
+    axios.put(`${mainUrl}${url}`, item, getConfig())
         .then((result) => console.log(result))
 }
-
 
 export const bloqUser = (userId) => {
     console.log(userId);
@@ -518,7 +503,7 @@ export const bloqUser = (userId) => {
         "status": false
     }
     console.log(item)
-    axios.put(`${mainUrl}${url}`, item, config, config)
+    axios.put(`${mainUrl}${url}`, item, getConfig())
         .then((result) => console.log(result))
         .catch(error => console.log(error))
 }
@@ -531,14 +516,14 @@ export const unBloqUser = (userId) => {
         "status": false
     }
     console.log(item)
-    axios.put(`${mainUrl}${url}`, item, config, config)
+    axios.put(`${mainUrl}${url}`, item, getConfig())
         .then((result) => console.log(result))
         .catch(error => console.log(error))
 }
 
 // EXTORNO
 export const refound = async (id, revalidate) => {
-    axios.post(`${mainUrl}transacoes/encaminhar-estorno/${id}`, config)
+    axios.post(`${mainUrl}transacoes/encaminhar-estorno/${id}`, getConfig())
         .then(result => {
             console.log(result)
             revalidate()
@@ -546,8 +531,9 @@ export const refound = async (id, revalidate) => {
         })
         .catch(error => console.log(error))
 }
+
 export const sendRefound = async (id, revalidate) => {
-    axios.post(`${mainUrl}transacoes/encaminhar-estorno-matriz/${id}`, config)
+    axios.post(`${mainUrl}transacoes/encaminhar-estorno-matriz/${id}`, getConfig())
         .then(result => {
             console.log(result)
             revalidate()
@@ -558,8 +544,9 @@ export const sendRefound = async (id, revalidate) => {
             toast.error("Erro ao encaminhar")
         })
 }
+
 export const aproveRefound = async (id, revalidate) => {
-    axios.post(`${mainUrl}transacoes/estornar-transacao/${id}`, config)
+    axios.post(`${mainUrl}transacoes/estornar-transacao/${id}`, getConfig())
         .then(result => {
             console.log(result)
             revalidate()
@@ -570,7 +557,6 @@ export const aproveRefound = async (id, revalidate) => {
             toast.error("Erro ao aprovar")
         })
 }
-
 
 export const formatDate = (dataString, full) => {
     const data = new Date(dataString);
@@ -585,5 +571,4 @@ export const formatDate = (dataString, full) => {
     } else {
         return `${dia}/${mes}/${ano}`;
     }
-
 }

@@ -7,21 +7,13 @@ const OfertasCard_Dashboard = () => {
     const { data } = useQueryOfertas()
 
     const filter = (data) => {
-        var ofertas = []
-        data.map((item) => {
-            if (item.usuarioId === getId()) {
-                ofertas.push(item)
-            }
-        })
-        return ofertas
+        return data.filter(item => item.usuarioId === getId()); // ✅ Melhorado com filter
     }
-
-
 
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1, translate: 0 }}
+            animate={{ opacity: 1, scale: 1 }} // ❌ Removido: translate: 0
             transition={{ duration: 0.7, delay: time * 0.2 }}
             exit={{ opacity: 0, scale: 0 }}
             className="homeCard"

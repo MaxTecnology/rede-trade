@@ -8,6 +8,7 @@ import { formatarNumeroParaReal } from "@/utils/functions/formartNumber";
 const PermutasCard_Dashboard = () => {
     const [geral, setGeral] = useState({});
     const [unidade, setUnidade] = useState({});
+
     useEffect(() => {
         getApiData("dashboard/total-valor-rt", setGeral)
         getApiData(`dashboard/total-valor-rt-por-unidade/${getId()}`, setUnidade)
@@ -16,7 +17,7 @@ const PermutasCard_Dashboard = () => {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1, translate: 0 }}
+            animate={{ opacity: 1, scale: 1 }} // ❌ Removido: translate: 0
             transition={{ duration: 0.7, delay: time * 0.4 }}
             exit={{ opacity: 0, scale: 0 }}
             className="homeCard"
