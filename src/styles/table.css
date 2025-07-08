@@ -1,0 +1,263 @@
+/* Estilos para melhorar a tabela de associados */
+
+/* Container da tabela */
+.associados-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  
+  /* Tabela principal */
+  .associados-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  
+  /* Cabeçalho da tabela */
+  .associados-table th {
+    background-color: #f8f9fa;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  
+  /* Células da tabela */
+  .associados-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Linhas da tabela */
+  .associados-table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+  }
+  
+  /* Células específicas */
+  .associados-table .conta-cell {
+    font-family: monospace;
+    font-weight: bold;
+    color: #007bff;
+    min-width: 90px;
+  }
+  
+  .associados-table .nome-cell {
+    font-weight: 500;
+    color: #212529;
+    max-width: 180px;
+  }
+  
+  .associados-table .email-cell {
+    color: #6c757d;
+    font-size: 13px;
+    max-width: 200px;
+  }
+  
+  .associados-table .telefone-cell {
+    font-family: monospace;
+    min-width: 120px;
+  }
+  
+  .associados-table .status-cell {
+    font-weight: bold;
+    text-align: center;
+    min-width: 80px;
+  }
+  
+  .associados-table .reputacao-cell {
+    text-align: center;
+    min-width: 100px;
+  }
+  
+  .associados-table .localizacao-cell {
+    text-align: center;
+    min-width: 60px;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 1200px) {
+    .associados-table {
+      font-size: 12px;
+    }
+    
+    .associados-table th,
+    .associados-table td {
+      padding: 8px 6px;
+    }
+    
+    /* Ocultar algumas colunas em telas menores */
+    .associados-table .hidden-mobile {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .associados-table-container {
+      overflow-x: auto;
+    }
+    
+    .associados-table {
+      min-width: 800px;
+    }
+  }
+  
+  /* Ações da tabela */
+  .table-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+  }
+  
+  .table-action-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  
+  .table-action-btn:hover {
+    opacity: 0.8;
+  }
+  
+  .table-action-btn.view {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .table-action-btn.edit {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  /* Status badges */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  
+  .status-badge.ativo {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-badge.inativo {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  /* Reputação stars */
+  .reputacao-stars {
+    color: #ffc107;
+    font-size: 12px;
+  }
+  
+  /* Loading state */
+  .table-loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+  }
+  
+  .table-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Filtros aplicados */
+  .filtros-ativos-badge {
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .filtros-ativos-badge .texto {
+    color: #1976d2;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .filtros-ativos-badge .limpar-btn {
+    background: transparent;
+    border: 1px solid #1976d2;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  
+  .filtros-ativos-badge .limpar-btn:hover {
+    background-color: #1976d2;
+    color: white;
+  }
+  
+  /* Exportação */
+  .export-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .export-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  
+  .export-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .export-btn.csv {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .export-btn.excel {
+    background-color: #007bff;
+    color: white;
+  }

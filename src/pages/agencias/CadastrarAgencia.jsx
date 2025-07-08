@@ -38,6 +38,7 @@ const CadastrarAgencia = () => {
     const formHandler = (event) => {
         event.preventDefault()
         setReference(false);
+        setLoading(true) // Adicione esta linha
         setTimeout(() => {
             toast.promise(createUser(event, "usuarios/criar-usuario"), {
                 loading: 'Cadastrando Agência...',
@@ -49,19 +50,19 @@ const CadastrarAgencia = () => {
                     return "Agência Cadastrada com sucesso!"
                 },
                 error: (error) => {
-                    // setReference(true)
+                    setReference(true) // Descomente esta linha
                     setLoading(false)
                     return `Erro: ${error.message}`
                 },
             })
-        }, 100);  // Aguarde 100 milissegundos (ou o tempo específico)
+        }, 100);
     }
 
     return (
         <div className="container">
             <div className="containerHeader">Cadastrar Agência</div>
             <form onSubmit={(event) => formHandler(event)}
-                className="containerForm">
+                  className="containerForm">
                 <div className="form-group f2">
                     <label className="required">Razão Social</label>
                     <input type="text" className="form-control" id="razaoSocial" name="razaoSocial" required />
@@ -72,9 +73,14 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group f2">
                     <label className="required">CNPJ</label>
-                    <InputMask mask="99.999.999/9999-99">
-                        {(inputProps) => <input {...inputProps} type="text" id="cnpj" name="cnpj" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="99.999.999/9999-99"
+                        className="form-control"
+                        type="text"
+                        id="cnpj"
+                        name="cnpj"
+                        required
+                    />
                 </div>
                 <div className="form-group">
                     <label>Insc. Estadual</label>
@@ -114,15 +120,24 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group f2">
                     <label>Telefone</label>
-                    <InputMask mask="(99)9999-9999" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" className="form-control" id="telefone" name="telefone" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="(99)9999-9999"
+                        className="form-control"
+                        type="text"
+                        id="telefone"
+                        name="telefone"
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">Celular</label>
-                    <InputMask mask="(99)99999-9999" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" className="form-control" id="celular" name="celular" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="(99)99999-9999"
+                        className="form-control"
+                        type="text"
+                        id="celular"
+                        name="celular"
+                        required
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">E-mail</label>
@@ -149,9 +164,14 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">CEP</label>
-                    <InputMask mask="99999-999" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" id="cep" name="cep" />}
-                    </InputMask>
+                    <InputMask
+                        mask="99999-999"
+                        className="form-control"
+                        type="text"
+                        id="cep"
+                        name="cep"
+                        required
+                    />
                 </div>
                 <div className="form-group">
                     <label>Complemento</label>
@@ -217,7 +237,7 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo de Operação</label>
-                    <select defaultValue={""} className="form-control" id="tipoOperacao" name="tipoOperacao">
+                    <select defaultValue={""} className="form-control" id="tipoOperacao" name="tipoOperacao" required>
                         <option value="" disabled>Selecionar</option>
                         <option value={1}>Compra</option>
                         <option value={2}>Venda</option>
@@ -226,7 +246,7 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Aceita Orçamento</label>
-                    <select defaultValue={""} className="form-control" id="aceitaOrcamento" name="aceitaOrcamento">
+                    <select defaultValue={""} className="form-control" id="aceitaOrcamento" name="aceitaOrcamento" required>
                         <option value="" disabled>Selecionar</option>
                         <option value={true}>Sim</option>
                         <option value={false}>Não</option>
@@ -234,7 +254,7 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Aceita Voucher</label>
-                    <select defaultValue={""} className="form-control" id="aceitaVoucher" name="aceitaVoucher">
+                    <select defaultValue={""} className="form-control" id="aceitaVoucher" name="aceitaVoucher" required>
                         <option value="" disabled>Selecionar</option>
                         <option value={true}>Sim</option>
                         <option value={false}>Não</option>
@@ -261,9 +281,14 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Cpf</label>
-                    <InputMask mask="999.999.999-99" maskChar={null}>
-                        {(inputProps) => <input  {...inputProps} type="text" className="form-control" id="cpf" name="cpf" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="999.999.999-99"
+                        className="form-control"
+                        type="text"
+                        id="cpf"
+                        name="cpf"
+                        required
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required ">E-mail</label>
@@ -296,7 +321,8 @@ const CadastrarAgencia = () => {
                 </div>
             </form>
             <Footer />
-        </div>)
+        </div>
+    )
 };
 
 export default CadastrarAgencia;

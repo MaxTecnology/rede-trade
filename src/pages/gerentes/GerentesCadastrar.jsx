@@ -66,9 +66,13 @@ const GerentesCadastrar = () => {
                 </div>
                 <div className="form-group f2">
                     <label>CNPJ</label>
-                    <InputMask mask="99.999.999/9999-99" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" name="cnpj" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="99.999.999/9999-99"
+                        maskChar={null}
+                        type="text"
+                        name="cnpj"
+                        required
+                    />
                 </div>
                 <div className="form-group">
                     <label>Insc. Estadual</label>
@@ -89,15 +93,25 @@ const GerentesCadastrar = () => {
                 </div>
                 <div className="form-group f2">
                     <label>Telefone</label>
-                    <InputMask mask="(99)9999-9999" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" className="form-control" id="telefone" name="telefone" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="(99)9999-9999"
+                        maskChar={null}
+                        type="text"
+                        className="form-control"
+                        name="telefone"
+                        required
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">Celular</label>
-                    <InputMask mask="(99)99999-9999" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" className="form-control" id="celular" name="celular" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="(99)99999-9999"
+                        maskChar={null}
+                        type="text"
+                        className="form-control"
+                        name="celular"
+                        required
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">E-mail</label>
@@ -122,9 +136,12 @@ const GerentesCadastrar = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">CEP</label>
-                    <InputMask mask="99999-999" maskChar={null}>
-                        {(inputProps) => <input {...inputProps} type="text" id="cep" name="cep" />}
-                    </InputMask>
+                    <InputMask
+                        mask="99999-999"
+                        maskChar={null}
+                        type="text"
+                        name="cep"
+                    />
                 </div>
                 <div className="form-group">
                     <label>Complemento</label>
@@ -237,9 +254,14 @@ const GerentesCadastrar = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Cpf</label>
-                    <InputMask mask="999.999.999-99" maskChar={null}>
-                        {(inputProps) => <input  {...inputProps} type="text" className="form-control" id="cpf" name="cpf" required />}
-                    </InputMask>
+                    <InputMask
+                        mask="999.999.999-99"
+                        maskChar={null}
+                        type="text"
+                        className="form-control"
+                        name="cpf"
+                        required
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required ">E-mail</label>

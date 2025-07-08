@@ -12,17 +12,21 @@ const PlanosFields = ({ type, defaultValue }) => {
 
     useEffect(() => {
         if (defaultValue && data && data.planos) {
-            const defaultPlan = data.planos.find(p => p.idPlano === defaultValue?.conta?.planoId); // Adicione verificações para defaultValue
+            const defaultPlan = data.planos.find(p => p.idPlano === defaultValue?.conta?.planoId);
             setDefaultPlano(defaultPlan);
         }
     }, [defaultValue, data]);
-    
 
     return (
         <>
             <div className="form-group">
                 <label className="required">Plano de Inscrição</label>
-                <select id="planoAssociado" defaultValue={defaultValue && defaultValue.conta ? defaultValue.conta.planoId : ""} onChange={(e) => setSelected(JSON.parse(e.target.value))} required>
+                <select
+                    id="planoAssociado"
+                    defaultValue={defaultValue && defaultValue.conta ? defaultValue.conta.planoId : ""}
+                    onChange={(e) => setSelected(JSON.parse(e.target.value))}
+                    required
+                >
                     <option value="" disabled>
                         Selecione
                     </option>
@@ -37,23 +41,37 @@ const PlanosFields = ({ type, defaultValue }) => {
                         className="readOnly"
                         readOnly
                         required
-                        value={selected ? selected.taxaInscricao : defaultPlano?.taxaInscricao}
+                        value={selected ? selected.taxaInscricao : (defaultPlano?.taxaInscricao || '')}
+                        onChange={() => {}} // Função vazia para input controlado readOnly
                     />
                 </div>
             }
             <div className="form-group">
                 <label className="required">Percentual de Comissão %</label>
                 <input
-                    type="text" className="readOnly" readOnly required value={selected ? selected.taxaComissao : defaultPlano?.taxaComissao} />
+                    type="text"
+                    className="readOnly"
+                    readOnly
+                    required
+                    value={selected ? selected.taxaComissao : (defaultPlano?.taxaComissao || '')}
+                    onChange={() => {}} // Função vazia para input controlado readOnly
+                />
             </div>
             {type === "Associado" &&
                 <div className="form-group">
                     <label className="required">Taxa Anual</label>
-                    <input type="text" className="readOnly" readOnly required value={selected ? selected.taxaManutencaoAnual : defaultPlano?.taxaManutencaoAnual} />
+                    <input
+                        type="text"
+                        className="readOnly"
+                        readOnly
+                        required
+                        value={selected ? selected.taxaManutencaoAnual : (defaultPlano?.taxaManutencaoAnual || '')}
+                        onChange={() => {}} // Função vazia para input controlado readOnly
+                    />
                 </div>
             }
 
-            <input type="hidden" name="planoId" value={selected ? selected.idPlano : defaultValue?.conta?.planoId} />
+            <input type="hidden" name="planoId" value={selected ? selected.idPlano : (defaultValue?.conta?.planoId || '')} />
         </>
     );
 };

@@ -56,13 +56,21 @@ const AgenciasLista = () => {
                             <option value="Matriz">Matriz</option>
                         </select>
                     </div>
+                    {/*<div className="form-group">*/}
+                    {/*    <label htmlFor="nomePlano">Nome Fantasia</label>*/}
+                    {/*    <input type="text" id="nomePlano" name="nomeFranquia" placeholder="Digite o nome fantasia" onChange={handleSearch} />*/}
+                    {/*</div>*/}
+                    {/*<div className="form-group">*/}
+                    {/*    <label htmlFor="nomePlano">N° da Conta</label>*/}
+                    {/*    <input type="number" id="nomePlano" name="conta" placeholder="Digite o N° da Conta" onChange={handleSearch} />*/}
+                    {/*</div>*/}
                     <div className="form-group">
-                        <label htmlFor="nomePlano">Nome Fantasia</label>
-                        <input type="text" id="nomePlano" name="nomeFranquia" placeholder="Digite o nome fantasia" onChange={handleSearch} />
+                        <label htmlFor="nomeFranquia">Nome Fantasia</label>
+                        <input type="text" id="nomeFranquia" name="nomeFranquia" placeholder="Digite o nome fantasia" onChange={handleSearch} />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="nomePlano">N° da Conta</label>
-                        <input type="number" id="nomePlano" name="conta" placeholder="Digite o N° da Conta" onChange={handleSearch} />
+                        <label htmlFor="numeroConta">N° da Conta</label>
+                        <input type="number" id="numeroConta" name="conta" placeholder="Digite o N° da Conta" onChange={handleSearch} />
                     </div>
                     <div className="buttonContainer">
                         <ButtonMotion type="submit"><FaSearch />  Pesquisar</ButtonMotion>

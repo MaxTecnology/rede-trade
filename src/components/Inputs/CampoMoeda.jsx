@@ -4,6 +4,7 @@ const RealInput = ({ name, placeholder, required, reference, defaultValue, readO
     const [value, setValue] = useState('');
     const [decimalValue, setDecimalValue] = useState('');
     const [valueStatus, setValueStatus] = useState(true)
+
     const handleInputChange = (event) => {
         const inputValue = event.target.value;
 
@@ -49,16 +50,14 @@ const RealInput = ({ name, placeholder, required, reference, defaultValue, readO
             setValue(valorEmReal);
             setDecimalValue(valor);
         }
-
-    }, []);
-
+    }, [defaultValue]); // Adicionei defaultValue como dependência
 
     return (
         <input
             type="text"
             value={valueStatus ? value : decimalValue}
             onChange={handleInputChange}
-            defaultValue={defaultValue}
+            // Removido defaultValue - não pode usar com value
             name={name}
             placeholder={placeholder ? placeholder : "Digite o valor"}
             required={required}

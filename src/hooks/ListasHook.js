@@ -189,6 +189,29 @@ export const atualizarCreditos = async (event, id, modalHandler, setState) => {
         },
     })
 }
+// export const createItem = async (event, url) => {
+//     event.preventDefault()
+//     const formData = new FormData(event.target)
+//     const object = formHandler(formData)
+//
+//     console.log("OBJETO", object)
+//     console.log("URL", `${mainUrl}${url}`)
+//     await axios.post(`${mainUrl}${url}`, object, config)
+//         .then(response => {
+//             console.log(response)
+//         })
+//         .catch(() => {
+//             throw "Algo de errado aconteceu"
+//         })
+// }
+
+const getConfig = () => ({
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem('tokenRedeTrade')}`
+    }
+});
+
+// Substituir todas as chamadas que usam config por getConfig()
 export const createItem = async (event, url) => {
     event.preventDefault()
     const formData = new FormData(event.target)
@@ -196,7 +219,7 @@ export const createItem = async (event, url) => {
 
     console.log("OBJETO", object)
     console.log("URL", `${mainUrl}${url}`)
-    await axios.post(`${mainUrl}${url}`, object, config)
+    await axios.post(`${mainUrl}${url}`, object, getConfig()) // <-- Aqui
         .then(response => {
             console.log(response)
         })
