@@ -2,7 +2,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const FormInput = ({ form, name, label, placeholder, required, type, className, divClassName, disabled, variant, ...props}) => {
+const FormInput = ({ form, name, label, placeholder, required, type, className, divClassName, disabled, variant, textarea, ...props}) => {
     return (<>
         <FormField
             control={form.control}
@@ -19,7 +19,17 @@ const FormInput = ({ form, name, label, placeholder, required, type, className, 
                     </div>
                     {variant === "bottom" ? <FormMessage className="text-left" /> : null}
                     <FormControl>
-                        <Input disabled={disabled} type={type ? type : "text"} className="mt-0" placeholder={placeholder} {...field} {...props} {...form.register(name)}/>
+                        {textarea ? (
+                            <textarea 
+                                disabled={disabled} 
+                                className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-0" 
+                                placeholder={placeholder} 
+                                {...field} 
+                                {...props}
+                            />
+                        ) : (
+                            <Input disabled={disabled} type={type ? type : "text"} className="mt-0" placeholder={placeholder} {...field} {...props} {...form.register(name)}/>
+                        )}
                     </FormControl>
 
                 </FormItem>

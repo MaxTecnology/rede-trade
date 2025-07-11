@@ -19,7 +19,7 @@ const FormInputWithMask = ({ form, name, label, placeholder, required, mask, div
                     <FormControl>
                         <InputMask 
                             mask={mask} 
-                            maskChar={null} 
+                            maskChar=""
                             value={field.value || ''}
                             onChange={field.onChange}
                             onBlur={field.onBlur}

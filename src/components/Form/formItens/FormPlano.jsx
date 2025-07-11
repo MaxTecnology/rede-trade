@@ -10,16 +10,16 @@ const FormPlano = ({ type, form }) => {
     const planoId = useWatch({ control: form.control, name: "planoId" });
 
     useEffect(() => {
-        console.log(planoId)
-        console.log(data)
-        if (planoId) {
-            const plano = data ? data.planos.find(p => p.idPlano == planoId) : null
-            console.log(plano)
-            form.setValue("planoValor", plano?.taxaInscricao)
-            form.setValue("comissao", plano?.taxaComissao)
-            form.setValue("planoTaxa", plano?.taxaManutencaoAnual)
+        if (planoId && data?.planos) {
+            const plano = data.planos.find(p => p.idPlano == planoId);
+            if (plano) {
+                console.log('📋 Plano selecionado:', plano);
+                form.setValue("planoValor", plano?.taxaInscricao)
+                form.setValue("comissao", plano?.taxaComissao)
+                form.setValue("planoTaxa", plano?.taxaManutencaoAnual)
+            }
         }
-    }, [planoId])
+    }, [planoId, data])
 
     return <>
         <FormSelect required form={form} name="planoId" label="Plano de Inscrição" placeholder="Selecionar" options={<PlanosOptions type={type} />} />

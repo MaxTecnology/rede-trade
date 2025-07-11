@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { associadoSchema } from "@/models/schemas/associadoSchema";
-import { createUser } from "@/utils/functions/api";
+import { createAssociado } from "@/utils/functions/api";
 import { useNavigate } from 'react-router-dom';
 import { getApiData } from "@/hooks/ListasHook";
 
@@ -42,7 +42,7 @@ const CadastrarAssociado = () => {
         defaultValues: {
             // Dados básicos
             email: "",
-            senha: "", // Mudei de 'password' para 'senha' (padrão do back-end)
+            senha: "",
             nome: "",
             cpf: "",
             imagem: "",
@@ -53,6 +53,7 @@ const CadastrarAssociado = () => {
             cnpj: "",
             inscEstadual: "",
             inscMunicipal: "",
+            descricao: "",
             
             // Contato
             telefone: "",
@@ -72,50 +73,52 @@ const CadastrarAssociado = () => {
             regiao: "",
             
             // Configurações
-            tipo: "",
-            status: true,
+            tipo: "Associado",
+            status: "", // Começar vazio para forçar seleção
             subcategoriaId: "",
             categoriaId: "",
             tipoOperacao: "",
-            aceitaOrcamento: true,
-            aceitaVoucher: true,
-            mostrarNoSite: true,
+            aceitaOrcamento: "", // Começar vazio para forçar seleção
+            aceitaVoucher: "", // Começar vazio para forçar seleção
+            mostrarNoSite: "", // Começar vazio para forçar seleção
             
             // Conta/Plano
             planoId: "",
             gerente: "",
             
             // Campos invisíveis/automáticos
-            reputacao: "",
-            saldoDinheiro: "",
-            saldoPermuta: "",
+            reputacao: "0",
+            saldoDinheiro: "0",
+            saldoPermuta: "0",
             nomeFranquia: snap.user?.nomeFantasia || "",
-            usuarioCriadorId: snap.user?.idUsuario || "",
-            matrizId: snap.user?.matrizId || snap.user?.idUsuario || "", // Importante para hierarquia
+            usuarioCriadorId: snap.user?.idUsuario?.toString() || "",
+            matrizId: (snap.user?.matrizId || snap.user?.idUsuario)?.toString() || "",
             tipoDeMoeda: "BRL",
             statusConta: true,
-            taxaRepasseMatriz: "",
+            taxaRepasseMatriz: "0",
             bloqueado: false,
+            
             // Campos adicionais
-
-            descricao: "",
             restricoes: "",
-            limiteCredito: "",
-            limiteVendaMensal: "", 
-            limiteVendaTotal: "",
-            limiteVendaEmpresa: "",
+            limiteCredito: "0",
+            limiteVendaMensal: "0", 
+            limiteVendaTotal: "0",
+            limiteVendaEmpresa: "0",
             formaPagamento: "",
-            percentualGerente: "",
-            valorPlano: "",
-            percentualComissao: "",
-            taxaAnual: "",
+            percentualGerente: "0",
+            valorPlano: "0",
+            percentualComissao: "0",
+            taxaAnual: "0",
         },
     });
 
     const buscarPlanos = async () => {
         try {
+            // Evitar chamadas duplas se já temos planos
+            if (planos.length > 0) return;
+            
             const response = await getApiData("planos/listar-planos");
-            console.log('📋 Planos disponíveis:', response);
+            console.log('📋 Planos carregados:', response.data?.length || response.planos?.length || 0, 'planos');
             setPlanos(response.data || response.planos || []);
         } catch (error) {
             console.error('❌ Erro ao buscar planos:', error);
@@ -125,79 +128,87 @@ const CadastrarAssociado = () => {
 
     const formHandler = async (event) => {
         try {
-
-            console.log('🔍 Dados ANTES da conversão:', JSON.parse(JSON.stringify(event)));
-
-            // Adicionar imagem aos dados
-            event.imagem = imagem;
+            console.log('🔍 Dados ANTES do processamento:', JSON.parse(JSON.stringify(event)));
             
-            // Converter strings vazias para null nos IDs
+            // Debug específico para campos boolean
+            console.log('🔍 Valores boolean antes da validação:', {
+                status: event.status,
+                mostrarNoSite: event.mostrarNoSite,
+                aceitaOrcamento: event.aceitaOrcamento,
+                aceitaVoucher: event.aceitaVoucher
+            });
+
+            // Adicionar imagem aos dados (agora é File object, não string)
+            if (imagem) {
+                event.imagem = imagem;
+            }
+            
+            // Garantir que os campos obrigatórios estão presentes
+            event.tipo = "Associado";
+            
+            // Limpar campos vazios - converter para null ou remover
             if (event.categoriaId === "" || event.categoriaId === "null") {
-                event.categoriaId = null;
+                delete event.categoriaId;
             }
             if (event.subcategoriaId === "" || event.subcategoriaId === "null") {
-                event.subcategoriaId = null;
+                delete event.subcategoriaId;
             }
             if (event.planoId === "" || event.planoId === "null") {
-                event.planoId = null;
+                delete event.planoId;
             }
             
-            // IMPORTANTE: Converter tipos para o que a API espera
-            // Status - converter boolean para string
-            if (typeof event.status === 'boolean') {
-                event.status = event.status ? "Ativo" : "Inativo";
+            // Garantir que campos numéricos sejam tratados corretamente
+            if (event.numero) {
+                event.numero = parseInt(event.numero, 10);
+            }
+            if (event.categoriaId) {
+                event.categoriaId = parseInt(event.categoriaId, 10);
+            }
+            if (event.subcategoriaId) {
+                event.subcategoriaId = parseInt(event.subcategoriaId, 10);
+            }
+            if (event.planoId) {
+                event.planoId = parseInt(event.planoId, 10);
+            }
+            if (event.tipoOperacao) {
+                event.tipoOperacao = parseInt(event.tipoOperacao, 10);
             }
             
-            // Mostrar no site - converter boolean para string
-            if (typeof event.mostrarNoSite === 'boolean') {
-                event.mostrarNoSite = event.mostrarNoSite ? "true" : "false";
-            }
+            // Os campos boolean serão processados pelo schema transform automaticamente
+            // Mas vamos garantir que valores padrão estejam corretos
+            if (event.status === undefined || event.status === null) event.status = true;
+            if (event.mostrarNoSite === undefined || event.mostrarNoSite === null) event.mostrarNoSite = true;
+            if (event.aceitaOrcamento === undefined || event.aceitaOrcamento === null) event.aceitaOrcamento = true;
+            if (event.aceitaVoucher === undefined || event.aceitaVoucher === null) event.aceitaVoucher = true;
+            event.statusConta = true; // Sempre ativo para novos associados
             
-            // Tipo de Operação - converter number para string
-            if (typeof event.tipoOperacao === 'number') {
-                event.tipoOperacao = event.tipoOperacao.toString();
-            }
+            // Limpar campos que podem estar vazios
+            Object.keys(event).forEach(key => {
+                if (event[key] === "" || event[key] === "undefined" || event[key] === undefined) {
+                    delete event[key];
+                }
+            });
             
-            // Aceita Orçamento - converter boolean para string
-            if (typeof event.aceitaOrcamento === 'boolean') {
-                event.aceitaOrcamento = event.aceitaOrcamento ? "true" : "false";
-            }
-            
-            // Aceita Voucher - converter boolean para string
-            if (typeof event.aceitaVoucher === 'boolean') {
-                event.aceitaVoucher = event.aceitaVoucher ? "true" : "false";
-            }
-            
-            // Garantir que limite de venda total não seja vazio
-            if (!event.limiteVendaTotal || event.limiteVendaTotal === "") {
-                event.limiteVendaTotal = "0";
-            }
-            
-            // Converter strings para números onde necessário
-            if (event.numero) event.numero = parseInt(event.numero);
-            if (event.categoriaId) event.categoriaId = parseInt(event.categoriaId);
-            if (event.subcategoriaId) event.subcategoriaId = parseInt(event.subcategoriaId);
-            if (event.planoId) event.planoId = parseInt(event.planoId);
-            
-            console.log('📊 Dados do formulário após conversão:', event);
+            console.log('📊 Dados processados para envio:', event);
             
             setLoading(true);
             
             const response = await toast.promise(
-                createUser(event, "usuarios/criar-usuario"),
+                createAssociado(event),
                 {
                     loading: 'Cadastrando Associado...',
                     success: (data) => {
                         console.log('✅ Associado criado:', data);
-                        return "Associado cadastrado com sucesso!";
+                        return `Associado ${data.nome} cadastrado com sucesso!`;
                     },
                     error: (error) => {
                         console.error('❌ Erro ao criar associado:', error);
-                        console.error('Detalhes do erro:', error.response?.data || error);
                         return `Erro: ${error.message || 'Erro desconhecido'}`;
                     },
                 }
             );
+            
+            console.log('✅ Resposta final:', response);
             
             form.reset();
             revalidate("associados");
@@ -257,7 +268,24 @@ const CadastrarAssociado = () => {
                                 colors={['#2d6cdf', '#2d6cdf', '#2d6cdf', '#2d6cdf', '#2d6cdf']}
                             />
                         ) : (
-                            <ButtonMotion className="purpleBtn" type="submit">
+                            <ButtonMotion 
+                                className="purpleBtn" 
+                                type="submit"
+                                onClick={() => {
+                                    console.log('🔍 Botão clicado');
+                                    console.log('🔍 Erros detalhados do formulário:', JSON.stringify(form.formState.errors, null, 2));
+                                    console.log('🔍 Estado válido:', form.formState.isValid);
+                                    console.log('🔍 Valores do formulário:', form.getValues());
+                                    
+                                    // Verificar especificamente os campos com erro
+                                    if (form.formState.errors.usuarioCriadorId) {
+                                        console.log('❌ Erro usuarioCriadorId:', form.formState.errors.usuarioCriadorId);
+                                    }
+                                    if (form.formState.errors.matrizId) {
+                                        console.log('❌ Erro matrizId:', form.formState.errors.matrizId);
+                                    }
+                                }}
+                            >
                                 Cadastrar
                             </ButtonMotion>
                         )}

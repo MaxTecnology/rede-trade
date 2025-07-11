@@ -24,6 +24,70 @@ export async function forgotPassword(event) {
     return "Mensagem enviada para o seu e-mail!"
 }
 
+// Função para criar associados (simplificada - sem Firebase, conta automática no backend)
+export const createAssociado = async (data) => {
+    try {
+        console.log("🚀 Iniciando criação de associado:", data);
+        
+        // Preparar FormData para envio com imagem
+        const formData = new FormData();
+        
+        // Adicionar todos os campos do formulário
+        Object.keys(data).forEach(key => {
+            if (data[key] !== null && data[key] !== undefined && key !== 'imagem') {
+                formData.append(key, data[key]);
+            }
+        });
+        
+        // Adicionar imagem se existir
+        if (data.imagem && data.imagem instanceof File) {
+            formData.append('imagem', data.imagem);
+            console.log("📸 Imagem adicionada ao FormData:", data.imagem.name);
+        }
+        
+        // Garantir que é tipo Associado
+        formData.set('tipo', 'Associado');
+        
+        console.log("📋 Dados preparados para envio");
+        
+        // Configuração com content-type adequado para FormData
+        const uploadConfig = {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('tokenRedeTrade')}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        };
+        
+        // Criar associado (o backend já cria a conta automaticamente)
+        const response = await axios.post(
+            `${mainUrl}usuarios/criar-usuario`, 
+            formData, 
+            uploadConfig
+        ).catch((error) => {
+            console.error("❌ Erro ao criar associado:", error.response?.data || error);
+            console.error("❌ Status:", error.response?.status);
+            console.error("❌ Headers:", error.response?.headers);
+            
+            const errorMsg = error.response?.data?.error || 
+                           error.response?.data?.message || 
+                           error.message || 
+                           "Erro desconhecido ao criar associado";
+            throw new Error(errorMsg);
+        });
+        
+        console.log("✅ Associado criado com sucesso:", response.data);
+        console.log("✅ ID do usuário:", response.data.idUsuario);
+        console.log("✅ Conta criada:", response.data.conta ? "Sim" : "Não");
+        
+        return response.data;
+        
+    } catch (error) {
+        console.error("❌ Erro completo na criação do associado:", error);
+        throw error;
+    }
+};
+
+// Função legada para outros tipos (gerentes, agências)
 export const createUser = async (event, url) => {
     try {
         console.log("Dados originais:", event);
