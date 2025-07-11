@@ -10,41 +10,176 @@ import { toast } from 'sonner';
 import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
 import PlanosFields from '@/components/Form/PlanosFields';
 import Categoria_SubCategoriaOptions from '@/components/Options/Categoria_SubCategoriaOptions';
-import { imageReferenceHandler } from '@/utils/functions/formHandler';
+import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/utils/functions/formHandler';
 import ButtonMotion from '@/components/FramerMotion/ButtonMotion';
 import InputMask from 'react-input-mask';
+import defaultImage from "@/assets/images/default_img.png"
 
 const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [imagemReference, setImageReference] = useState(null);
+    const [imagem, setImagem] = useState(null); // NOVO: Para armazenar o arquivo
     const [reference, setReference] = useState(true)
     const [error, setError] = useState(false)
     const [sucess, setSucess] = useState(false)
     const info = associadoInfo
-    console.log(info)
+    // console.log(info) // Debug removido
 
     useEffect(() => {
-        setImageReference(info.imagem);
-    }, [info]);
+        if (isOpen && info) {
+            // Construir URL completa da imagem
+            let imageUrl = defaultImage; // Fallback padrão
+            
+            if (info.imagem) {
+                if (info.imagem.startsWith('http')) {
+                    // URL completa (ex: http://exemplo.com/imagem.jpg)
+                    imageUrl = info.imagem;
+                } else if (info.imagem.startsWith('/uploads')) {
+                    // Caminho relativo do servidor (ex: /uploads/images/123.jpg)
+                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    imageUrl = `${baseUrl}${info.imagem}`;
+                } else {
+                    // Outros casos - manter URL padrão
+                    imageUrl = defaultImage;
+                }
+                
+                console.log('🖼️ URL da imagem construída:', imageUrl);
+            }
+            
+            setImageReference(imageUrl);
+            setImagem(null); // Reset do arquivo quando abrir modal
+        }
+    }, [info, isOpen]);
 
     const revalidate = useRevalidate();
 
     const formHandler = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         setReference(false);
-        toast.promise(editUser(event), {
-            loading: 'Editando Associado...',
-            success: () => {
-                setReference(true)
-                modalToggle()
-                revalidate("associados")
-                console.log(info)
-                return "Associado editado com sucesso!"
-            },
-            error: (error) => {
-                setReference(true)
-                return <b>{error.message}</b>
-            },
-        })
+        
+        // Se há imagem, usar FormData. Senão, usar método original
+        if (imagem) {
+            // NOVO: Usar formHandlerComImagem para processar FormData
+            const formData = formHandlerComImagem(new FormData(event.target), imagem);
+            
+            // IMPORTANTE: Adicionar campos que podem estar faltando
+            formData.append('tipo', 'Associado'); // Força o tipo
+            
+            // Debug opcional - descomente se precisar debugar
+            // debugFormData(formData);
+            
+            // NOVO: Função para update com imagem
+            const updateUserWithImage = async () => {
+                try {
+                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    
+                    // TESTE: Vamos usar a rota de atualizar-usuario-completo que pode ser mais robusta
+                    const url = `${baseUrl}/usuarios/atualizar-usuario-completo/${info.idUsuario}`;
+                    
+                    // NOVO: Tentar diferentes formas de obter o token
+                    let token = localStorage.getItem('token') || 
+                               localStorage.getItem('authToken') || 
+                               localStorage.getItem('accessToken') ||
+                               sessionStorage.getItem('token') ||
+                               sessionStorage.getItem('authToken');
+                    
+                    console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
+                    
+                    if (!token) {
+                        // Tentar pegar de qualquer chave que contenha "token"
+                        const allKeys = [...Object.keys(localStorage), ...Object.keys(sessionStorage)];
+                        const tokenKey = allKeys.find(key => key.toLowerCase().includes('token'));
+                        if (tokenKey) {
+                            token = localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey);
+                        }
+                    }
+                    
+                    if (!token) {
+                        throw new Error('Token de autenticação não encontrado. Faça login novamente.');
+                    }
+                    
+                    // Opcional: logs para debug
+                    // console.log('🔗 Fazendo requisição para:', url);
+                    // console.log('📡 Status da resposta:', response.status);
+                    // console.log('✅ Resposta do servidor:', data);
+
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            // console.log('❌ Erro do servidor:', errorData);
+                            throw new Error(errorData.error || `Erro HTTP ${response.status}`);
+                        } else {
+                            const errorText = await response.text();
+                            // console.log('❌ Resposta do servidor (texto):', errorText);
+                            throw new Error(`Erro ${response.status}: ${errorText}`);
+                        }
+                    }
+
+                    const data = await response.json();
+                    
+                    return data;
+                } catch (error) {
+                    console.error('❌ Erro completo:', error);
+                    
+                    if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+                        throw new Error('Servidor retornou resposta inválida. Verifique se a API está funcionando.');
+                    }
+                    
+                    if (error.message.includes('404')) {
+                        throw new Error('Rota não encontrada. Verifique se o servidor está rodando corretamente.');
+                    }
+                    
+                    if (error.message.includes('401')) {
+                        throw new Error('Token inválido ou expirado. Faça login novamente.');
+                    }
+                    
+                    if (error.message.includes('500')) {
+                        throw new Error('Erro interno do servidor. Verifique os logs do backend.');
+                    }
+                    
+                    throw error;
+                }
+            };
+
+            // Toast com a nova função
+            toast.promise(updateUserWithImage(), {
+                loading: 'Editando Associado...',
+                success: () => {
+                    setReference(true);
+                    setImagem(null);
+                    modalToggle();
+                    revalidate("associados");
+                    return "Associado editado com sucesso!";
+                },
+                error: (error) => {
+                    setReference(true);
+                    return <b>{error.message}</b>;
+                },
+            });
+        } else {
+            // Usar método original se não há imagem
+            toast.promise(editUser(event), {
+                loading: 'Editando Associado...',
+                success: () => {
+                    setReference(true);
+                    modalToggle();
+                    revalidate("associados");
+                    return "Associado editado com sucesso!";
+                },
+                error: (error) => {
+                    setReference(true);
+                    return <b>{error.message}</b>;
+                },
+            });
+        }
     }
 
     return (
@@ -341,11 +476,11 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label>Dinheiro</label>
-                    <input type="text" className='readOnly' value={info.conta.saldoDinheiro} disabled/>
+                    <input type="text" className='readOnly' value={info.conta?.saldoDinheiro || 0} disabled/>
                 </div>
                 <div className="form-group">
                     <label>Permuta</label>
-                    <input type="text" className='readOnly' value={info.conta.saldoPermuta} disabled/>
+                    <input type="text" className='readOnly' value={info.conta?.saldoPermuta || 0} disabled/>
                 </div>
                 <div className="formDivider">
                     <p>Operações</p>
@@ -409,14 +544,35 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <p>Dados do usuário</p>
                 </div>
                 <div className="formImage">
-                    <img src={imagemReference} className="rounded float-left img-fluid" alt="..." id="imagem-selecionada" name="imagem-selecionada" />
+                    <img 
+                        src={imagemReference || defaultImage} 
+                        className="rounded float-left img-fluid" 
+                        alt="Foto do usuário" 
+                        id="imagem-selecionada" 
+                        name="imagem-selecionada" 
+                    />
                 </div>
                 <div className="form-group">
                     <label htmlFor="img_path" className="inputLabel">
                         <BiSolidImageAdd /> Selecione uma imagem
-                        <input type="file" name='imagem' accept="image/*" className="custom-file-input" id="img_path" onChange={(e) => imageReferenceHandler(e, setImageReference)} />
+                        <input 
+                            type="file" 
+                            name='imagem' 
+                            accept="image/*" 
+                            className="custom-file-input" 
+                            id="img_path" 
+                            onChange={(e) => imageReferenceHandler(e, setImageReference, setImagem)} 
+                        />
                     </label>
                 </div>
+                {/* NOVO: Mostrar nome do arquivo selecionado */}
+                {imagem && (
+                    <div className="form-group">
+                        <small className="text-muted">
+                            📎 Arquivo selecionado: {imagem.name} ({(imagem.size / 1024 / 1024).toFixed(2)}MB)
+                        </small>
+                    </div>
+                )}
                 <div className="form-group">
                     <label className="required-field-label">Nome</label>
                     <input 
@@ -457,8 +613,12 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <input type="hidden" name="idUsuario" value={info.idUsuario} />
 
                 <div className="buttonContainer">
-                    <ButtonMotion className='modalButtonClose' type='button' onClick={() => closeModal(modalToggle, setSucess, setError)} >Fechar</ButtonMotion>
-                    <ButtonMotion className='modalButtonSave' type="submit">Salvar alterações</ButtonMotion>
+                    <ButtonMotion className='modalButtonClose' type='button' onClick={() => closeModal(modalToggle, setSucess, setError)} >
+                        Fechar
+                    </ButtonMotion>
+                    <ButtonMotion className='modalButtonSave' type="submit" disabled={!reference}>
+                        {reference ? 'Salvar alterações' : 'Salvando...'}
+                    </ButtonMotion>
                 </div>
             </form>
         </Modal>
