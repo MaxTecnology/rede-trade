@@ -172,8 +172,27 @@ const AssociadosCard = ({ associado, index }) => {
   const temTelefone = !!telefone;
   const temSite = !!associado.site;
 
-  // Imagem padrão
+  // Imagem padrão e URL base da API
   const imagemPadrao = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  const API_BASE_URL = "http://localhost:3024"; // ou process.env.REACT_APP_API_URL
+
+  // Função para construir URL da imagem
+  const construirUrlImagem = (imagemPath) => {
+    if (!imagemPath) return imagemPadrao;
+    
+    // Se já é uma URL completa, usar diretamente
+    if (imagemPath.startsWith('http://') || imagemPath.startsWith('https://')) {
+      return imagemPath;
+    }
+    
+    // Se é um caminho relativo, construir URL completa
+    if (imagemPath.startsWith('/uploads/')) {
+      return `${API_BASE_URL}${imagemPath}`;
+    }
+    
+    // Se não tem o prefixo /uploads/, adicionar
+    return `${API_BASE_URL}/uploads/images/${imagemPath}`;
+  };
 
   return (
     <motion.div
@@ -184,10 +203,11 @@ const AssociadosCard = ({ associado, index }) => {
     >
       {/* Imagem do associado */}
       <img
-        src={associado.imagem || imagemPadrao}
+        src={construirUrlImagem(associado.imagem)}
         alt={`Foto de ${associado.nomeFantasia || 'Associado'}`}
         className="associadoCardImagem"
         onError={(e) => {
+          console.warn('Erro ao carregar imagem:', associado.imagem);
           e.target.src = imagemPadrao;
         }}
       />

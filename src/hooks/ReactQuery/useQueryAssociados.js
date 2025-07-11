@@ -21,10 +21,10 @@ export const useQueryAssociados = (
     url += `?page=${page}`
     url += `&pageSize=100`
       
-    // Usar 'search' para busca por nome/nomeFantasia
+    // Usar 'nome' para busca por nome/nomeFantasia (mudança no backend)
     if( !!nome || !!nomeFantasia ) {
         const searchTerm = nome || nomeFantasia;
-        url += `&search=${encodeURIComponent(searchTerm)}`
+        url += `&nome=${encodeURIComponent(searchTerm)}`
     }
     if( !!estado ) {
         url += `&estado=${encodeURIComponent(estado)}`

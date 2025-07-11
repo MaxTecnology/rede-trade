@@ -1,44 +1,47 @@
-import SearchInput from '@/components/Search/SearchInput';
+// import SearchInput from '@/components/Search/SearchInput'; // Removido
 import { FaSearch, FaPlus, FaTimes } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query'; // Adicionar esta importação
+import { useQueryClient } from '@tanstack/react-query';
 import EstadoSelect from "@/components/Options/Estado";
-import filters from '@/store/filters';
 import CategoriesOptions from '@/components/Options/CategoriesOptions';
 import { useEffect, useState } from 'react';
 import AgenciasOptions from '@/components/Options/AgenciasOptions';
 import ButtonMotion from '@/components/FramerMotion/ButtonMotion';
 
-const SearchField = () => {
+const SearchField = ({ 
+    filtrosAtivos = {}, 
+    onFiltrosChange = () => {}, 
+    onLimparFiltros = () => {},
+    showNewButton = true 
+}) => {
     const navigate = useNavigate();
-    const queryClient = useQueryClient(); // Adicionar esta linha
+    const queryClient = useQueryClient();
 
-    const params = new URLSearchParams(window.location.search);
-    let search = params.get('search');
-    let agencia = params.get('agencia');
-    let categoriaId = params.get('categoriaId');
-    let account = params.get('account');
-    let estado = params.get('estado');
-    let cidade = params.get('cidade');
-    let page = params.get('page') || 1;
-
-    // Estado local para os filtros
+    // Estado local para os filtros baseado nos props
     const [localFilters, setLocalFilters] = useState({
-        search: search || '',
-        agencia: agencia || '',
-        categoriaId: categoriaId || '',
-        account: account || '',
-        estado: estado || '',
-        cidade: cidade || ''
+        search: filtrosAtivos.search || '',
+        agencia: filtrosAtivos.agencia || '',
+        categoriaId: filtrosAtivos.categoriaId || '',
+        account: filtrosAtivos.account || '',
+        estado: filtrosAtivos.estado || '',
+        cidade: filtrosAtivos.cidade || ''
     });
 
     const handleclick = () => {
         navigate("/associadosCadastrar")
     }
 
+    // Atualizar estado local quando props mudarem
     useEffect(() => {
-        filters.table = localFilters;
-    }, [localFilters])
+        setLocalFilters({
+            search: filtrosAtivos.search || '',
+            agencia: filtrosAtivos.agencia || '',
+            categoriaId: filtrosAtivos.categoriaId || '',
+            account: filtrosAtivos.account || '',
+            estado: filtrosAtivos.estado || '',
+            cidade: filtrosAtivos.cidade || ''
+        });
+    }, [filtrosAtivos]);
 
     const handleSearch = (e) => {
         const { name, value } = e.target;
@@ -48,42 +51,27 @@ const SearchField = () => {
             ...prev,
             [name]: value
         }));
-        
-        // Atualizar store
-        filters.table[name] = value;
     }
 
     // Função para aplicar os filtros (submit do form)
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // Construir a query string com os filtros atuais
-        const queryParams = new URLSearchParams();
-        
+        // Limpar filtros vazios
+        const filtrosLimpos = {};
         Object.entries(localFilters).forEach(([key, value]) => {
             if (value && value.trim() && value !== "Selecionar" && value !== "") {
-                queryParams.set(key, value.trim());
+                filtrosLimpos[key] = value.trim();
             }
         });
-
-        // Detectar página atual e navegar para a página correta
-        const currentPath = window.location.pathname;
-        const queryString = queryParams.toString();
         
-        let targetUrl;
-        if (currentPath.includes('associadosLista')) {
-            // Se estiver na página de lista, manter na lista
-            targetUrl = `/associadosLista${queryString ? `?${queryString}` : ''}`;
-        } else {
-            // Caso contrário, ir para a página de cards
-            targetUrl = `/associados${queryString ? `?${queryString}` : ''}`;
-        }
+        // Chamar callback do componente pai
+        onFiltrosChange(filtrosLimpos);
         
-        console.log('🔍 Navegando para:', targetUrl);
-        navigate(targetUrl);
+        console.log('🔍 Filtros aplicados:', filtrosLimpos);
     }
 
-    // Função para limpar todos os filtros (VERSÃO MELHORADA)
+    // Função para limpar todos os filtros 
     const clearAllFilters = async (e) => {
         e.preventDefault();
         
@@ -99,20 +87,13 @@ const SearchField = () => {
         
         setLocalFilters(clearedFilters);
         
-        // Limpar store
-        filters.table = {};
-        
         // INVALIDAR O CACHE do React Query
         await queryClient.invalidateQueries({ queryKey: ['associados'] });
         
-        // Detectar página atual e navegar para a página correta
-        const currentPath = window.location.pathname;
+        // Chamar callback do componente pai
+        onLimparFiltros();
         
-        if (currentPath.includes('associadosLista')) {
-            navigate('/associadosLista', { replace: true });
-        } else {
-            navigate('/associados', { replace: true });
-        }
+        console.log('🧹 Filtros limpos');
     }
 
     // Verificar se há filtros ativos
@@ -162,7 +143,19 @@ const SearchField = () => {
 
             <form onSubmit={handleSubmit} className="containerSearch">
                 <div className="searchRow">
-                    <SearchInput />
+                    {/* Campo de busca integrado */}
+                    <div className="form-group f2 m10 searchInput">
+                        <label htmlFor="search">Pesquisar</label>
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            value={localFilters.search}
+                            onChange={handleSearch}
+                            placeholder="Pesquisar por nome, nome fantasia..."
+                        />
+                        <FaSearch className="icon" />
+                    </div>
                     <div className="form-group f2">
                         <label>Agência</label>
                         <select 
@@ -228,9 +221,11 @@ const SearchField = () => {
                         <ButtonMotion type="submit">
                             <FaSearch /> Localizar
                         </ButtonMotion>
-                        <ButtonMotion onClick={handleclick} className="purpleBtn" type="button">
-                            <FaPlus /> Novo Associado
-                        </ButtonMotion>
+                        {showNewButton && (
+                            <ButtonMotion onClick={handleclick} className="purpleBtn" type="button">
+                                <FaPlus /> Novo Associado
+                            </ButtonMotion>
+                        )}
                     </div>
                 </div>
             </form>

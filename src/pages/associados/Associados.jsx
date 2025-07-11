@@ -86,11 +86,15 @@ const Associados = () => {
 
     // Função para aplicar filtros
     const aplicarFiltros = (novosFiltros) => {
+        console.log('🔍 Aplicando filtros:', novosFiltros);
+        
         const filtrosAtualizados = {
             ...filtros,
             ...novosFiltros,
             page: 1 // Reset para primeira página
         };
+        
+        console.log('🔍 Filtros atualizados:', filtrosAtualizados);
         
         setFiltros(filtrosAtualizados);
         setCurrentPage(1);
