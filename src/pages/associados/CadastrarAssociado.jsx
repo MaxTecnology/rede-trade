@@ -214,7 +214,7 @@ const CadastrarAssociado = () => {
             revalidate("associados");
             
             setTimeout(() => {
-                navigate('/associados');
+                navigate('/associadosLista');
             }, 2000);
             
         } catch (error) {

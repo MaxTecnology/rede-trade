@@ -15,6 +15,57 @@ const OfertasCard = ({ associado, index }) => {
     const [minutos, setMinutos] = useState(0);
     const [segundos, setSegundos] = useState(0);
 
+    // Configuração da API para imagens
+    const API_BASE_URL = "http://localhost:3024"; // ou process.env.REACT_APP_API_URL
+    const imagemPadrao = "https://cdn.vectorstock.com/i/preview-1x/65/30/default-image-icon-missing-picture-page-vector-40546530.jpg";
+
+    // Função para construir URL da imagem
+    const construirUrlImagem = (imagemPath) => {
+        if (!imagemPath) return imagemPadrao;
+        
+        // Se já é uma URL completa, usar diretamente
+        if (imagemPath.startsWith('http://') || imagemPath.startsWith('https://')) {
+            return imagemPath;
+        }
+        
+        // Se é um caminho relativo, construir URL completa
+        if (imagemPath.startsWith('/uploads/')) {
+            return `${API_BASE_URL}${imagemPath}`;
+        }
+        
+        // Se não tem o prefixo /uploads/, adicionar
+        return `${API_BASE_URL}/uploads/images/${imagemPath}`;
+    };
+
+    // Função para obter primeira imagem
+    const obterPrimeiraImagem = () => {
+        if (!data.imagens || data.imagens.length === 0) {
+            return imagemPadrao;
+        }
+
+        // Se imagens é um array de strings
+        if (Array.isArray(data.imagens)) {
+            return construirUrlImagem(data.imagens[0]);
+        }
+
+        // Se imagens é uma string que parece um array JSON
+        if (typeof data.imagens === 'string') {
+            try {
+                // Remover chaves {} se existirem
+                const cleanString = data.imagens.replace(/[{}]/g, '');
+                // Dividir por vírgula
+                const imagensArray = cleanString.split(',');
+                if (imagensArray.length > 0 && imagensArray[0].trim()) {
+                    return construirUrlImagem(imagensArray[0].trim());
+                }
+            } catch (error) {
+                console.warn('Erro ao processar imagens:', error);
+            }
+        }
+
+        return imagemPadrao;
+    };
+
     useEffect(() => {
         activePage("ofertas")
     }, []);
@@ -84,7 +135,15 @@ const OfertasCard = ({ associado, index }) => {
                 exit={{ opacity: 0, scale: 0 }}
                 className=" ofertasCard"
             >
-                <img src={data.imagens[0] ? data.imagens[0] : "https://cdn.vectorstock.com/i/preview-1x/65/30/default-image-icon-missing-picture-page-vector-40546530.jpg"} alt="" className="ofertasCardImage" />
+                <img 
+                    src={obterPrimeiraImagem()} 
+                    alt={`Imagem da oferta: ${data.titulo}`} 
+                    className="ofertasCardImage"
+                    onError={(e) => {
+                        console.warn('Erro ao carregar imagem da oferta:', data.imagens);
+                        e.target.src = imagemPadrao;
+                    }}
+                />
                 <div className="ofertasCardType">
                     <span>{data.tipo}</span>
                     <div >
