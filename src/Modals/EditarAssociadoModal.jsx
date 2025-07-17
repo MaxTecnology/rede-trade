@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-Modal.setAppElement('#root');
 import { editUser } from '@/hooks/ListasHook';
 import { closeModal } from '@/hooks/Functions';
 import { GrFormClose } from "react-icons/gr";
@@ -10,6 +9,9 @@ import { toast } from 'sonner';
 import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
 import PlanosFields from '@/components/Form/PlanosFields';
 import Categoria_SubCategoriaOptions from '@/components/Options/Categoria_SubCategoriaOptions';
+import GerentesOptions from '@/components/Options/GerentesOptions';
+import { useQueryGerentes } from '@/hooks/ReactQuery/useQueryGerentes';
+import { useQueryClient } from '@tanstack/react-query';
 import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/utils/functions/formHandler';
 import ButtonMotion from '@/components/FramerMotion/ButtonMotion';
 import InputMask from 'react-input-mask';
@@ -17,15 +19,31 @@ import defaultImage from "@/assets/images/default_img.png"
 
 const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [imagemReference, setImageReference] = useState(null);
-    const [imagem, setImagem] = useState(null); // NOVO: Para armazenar o arquivo
+    const [imagem, setImagem] = useState(null);
     const [reference, setReference] = useState(true)
     const [error, setError] = useState(false)
     const [sucess, setSucess] = useState(false)
+    const [gerenteSelecionado, setGerenteSelecionado] = useState("");
+    const [taxaGerente, setTaxaGerente] = useState("0");
     const info = associadoInfo
-    // console.log(info) // Debug removido
+    const { data: gerentesData, refetch: refetchGerentes } = useQueryGerentes();
+    const queryClient = useQueryClient();
+    
+    console.log('🔍 Debug EditarAssociadoModal:', {
+        info,
+        conta: info?.conta,
+        gerenteContaId: info?.conta?.gerenteContaId,
+        gerentesData: gerentesData?.data?.length || 0,
+        gerenteAtual: gerenteSelecionado,
+        // Vamos ver se o problema está nos dados que chegam
+        contaCompleta: JSON.stringify(info?.conta, null, 2)
+    });
 
     useEffect(() => {
         if (isOpen && info) {
+            // Forçar refetch dos gerentes para garantir dados atualizados
+            refetchGerentes();
+            
             // Construir URL completa da imagem
             let imageUrl = defaultImage; // Fallback padrão
             
@@ -47,8 +65,47 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
             
             setImageReference(imageUrl);
             setImagem(null); // Reset do arquivo quando abrir modal
+            
+            // Configurar gerente selecionado
+            const gerenteId = info.conta?.gerenteContaId;
+            console.log('🔍 Debug gerente:', {
+                gerenteId,
+                gerenteIdType: typeof gerenteId,
+                gerenteIdString: gerenteId?.toString(),
+                conta: info.conta
+            });
+            
+            if (gerenteId) {
+                setGerenteSelecionado(gerenteId.toString());
+                console.log('👨‍💼 Gerente carregado:', gerenteId);
+            } else {
+                setGerenteSelecionado("");
+                console.log('👨‍💼 Nenhum gerente selecionado');
+            }
         }
     }, [info, isOpen]);
+    
+    // Effect para atualizar taxa quando gerente mudar ou dados dos gerentes carregarem
+    useEffect(() => {
+        if (gerenteSelecionado && gerentesData?.data) {
+            const gerente = gerentesData.data.find(g => g.idUsuario.toString() === gerenteSelecionado.toString());
+            if (gerente && gerente.taxaComissaoGerente) {
+                setTaxaGerente(gerente.taxaComissaoGerente.toString());
+                console.log('💰 Taxa do gerente carregada:', gerente.taxaComissaoGerente);
+            } else {
+                setTaxaGerente("0");
+            }
+        } else {
+            setTaxaGerente("0");
+        }
+    }, [gerenteSelecionado, gerentesData]);
+    
+    // Função para atualizar gerente selecionado
+    const handleGerenteChange = (event) => {
+        const novoGerenteId = event.target.value;
+        setGerenteSelecionado(novoGerenteId);
+        console.log('👨‍💼 Gerente alterado para:', novoGerenteId);
+    };
 
     const revalidate = useRevalidate();
 
@@ -155,8 +212,25 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 success: () => {
                     setReference(true);
                     setImagem(null);
-                    modalToggle();
+                    
+                    // Invalidar múltiplas queries para garantir atualização
                     revalidate("associados");
+                    revalidate("usuarios");
+                    revalidate("gerentes");
+                    
+                    // Invalidação mais agressiva do React Query
+                    queryClient.invalidateQueries({ queryKey: ['associados'] });
+                    queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+                    queryClient.invalidateQueries({ queryKey: ['gerentes'] });
+                    
+                    // Remover dados específicos do cache para forçar refetch
+                    queryClient.removeQueries({ queryKey: ['associados'] });
+                    
+                    // Fechar modal com pequeno delay para garantir atualização
+                    setTimeout(() => {
+                        modalToggle();
+                    }, 1000);
+                    
                     return "Associado editado com sucesso!";
                 },
                 error: (error) => {
@@ -170,8 +244,25 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 loading: 'Editando Associado...',
                 success: () => {
                     setReference(true);
-                    modalToggle();
+                    
+                    // Invalidar múltiplas queries para garantir atualização
                     revalidate("associados");
+                    revalidate("usuarios");
+                    revalidate("gerentes");
+                    
+                    // Invalidação mais agressiva do React Query
+                    queryClient.invalidateQueries({ queryKey: ['associados'] });
+                    queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+                    queryClient.invalidateQueries({ queryKey: ['gerentes'] });
+                    
+                    // Remover dados específicos do cache para forçar refetch
+                    queryClient.removeQueries({ queryKey: ['associados'] });
+                    
+                    // Fechar modal com pequeno delay para garantir atualização
+                    setTimeout(() => {
+                        modalToggle();
+                    }, 1000);
+                    
                     return "Associado editado com sucesso!";
                 },
                 error: (error) => {
@@ -241,7 +332,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label className="required-field-label">CNPJ</label>
                     <InputMask 
                         mask="99.999.999/9999-99" 
-                        maskChar={null} 
+ 
                         defaultValue={info.cnpj}
                         type="text" 
                         className="form-control"
@@ -316,7 +407,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label>Telefone</label>
                     <InputMask 
                         mask="(99)9999-9999" 
-                        maskChar={null} 
+ 
                         defaultValue={info.telefone}
                         type="text" 
                         className="form-control"
@@ -328,7 +419,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label className="required-field-label">Celular</label>
                     <InputMask 
                         mask="(99)99999-9999" 
-                        maskChar={null} 
+ 
                         defaultValue={info.celular}
                         type="text" 
                         className="form-control"
@@ -398,7 +489,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label className="required-field-label">CEP</label>
                     <InputMask 
                         mask="99999-999" 
-                        maskChar={null} 
+ 
                         defaultValue={info.cep}
                         type="text" 
                         className="form-control"
@@ -488,18 +579,26 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 {/* Operações */}
                 <div className="form-group">
                     <label>Gerente de Conta</label>
-                    <select defaultValue={info.nomeFranquia ? info.nomeFranquia : info.idUsuario} className="form-control" id="gerentesSelect" name="gerente">
+                    <select 
+                        value={gerenteSelecionado} 
+                        className="form-control" 
+                        id="gerentesSelect" 
+                        name="gerente"
+                        onChange={handleGerenteChange}
+                    >
                         <option value="" disabled>Selecionar</option>
-                        <option value={info.conta && info.conta.gerenteContaId ? info.conta.gerenteContaId : info.idUsuario}>Sem Gerente</option>
+                        <option value="">Sem Gerente</option>
+                        <GerentesOptions />
                     </select>
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Taxa Gerente Conta em %</label>
                     <input
-                        defaultValue={info.taxaGerenteConta} 
+                        value={taxaGerente} 
                         type="number" 
                         className="form-control readOnly" 
                         id="taxaGerenteConta" 
+                        name="taxaGerenteConta"
                         readOnly 
                     />
                 </div>
@@ -588,7 +687,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <label className="required-field-label">Cpf</label>
                     <InputMask 
                         mask="999.999.999-99" 
-                        maskChar={null} 
+ 
                         defaultValue={info.cpf}
                         type="text" 
                         className="form-control"

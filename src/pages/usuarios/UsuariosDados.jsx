@@ -23,11 +23,41 @@ const UsuariosDados = () => {
     const [imagemReference, setImageReference] = useState(null);
     const [reference, setReference] = useState(true)
     const [loading, setLoading] = useState(false)
+    
     useEffect(() => {
         activePage("usuarios")
     }, []);
 
     const revalidate = useRevalidate()
+
+    // Verificação de segurança - se não há dados do usuário, mostrar loading
+    if (!userInfo || Object.keys(userInfo).length === 0) {
+        return (
+            <div className="container">
+                <div className="containerHeader">Dados do Usuário</div>
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    height: '300px',
+                    flexDirection: 'column',
+                    gap: '20px'
+                }}>
+                    <ColorRing
+                        visible={true}
+                        height="80"
+                        width="80"
+                        ariaLabel="color-ring-loading"
+                        wrapperStyle={{}}
+                        wrapperClass="color-ring-wrapper"
+                        colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
+                    />
+                    <p>Carregando dados do usuário...</p>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     const isURL = (str) => {
         try {
@@ -38,7 +68,7 @@ const UsuariosDados = () => {
         }
     };
 
-    const imageUrl = isURL(userInfo.imagem) ? userInfo.imagem : defaultImage;
+    const imageUrl = userInfo.imagem && isURL(userInfo.imagem) ? userInfo.imagem : defaultImage;
 
     const formHandler = (event) => {
         event.preventDefault()
@@ -65,19 +95,19 @@ const UsuariosDados = () => {
                 className="containerForm">
                 <div className="form-group">
                     <label className="required">Razão Social</label>
-                    <input type="text" className="readOnly" id="razaoSocial" required defaultValue={userInfo.razaoSocial} readOnly />
+                    <input type="text" className="readOnly" id="razaoSocial" required defaultValue={userInfo.razaoSocial || ""} readOnly />
                 </div>
                 <div className="form-group">
                     <label className="required">Nome Fantasia</label>
-                    <input type="text" className="readOnly" id="nomeFantasia" required defaultValue={userInfo.nomeFantasia} readOnly />
+                    <input type="text" className="readOnly" id="nomeFantasia" required defaultValue={userInfo.nomeFantasia || ""} readOnly />
                 </div>
                 <div className="form-group">
                     <label className="required">Descrição</label>
-                    <textarea className="readOnly" cols="30" rows="1" required defaultValue={userInfo.descricao} readOnly ></textarea>
+                    <textarea className="readOnly" cols="30" rows="1" required defaultValue={userInfo.descricao || ""} readOnly ></textarea>
                 </div>
                 <div className="form-group">
                     <label className="required">Status</label>
-                    <select className="readOnly" required defaultValue={userInfo.status} disabled >
+                    <select className="readOnly" required defaultValue={userInfo.status ?? true} disabled >
                         <option value="" disabled>Selecionar</option>
                         <option value={true}>Atendendo</option>
                         <option value={false}>Não Atendendo</option>
@@ -85,9 +115,14 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group">
                     <label>CNPJ</label>
-                    <InputMask mask="99.999.999/9999-99" maskChar={null} value={userInfo.cnpj || ""} readOnly>
-                        {(inputProps) => <input {...inputProps} type="text" required className="readOnly" />}
-                    </InputMask>
+                    <InputMask 
+                        mask="99.999.999/9999-99" 
+                        value={userInfo.cnpj || ""} 
+                        readOnly
+                        type="text" 
+                        required 
+                        className="readOnly"
+                    />
                 </div>
                 <div className="form-group">
                     <label>Insc. Estadual</label>
@@ -140,16 +175,26 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group f2">
                     <label>Telefone</label>
-                    <InputMask mask="(99)9999-9999" maskChar={null} readOnly value={userInfo.telefone}>
-                        {(inputProps) => <input {...inputProps} type="text" className="readOnly" id="telefone" required />}
-                    </InputMask>
+                    <InputMask 
+                        mask="(99)9999-9999" 
+                        readOnly 
+                        value={userInfo.telefone || ""}
+                        type="text" 
+                        className="readOnly" 
+                        id="telefone" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">Celular</label>
-                    <InputMask mask="(99)99999-9999" maskChar={null} value={userInfo.celular} readOnly>
-                        {(inputProps) => <input {...inputProps} type="text" className="readOnly" required />}
-                    </InputMask>
-
+                    <InputMask 
+                        mask="(99)99999-9999" 
+                        value={userInfo.celular || ""} 
+                        readOnly
+                        type="text" 
+                        className="readOnly" 
+                        required 
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">E-mail</label>
@@ -177,9 +222,14 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">CEP</label>
-                    <InputMask mask="99999-999" maskChar={null} value={userInfo.cep} readOnly>
-                        {(inputProps) => <input {...inputProps} type="text" id="cep" className="readOnly" />}
-                    </InputMask>
+                    <InputMask 
+                        mask="99999-999" 
+                        value={userInfo.cep || ""} 
+                        readOnly
+                        type="text" 
+                        id="cep" 
+                        className="readOnly" 
+                    />
                 </div>
                 <div className="form-group">
                     <label>Complemento</label>
@@ -211,7 +261,7 @@ const UsuariosDados = () => {
                             <div className="form-group">
                                 <label className="required">Data Vencimento Fatura</label>
                                 <select required
-                                    className="readOnly" readOnly defaultValue={userInfo.conta.dataVencimentoFatura} disabled>
+                                    className="readOnly" readOnly defaultValue={userInfo.conta?.dataVencimentoFatura || ""} disabled>
                                     <option value="" disabled>Selecionar</option>
                                     <option>10</option>
                                     <option>20</option>
@@ -229,9 +279,9 @@ const UsuariosDados = () => {
                 =============================================================== */}
                 <div className="form-group">
                     <label>Gerente de Conta</label>
-                    <select defaultValue={userInfo.conta.gerenteContaId ? userInfo.conta.gerenteContaId : "Indefinido"} className="readOnly" required disabled>
-                        <option value={userInfo.conta.gerenteContaId ? userInfo.conta.gerenteContaId : "Indefinido"}>
-                            {userInfo.conta.gerenteContaId ? userInfo.conta.gerenteContaId : "Indefinido"}
+                    <select defaultValue={userInfo.conta?.gerenteContaId || "Indefinido"} className="readOnly" required disabled>
+                        <option value={userInfo.conta?.gerenteContaId || "Indefinido"}>
+                            {userInfo.conta?.gerenteContaId || "Indefinido"}
                         </option>
                     </select>
                 </div>
@@ -250,19 +300,19 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Limite Crédito</label>
-                    <RealInput defaultValue={userInfo.conta.limiteCredito} placeholder="Insira o limite" reference={reference} required readOnly className="readOnly" />
+                    <RealInput defaultValue={userInfo.conta?.limiteCredito || 0} placeholder="Insira o limite" reference={reference} required readOnly className="readOnly" />
                 </div>
                 <div className="form-group">
                     <label className="required">Limite de Venda Mensal</label>
-                    <RealInput defaultValue={userInfo.conta.limiteVendaMensal} placeholder="Insira o limite" reference={reference} required readOnly className="readOnly" />
+                    <RealInput defaultValue={userInfo.conta?.limiteVendaMensal || 0} placeholder="Insira o limite" reference={reference} required readOnly className="readOnly" />
                 </div>
                 <div className="form-group">
                     <label className="required">Limite de Venda Total</label>
-                    <RealInput defaultValue={userInfo.conta.limiteVendaTotal} placeholder="Insira o limite" reference={reference} required readOnly className="readOnly" />
+                    <RealInput defaultValue={userInfo.conta?.limiteVendaTotal || 0} placeholder="Insira o limite" reference={reference} required readOnly className="readOnly" />
                 </div>
                 <div className="form-group">
                     <label>Aceita Orçamento</label>
-                    <select className="readOnly" defaultValue={userInfo.aceitaOrcamento} disabled >
+                    <select className="readOnly" defaultValue={userInfo.aceitaOrcamento ?? false} disabled >
                         <option value="" disabled>Selecionar</option>
                         <option value={true}>Sim</option>
                         <option value={false}>Não</option>
@@ -270,7 +320,7 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group">
                     <label>Aceita Voucher</label>
-                    <select className="readOnly" defaultValue={userInfo.aceitaVoucher} disabled >
+                    <select className="readOnly" defaultValue={userInfo.aceitaVoucher ?? false} disabled >
                         <option value="" disabled>Selecionar</option>
                         <option value={true}>Sim</option>
                         <option value={false}>Não</option>
@@ -290,18 +340,21 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Nome</label>
-                    <input type="text" name="nome" required defaultValue={userInfo.nome} />
+                    <input type="text" name="nome" required defaultValue={userInfo.nome || ""} />
                 </div>
                 <div className="form-group">
                     <label className="required">Cpf</label>
-                    <InputMask mask="999.999.999-99" maskChar={null} defaultValue={userInfo.cpf || ""}>
-                        {(inputProps) => <input  {...inputProps} type="text" name="cpf" required />}
-                    </InputMask>
-
+                    <InputMask 
+                        mask="999.999.999-99" 
+                        defaultValue={userInfo.cpf || ""}
+                        type="text" 
+                        name="cpf" 
+                        required 
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required ">E-mail</label>
-                    <input type="email" name="email" required defaultValue={userInfo.email} />
+                    <input type="email" name="email" required defaultValue={userInfo.email || ""} />
                 </div>
                 <div className="buttonContainer">
                     {loading

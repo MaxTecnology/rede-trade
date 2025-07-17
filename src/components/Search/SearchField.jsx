@@ -31,17 +31,34 @@ const SearchField = ({
         navigate("/associadosCadastrar")
     }
 
-    // Atualizar estado local quando props mudarem
+    // Atualizar estado local quando props mudarem (apenas quando necessário)
     useEffect(() => {
-        setLocalFilters({
+        // Verificar se os valores realmente mudaram para evitar loop infinito
+        const newFilters = {
             search: filtrosAtivos.search || '',
             agencia: filtrosAtivos.agencia || '',
             categoriaId: filtrosAtivos.categoriaId || '',
             account: filtrosAtivos.account || '',
             estado: filtrosAtivos.estado || '',
             cidade: filtrosAtivos.cidade || ''
-        });
-    }, [filtrosAtivos]);
+        };
+
+        // Só atualizar se os valores são diferentes
+        const hasChanged = Object.keys(newFilters).some(key => 
+            newFilters[key] !== localFilters[key]
+        );
+
+        if (hasChanged) {
+            setLocalFilters(newFilters);
+        }
+    }, [
+        filtrosAtivos.search, 
+        filtrosAtivos.agencia, 
+        filtrosAtivos.categoriaId, 
+        filtrosAtivos.account, 
+        filtrosAtivos.estado, 
+        filtrosAtivos.cidade
+    ]);
 
     const handleSearch = (e) => {
         const { name, value } = e.target;

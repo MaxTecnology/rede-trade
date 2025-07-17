@@ -46,12 +46,12 @@ const Categoria_SubCategoriaOptions = ({ defaultValue, required }) => {
                         : <option disabled>Nenhuma Categoria</option>}
                 </select>
             </div>
-            <input type="hidden" name="categoriaId" value={selected ? selected.idCategoria : defaultCategoria?.idCategoria} />
+            <input type="hidden" name="categoriaId" value={selected ? selected.idCategoria : defaultCategoria?.idCategoria || ""} />
             <div className="form-group">
                 <label>Sub-Categoria</label>
                 <select
                     onChange={(e) => setSub(e.target.value)}
-                    value={sub}
+                    value={sub || ""}
                     name="subcategoriaId"
                 >
                     <option disabled value="">

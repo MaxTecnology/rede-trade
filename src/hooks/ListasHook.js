@@ -408,8 +408,8 @@ export const editUser = async (event) => {
     delete object.taxaRepasseMatriz
 
     console.log("O QUE FOI ENVIADO", object)
-    console.log(`url : ${mainUrl}usuarios/atualizar-usuario/${idUsuario}`)
-    const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario/${idUsuario}`, object, getConfig())
+    console.log(`url : ${mainUrl}usuarios/atualizar-usuario-completo/${idUsuario}`)
+    const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario-completo/${idUsuario}`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao editar usuário, por favor cheque os campos e tente novamente")
     }

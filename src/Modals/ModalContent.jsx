@@ -148,8 +148,8 @@ const ModalContent = ({ modalItem, modalFunction }) => {
             component = [
                 { name: 'Meus Dados', icon: <FaUserCog />, route: "/usuariosDados" },
                 { name: 'Usuários', icon: <FaUsers />, route: "/usuariosLista" },
-                { name: 'Editar Sub Contas', icon: <FaUserEdit />, route: "/usuariosEditar" },
-                { name: 'Cadastrar Sub Conta', icon: <FaUserPlus />, route: "/usuariosCadastrar" },
+                { name: 'Gerenciar Subcontas', icon: <FaUserEdit />, route: "/usuariosEditar" },
+                { name: 'Nova Subconta', icon: <FaUserPlus />, route: "/subcontasCadastrar" },
 
             ];
             break;

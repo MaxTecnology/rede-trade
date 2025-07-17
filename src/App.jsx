@@ -7,6 +7,10 @@ import { useSnapshot } from 'valtio';
 import state from './store';
 import { useQueryLogin } from './hooks/ReactQuery/useQueryLogin';
 import { useEffect } from 'react'; // <-- Adicionar
+import Modal from 'react-modal';
+
+// Configurar Modal uma única vez
+Modal.setAppElement('#root');
 
 function App() {
     const { data, isLoading } = useQueryLogin();

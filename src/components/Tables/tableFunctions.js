@@ -18,7 +18,19 @@ export const formatColumns = (columns, status) => {
         if (column.accessorKey === 'conta.nomeFranquia') {
             return {
                 ...column,
-                cell: (value) => value.getValue() ? value.getValue() : "Nenhuma Franquia",
+                cell: (value) => {
+                    const cellValue = value.getValue();
+                    return cellValue ? cellValue : "Nenhuma Franquia";
+                },
+            };
+        }
+        if (column.accessorKey === 'conta.numeroConta') {
+            return {
+                ...column,
+                cell: (value) => {
+                    const cellValue = value.getValue();
+                    return cellValue ? cellValue : "Sem número";
+                },
             };
         }
         if (column.accessorKey === 'vencimento') {

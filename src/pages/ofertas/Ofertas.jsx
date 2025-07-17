@@ -9,18 +9,35 @@ import PaginationCards from "@/components/cards/PaginationCards";
 const Ofertas = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [cardsPerPage] = useState(12); // Ofertas por página
+    const [filtros, setFiltros] = useState({});
 
-    // Usar paginação do backend
-    const { data, isLoading, error } = useQueryOfertas(currentPage, cardsPerPage);
+    // Usar paginação do backend com filtros
+    const { data, isLoading, error } = useQueryOfertas(currentPage, cardsPerPage, filtros);
 
     useEffect(() => {
         activePage("ofertas")
     }, []);
 
+    // Funções para gerenciar filtros
+    const aplicarFiltros = (novosFiltros) => {
+        console.log('🔍 Aplicando filtros de ofertas:', novosFiltros);
+        
+        setFiltros(novosFiltros);
+        setCurrentPage(1); // Reset para primeira página quando aplicar filtros
+    };
+
+    const limparFiltros = () => {
+        console.log('🧹 Limpando filtros de ofertas');
+        
+        setFiltros({});
+        setCurrentPage(1);
+    };
+
     // Usar ofertas diretamente do backend (já filtradas)
     const ofertas = data?.ofertas || [];
 
     console.log('🎯 Ofertas recebidas da página', currentPage, ':', ofertas.length);
+    console.log('🔍 Filtros ativos:', filtros);
     console.log('📊 Meta dados:', data?.meta);
 
     // Backend já retorna apenas ofertas ativas e não vencidas
@@ -32,7 +49,11 @@ const Ofertas = () => {
         return (
             <div className="container">
                 <div className="containerHeader">Ofertas</div>
-                <SearchfieldOfertas />
+                <SearchfieldOfertas 
+                    filtrosAtivos={filtros}
+                    onFiltrosChange={aplicarFiltros}
+                    onLimparFiltros={limparFiltros}
+                />
                 <div className="loading-container" style={{ 
                     textAlign: 'center', 
                     padding: '40px' 
@@ -50,7 +71,11 @@ const Ofertas = () => {
         return (
             <div className="container">
                 <div className="containerHeader">Ofertas</div>
-                <SearchfieldOfertas />
+                <SearchfieldOfertas 
+                    filtrosAtivos={filtros}
+                    onFiltrosChange={aplicarFiltros}
+                    onLimparFiltros={limparFiltros}
+                />
                 <div className="error-container" style={{ 
                     textAlign: 'center', 
                     padding: '40px',
@@ -83,7 +108,11 @@ const Ofertas = () => {
                     </span>
                 )}
             </div>
-            <SearchfieldOfertas />
+            <SearchfieldOfertas 
+                filtrosAtivos={filtros}
+                onFiltrosChange={aplicarFiltros}
+                onLimparFiltros={limparFiltros}
+            />
             
             <div className="associadosCardContainer">
                 {currentCards.length > 0 ? (

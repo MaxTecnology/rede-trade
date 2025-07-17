@@ -268,8 +268,68 @@ function transformarDados(dados) {
     return resultado;
 }
 
-export async function createSubAccount(event) {
+// Versão atualizada que funciona com upload direto (sem Firebase)
+export async function createSubAccount(formData) {
+    try {
+        console.log("🚀 Iniciando criação de subconta");
+        
+        // Configuração para upload com FormData
+        const uploadConfig = {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('tokenRedeTrade')}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        };
 
+        // Criar subconta no backend
+        const response = await axios.post(
+            `${mainUrl}contas/criar-subconta/${state.user.conta.idConta}`, 
+            formData, 
+            uploadConfig
+        ).catch((error) => {
+            console.error("❌ Erro ao criar subconta:", error.response?.data || error);
+            const errorMsg = error.response?.data?.error || 
+                           error.response?.data?.message || 
+                           error.message || 
+                           "Erro ao criar subconta";
+            throw new Error(errorMsg);
+        });
+
+        console.log('✅ Subconta criada:', response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error("❌ Erro completo na criação da subconta:", error);
+        throw error;
+    }
+}
+
+// Função para adicionar permissões a uma subconta
+export async function addSubAccountPermissions(subcontaId, permissoes) {
+    try {
+        const permissoesProcessadas = transformarDados(permissoes);
+        console.log('📋 Adicionando permissões:', permissoesProcessadas);
+
+        const response = await axios.post(
+            `${mainUrl}contas/subcontas/adicionar-permissao/${subcontaId}`, 
+            { permissoes: permissoesProcessadas }, 
+            config
+        ).catch((error) => {
+            console.error("❌ Erro ao adicionar permissões:", error.response?.data || error);
+            throw new Error("Erro ao adicionar permissões à subconta");
+        });
+
+        console.log("✅ Permissões adicionadas:", response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error("❌ Erro ao adicionar permissões:", error);
+        throw error;
+    }
+}
+
+// Função legada mantida para compatibilidade
+export async function createSubAccountLegacy(event) {
     const { email, senha, imagem, cpf, nome } = event
     const imagemUrl = await uploadFile(imagem)
     const userData = {
@@ -286,7 +346,6 @@ export async function createSubAccount(event) {
         });
     console.log('Usuário criado:', response.data)
 
-
     const { atendimento, compras, extratos, faturas, meusUsuarios, minhaConta, ofertas, permissoesConta, vendas, vouchers } = event
     const permissoes = {
         atendimento, compras, extratos, faturas, meusUsuarios, minhaConta, ofertas, permissoesConta, vendas, vouchers
@@ -294,8 +353,6 @@ export async function createSubAccount(event) {
     let permissoesArray = [JSON.stringify(permissoes)]
     const resultado = transformarDados(permissoes)
     console.table(resultado)
-
-
 
     const subconta = await axios.post(`${mainUrl}contas/subcontas/adicionar-permissao/${response.data.idSubContas}`, permissoesArray, config)
         .catch((err) => {

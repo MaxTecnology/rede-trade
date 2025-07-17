@@ -1,13 +1,3 @@
-// import { useQuery } from '@tanstack/react-query';
-// import { getId } from '../getId';
-// import { getApiData } from '../ListasHook';
-// export const useQueryMeusAssociados = () => {
-//     return useQuery({
-//         queryKey: ['meusAssociados'],
-//         queryFn: async () => getApiData(`usuarios/usuarios-criados/${getId()}`),
-//     });
-// };
-
 import { useQuery } from '@tanstack/react-query';
 import { getId } from '../getId';
 import { getApiData } from '../ListasHook';
@@ -18,31 +8,20 @@ export const useQueryMeusAssociados = () => {
     return useQuery({
         queryKey: ['meusAssociados', userId],
         queryFn: async () => {
+            if (!userId) return [];
             try {
-                console.log('🔍 Executando nova versão da query');
-                const response = await getApiData(`usuarios/usuarios-criados/${userId}`);
-                return response || [];
+                // A rota correta é 'listar-usuarios', filtrando pelo ID do criador.
+                const data = await getApiData(`usuarios/listar-usuarios?usuarioCriadorId=${userId}`);
+                return data || [];
             } catch (error) {
-                // 404 é normal - usuário não criou ninguém ainda
-                if (error.response?.status === 404) {
-                    console.log(`ℹ️ Usuário ${userId} ainda não criou associados (404 - normal)`);
-                    return [];
-                }
-
-                // Log outros erros para debugging
-                console.error('❌ Erro inesperado ao buscar associados:', {
-                    status: error.response?.status,
-                    message: error.response?.data?.message || error.message,
-                    userId
-                });
-
-                // Re-throw outros erros
-                throw error;
+                // Se a API retornar 404 ou qualquer outro erro, tratamos como "sem associados".
+                // Isso evita quebrar a UI e poluir o console com erros esperados.
+                return [];
             }
         },
-        enabled: !!userId && userId !== null && userId !== undefined,
-        retry: false, // Não tenta novamente
-        refetchOnWindowFocus: false, // Evita refetch ao focar janela
-        staleTime: 5 * 60 * 1000, // Cache por 5 minutos
+        enabled: !!userId, // A query só será executada se o userId existir.
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 5 * 60 * 1000, // Cache de 5 minutos
     });
 };

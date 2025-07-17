@@ -18,6 +18,15 @@ const AssociadosLista = () => {
     const [modalIsOpen, modalToggle] = useModal(false);
     const [userInfo, setUserInfo] = useState(null);
     const [userId, setUserId] = useState(null);
+    
+    // Função personalizada para abrir modal com refetch
+    const openModalWithRefresh = () => {
+        console.log('🔄 Forçando refetch antes de abrir modal...');
+        refetch(); // Forçar refetch antes de abrir modal
+        setTimeout(() => {
+            modalToggle();
+        }, 200); // Pequeno delay para garantir que refetch termine
+    };
     const [dadosProcessados, setDadosProcessados] = useState([]);
 
     // Estados para filtros
@@ -382,7 +391,7 @@ const AssociadosLista = () => {
                             data={dadosProcessados}
                             setId={setUserId}
                             setInfo={setUserInfo}
-                            modaltoggle={modalToggle}
+                            modaltoggle={openModalWithRefresh}
                             type={getType()}
                             categorias={categorias?.categorias || []}
                         />

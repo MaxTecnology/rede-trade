@@ -15,6 +15,8 @@ import RequireAuth from './auth/RequireAuth.jsx'
 
 // PAGES
 import { AgenciasLista, AssociadoInfo, Associados, AssociadosLista, CadastrarAgencia, CadastrarAssociado, CancelarVouchers, Categorias, ContasPagar, ContasReceber, Credito, CreditoAnalise, CreditoAprovar, CreditoMeus, CreditoSolicitar, EstratosEstorno, Extratos, GerentesCadastrar, GerentesLista, Home, Login, MeusExtratos, MeusVouchers, Ofertas, OfertasCadastrar, OfertasExcluir, OfertasInfo, OfertasMinhas, PDFVoucher, PlanoAgencias, PlanoAssociado, PlanoGerente, ResetPassword, SubCategorias, TransaçãoCadastrar, Transações, TransaçõesExtorno, TransaçõesMinhas, UsuariosCadastrar, UsuariosDados, UsuariosLista, UsuariosMeus, VoucherCadastrar, Vouchers, VoucherSolicitarCancelar } from './pages/index.js'
+import SubcontasCadastrar from './pages/usuarios/SubcontasCadastrar.jsx'
+import SubcontasPermissoes from './pages/usuarios/SubcontasPermissoes.jsx'
 import Loading from './pages/Loading.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -387,6 +389,22 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               element={
                 <Suspense fallback={<Loading />}>
                   <UsuariosCadastrar />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/subcontasCadastrar"
+              element={
+                <Suspense fallback={<Loading />}>
+                  <SubcontasCadastrar />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/subcontasPermissoes"
+              element={
+                <Suspense fallback={<Loading />}>
+                  <SubcontasPermissoes />
                 </Suspense>
               }
             />
