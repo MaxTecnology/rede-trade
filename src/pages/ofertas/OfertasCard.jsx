@@ -10,6 +10,9 @@ import { motion } from "framer-motion";
 const OfertasCard = ({ associado, index }) => {
     const navigate = useNavigate();
     const data = associado
+
+    console.log("DEBUG OfertasCard:", { data, status: data.status, typeOfStatus: typeof data.status });
+
     const [dias, setDias] = useState(0);
     const [horas, setHoras] = useState(0);
     const [minutos, setMinutos] = useState(0);
@@ -129,7 +132,7 @@ const OfertasCard = ({ associado, index }) => {
     if (data.status) {
         return (
             <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.8, translate: 0 }} // Adicionado translate: 0
                 animate={{ opacity: 1, scale: 1, translate: 0 }}
                 transition={{ duration: 1, delay: index * 0.3 }}
                 exit={{ opacity: 0, scale: 0 }}

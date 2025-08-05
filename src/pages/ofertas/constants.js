@@ -4,7 +4,7 @@ export const columns = [
         header: 'Id',
     },
     {
-        accessorKey: 'nomeUsuario',
+        accessorKey: 'usuario.nomeFantasia',
         header: 'Nome Fantasia',
     },
     {

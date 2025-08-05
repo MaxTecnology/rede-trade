@@ -114,39 +114,23 @@ const CadastrarAssociado = () => {
 
     const buscarPlanos = async () => {
         try {
-            // Evitar chamadas duplas se já temos planos
             if (planos.length > 0) return;
             
             const response = await getApiData("planos/listar-planos");
-            console.log('📋 Planos carregados:', response.data?.length || response.planos?.length || 0, 'planos');
             setPlanos(response.data || response.planos || []);
         } catch (error) {
-            console.error('❌ Erro ao buscar planos:', error);
             toast.error('Erro ao carregar planos');
         }
     };
 
     const formHandler = async (event) => {
         try {
-            console.log('🔍 Dados ANTES do processamento:', JSON.parse(JSON.stringify(event)));
-            
-            // Debug específico para campos boolean
-            console.log('🔍 Valores boolean antes da validação:', {
-                status: event.status,
-                mostrarNoSite: event.mostrarNoSite,
-                aceitaOrcamento: event.aceitaOrcamento,
-                aceitaVoucher: event.aceitaVoucher
-            });
-
-            // Adicionar imagem aos dados (agora é File object, não string)
             if (imagem) {
                 event.imagem = imagem;
             }
             
-            // Garantir que os campos obrigatórios estão presentes
             event.tipo = "Associado";
             
-            // Limpar campos vazios - converter para null ou remover
             if (event.categoriaId === "" || event.categoriaId === "null") {
                 delete event.categoriaId;
             }
@@ -157,7 +141,6 @@ const CadastrarAssociado = () => {
                 delete event.planoId;
             }
             
-            // Garantir que campos numéricos sejam tratados corretamente
             if (event.numero) {
                 event.numero = parseInt(event.numero, 10);
             }
@@ -173,23 +156,18 @@ const CadastrarAssociado = () => {
             if (event.tipoOperacao) {
                 event.tipoOperacao = parseInt(event.tipoOperacao, 10);
             }
-            
-            // Os campos boolean serão processados pelo schema transform automaticamente
-            // Mas vamos garantir que valores padrão estejam corretos
+
             if (event.status === undefined || event.status === null) event.status = true;
             if (event.mostrarNoSite === undefined || event.mostrarNoSite === null) event.mostrarNoSite = true;
             if (event.aceitaOrcamento === undefined || event.aceitaOrcamento === null) event.aceitaOrcamento = true;
             if (event.aceitaVoucher === undefined || event.aceitaVoucher === null) event.aceitaVoucher = true;
-            event.statusConta = true; // Sempre ativo para novos associados
+            event.statusConta = true;
             
-            // Limpar campos que podem estar vazios
             Object.keys(event).forEach(key => {
                 if (event[key] === "" || event[key] === "undefined" || event[key] === undefined) {
                     delete event[key];
                 }
             });
-            
-            console.log('📊 Dados processados para envio:', event);
             
             setLoading(true);
             
@@ -197,18 +175,10 @@ const CadastrarAssociado = () => {
                 createAssociado(event),
                 {
                     loading: 'Cadastrando Associado...',
-                    success: (data) => {
-                        console.log('✅ Associado criado:', data);
-                        return `Associado ${data.nome} cadastrado com sucesso!`;
-                    },
-                    error: (error) => {
-                        console.error('❌ Erro ao criar associado:', error);
-                        return `Erro: ${error.message || 'Erro desconhecido'}`;
-                    },
+                    success: (data) => `Associado ${data.nome} cadastrado com sucesso!`,
+                    error: (error) => `Erro: ${error.message || 'Erro desconhecido'}`,
                 }
             );
-            
-            console.log('✅ Resposta final:', response);
             
             form.reset();
             revalidate("associados");
@@ -218,7 +188,7 @@ const CadastrarAssociado = () => {
             }, 2000);
             
         } catch (error) {
-            console.error('❌ Erro no formHandler:', error);
+            // Error already handled by toast.promise
         } finally {
             setLoading(false);
         }
@@ -271,20 +241,6 @@ const CadastrarAssociado = () => {
                             <ButtonMotion 
                                 className="purpleBtn" 
                                 type="submit"
-                                onClick={() => {
-                                    console.log('🔍 Botão clicado');
-                                    console.log('🔍 Erros detalhados do formulário:', JSON.stringify(form.formState.errors, null, 2));
-                                    console.log('🔍 Estado válido:', form.formState.isValid);
-                                    console.log('🔍 Valores do formulário:', form.getValues());
-                                    
-                                    // Verificar especificamente os campos com erro
-                                    if (form.formState.errors.usuarioCriadorId) {
-                                        console.log('❌ Erro usuarioCriadorId:', form.formState.errors.usuarioCriadorId);
-                                    }
-                                    if (form.formState.errors.matrizId) {
-                                        console.log('❌ Erro matrizId:', form.formState.errors.matrizId);
-                                    }
-                                }}
                             >
                                 Cadastrar
                             </ButtonMotion>

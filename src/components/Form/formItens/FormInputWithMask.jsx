@@ -9,7 +9,7 @@ const FormInputWithMask = ({ form, name, label, placeholder, required, mask, div
             control={form.control}
             name={name}
             render={({ field }) => (
-                <FormItem className={cn("form-group", divClassName && divClassName)}>
+                <FormItem className={cn("form-group", divClassName)}>
                     <div className="flex gap-2 items-center">
                         <FormLabel className={cn("pl-2 text-md", required && "required")}>
                             {label}
@@ -17,15 +17,15 @@ const FormInputWithMask = ({ form, name, label, placeholder, required, mask, div
                         <FormMessage />
                     </div>
                     <FormControl>
-                        <InputMask 
-                            mask={mask} 
+                        <InputMask
+                            mask={mask}
                             maskChar=""
                             value={field.value || ''}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
                         >
+                            {/* @ts-ignore */}
                             <Input 
-                                className="mt-0" 
                                 placeholder={placeholder || mask}
                             />
                         </InputMask>
