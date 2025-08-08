@@ -1,8 +1,8 @@
 import { proxy } from "valtio";
-
+import { API_URL } from "../config/api.js";
 
 const state = proxy({
-    url: import.meta.env.VITE_API_URL || "http://localhost:3024/",
+    url: API_URL,
     //url: "https://api.rt.maximizebot.com.br/",
     //url: "https://api.redetrade.com.br/",
     logged: false,
