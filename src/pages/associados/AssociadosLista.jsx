@@ -73,7 +73,7 @@ const AssociadosLista = () => {
         };
         
         setFiltros(newFiltros);
-        console.log('🔍 Filtros da URL (Lista):', newFiltros);
+        // console.log('🔍 Filtros da URL (Lista):', newFiltros); // Comentado para produção
     }, [location.search]);
 
     // Query para buscar associados
@@ -100,8 +100,8 @@ const AssociadosLista = () => {
     // Processar dados quando recebidos
     useEffect(() => {
         if (data && data.data) {
-            console.log('📊 Dados brutos da API:', data);
-            console.log('📊 Meta informações:', data.meta);
+            // console.log('📊 Dados brutos da API:', data); // Comentado para produção
+            // console.log('📊 Meta informações:', data.meta); // Comentado para produção
             
             // Extrair dados da resposta
             const associados = data.data;
@@ -110,7 +110,7 @@ const AssociadosLista = () => {
             const dadosFiltrados = processarDadosTabela(associados, filtros);
             setDadosProcessados(dadosFiltrados);
             
-            console.log('🏢 Associados processados para tabela:', dadosFiltrados);
+            // console.log('🏢 Associados processados para tabela:', dadosFiltrados); // Comentado para produção
         }
     }, [data, filtros]);
 

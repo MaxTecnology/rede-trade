@@ -35,9 +35,37 @@ const AssociadosCard = ({ associado, index }) => {
 
   // Verificação de segurança
   if (!associado) {
-    console.warn('AssociadosCard: associado é null ou undefined');
+    // console.warn('AssociadosCard: associado é null ou undefined'); // Comentado para produção
     return null;
   }
+
+  // Função para obter iniciais do nome
+  const obterIniciais = (nome) => {
+    if (!nome) return 'NA';
+    return nome.split(' ')
+      .map(palavra => palavra.charAt(0))
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
+  // Função para gerar cor baseada no nome
+  const obterCorAvatar = (nome) => {
+    if (!nome) return '#6B7280';
+    
+    const cores = [
+      '#EF4444', '#F97316', '#F59E0B', '#84CC16', 
+      '#22C55E', '#06B6D4', '#3B82F6', '#6366F1', 
+      '#A855F7', '#EC4899', '#F43F5E', '#64748B'
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < nome.length; i++) {
+      hash = nome.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    return cores[Math.abs(hash) % cores.length];
+  };
 
   // Função para obter nome da categoria
   const obterNomeCategoria = () => {
@@ -196,21 +224,47 @@ const AssociadosCard = ({ associado, index }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1, translate: 0 }}
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className="associadoCard"
     >
-      {/* Imagem do associado */}
-      <img
-        src={construirUrlImagem(associado.imagem)}
-        alt={`Foto de ${associado.nomeFantasia || 'Associado'}`}
-        className="associadoCardImagem"
-        onError={(e) => {
-          console.warn('Erro ao carregar imagem:', associado.imagem);
-          e.target.src = imagemPadrao;
-        }}
-      />
+      {/* Avatar do associado */}
+      <div className="associadoCardImagemContainer">
+        {associado.imagem && !associado.imagem.includes('seed_placeholder') ? (
+          <img
+            src={construirUrlImagem(associado.imagem)}
+            alt={`Foto de ${associado.nomeFantasia || 'Associado'}`}
+            className="associadoCardImagem"
+            onError={(e) => {
+              // Esconder imagem e mostrar avatar com iniciais
+              e.target.style.display = 'none';
+              const avatar = e.target.nextElementSibling;
+              if (avatar) avatar.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        
+        {/* Avatar com iniciais (fallback) */}
+        <div 
+          className="associadoCardAvatar"
+          style={{
+            display: (associado.imagem && !associado.imagem.includes('seed_placeholder')) ? 'none' : 'flex',
+            backgroundColor: obterCorAvatar(associado.nome || associado.nomeFantasia),
+            width: '100px',
+            height: '100px',
+            borderRadius: '50%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            margin: '0 auto 15px',
+          }}
+        >
+          {obterIniciais(associado.nome || associado.nomeFantasia)}
+        </div>
+      </div>
 
       {/* Tag com categoria e localização */}
       <div className="associadoCardTag">

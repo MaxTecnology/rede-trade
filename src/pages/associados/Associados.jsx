@@ -57,11 +57,14 @@ const Associados = () => {
             page: parseInt(params.get('page')) || 1
         };
         
-        setFiltros(newFiltros);
-        setCurrentPage(newFiltros.page);
-        
-        console.log('🔍 Filtros atualizados:', newFiltros);
-    }, [location.search]);
+        // Só atualizar se os filtros realmente mudaram
+        const filtrosChanged = JSON.stringify(filtros) !== JSON.stringify(newFiltros);
+        if (filtrosChanged) {
+            setFiltros(newFiltros);
+            setCurrentPage(newFiltros.page);
+            // console.log('🔍 Filtros atualizados:', newFiltros); // Comentado para produção
+        }
+    }, [location.search]); // Removido 'filtros' da dependência para evitar loop
 
     // Query para buscar associados
     const { data, isLoading, error, refetch } = useQueryAssociados(
@@ -86,7 +89,7 @@ const Associados = () => {
 
     // Função para aplicar filtros
     const aplicarFiltros = (novosFiltros) => {
-        console.log('🔍 Aplicando filtros:', novosFiltros);
+        // console.log('🔍 Aplicando filtros:', novosFiltros); // Comentado para produção
         
         const filtrosAtualizados = {
             ...filtros,
@@ -94,7 +97,7 @@ const Associados = () => {
             page: 1 // Reset para primeira página
         };
         
-        console.log('🔍 Filtros atualizados:', filtrosAtualizados);
+        // console.log('🔍 Filtros atualizados:', filtrosAtualizados); // Comentado para produção
         
         setFiltros(filtrosAtualizados);
         setCurrentPage(1);
@@ -130,17 +133,17 @@ const Associados = () => {
         updateURL(filtrosComNovaPagina);
     };
 
-    // Debug dos dados
-    console.log('📊 Dados da API:', data);
-    console.log('🔄 Loading:', isLoading);
-    console.log('❌ Error:', error);
+    // Debug dos dados (comentado para produção)
+    // console.log('📊 Dados da API:', data);
+    // console.log('🔄 Loading:', isLoading);
+    // console.log('❌ Error:', error);
 
     // Processar dados da API
     const processarDados = () => {
         if (!data || !data.data) return [];
         
-        console.log('🏢 Associados recebidos da API:', data.data);
-        console.log('📊 Meta informações:', data.meta);
+        // console.log('🏢 Associados recebidos da API:', data.data); // Comentado para produção
+        // console.log('📊 Meta informações:', data.meta); // Comentado para produção
         
         // Filtrar apenas associados ativos e não bloqueados
         return data.data.filter(associado => {

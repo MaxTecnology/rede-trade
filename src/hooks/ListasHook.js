@@ -57,20 +57,19 @@ export const loginUser = (event, setLoading, revalidate) => {
 
 export const getApiData = async (url, setState) => {
     const fullUrl = `${mainUrl}${url}`;
-    console.log(`DEBUG: getApiData - Chamando URL: ${fullUrl}`);
+    // console.log(`DEBUG: getApiData - Chamando URL: ${fullUrl}`); // Comentado para produção
     return axios.get(fullUrl, getConfig())
         .then((response) => {
-            console.log(`DEBUG: getApiData - Resposta recebida para ${fullUrl}:`, response.data);
+            // console.log(`DEBUG: getApiData - Resposta recebida para ${fullUrl}:`, response.data); // Comentado para produção
             if (setState) {
                 setState(response.data)
             }
             return response.data
         })
         .catch((error) => {
-            console.error(`DEBUG: getApiData - Erro na requisição para ${fullUrl}:`, error);
-            // Só faz log de erros que NÃO são 404 esperados
-            if (error.response?.status !== 404 || !url.includes('usuarios-criados')) {
-                console.log(error);
+            // Só faz log de erros importantes
+            if (error.response?.status >= 500) {
+                console.error(`❌ Erro ${error.response?.status} na requisição para ${fullUrl}:`, error.response?.data?.error || error.message);
             }
             throw error;
         })

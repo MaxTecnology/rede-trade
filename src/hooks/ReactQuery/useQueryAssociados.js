@@ -43,12 +43,12 @@ export const useQueryAssociados = (
     }
 
     async function getData() {
-        console.log('🌐 URL da requisição:', url);
+        // console.log('🌐 URL da requisição:', url); // Comentado para produção
         
         // Usar a rota corrigida que já tem os filtros
         const response = await getApiData(url);
         
-        console.log('📊 Dados recebidos da API:', response);
+        // console.log('📊 Dados recebidos da API:', response); // Comentado para produção
         
         // A nova rota já retorna no formato correto { data: [...], meta: {...} }
         return response;
