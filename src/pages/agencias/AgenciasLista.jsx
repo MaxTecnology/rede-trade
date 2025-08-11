@@ -14,7 +14,7 @@ import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 import { getType } from "@/hooks/getId";
 
 const AgenciasLista = () => {
-    const { data } = useQueryAgencias()
+    const { data, refetch } = useQueryAgencias()
     const [modalIsOpen, modalToggle] = useModal(false);
     const [userInfo, setUserInfo] = useState()
     const [userId, setUserId] = useState()
@@ -29,7 +29,6 @@ const AgenciasLista = () => {
     }
     const handleSearch = (e) => {
         filters.table[e.target.name] = e.target.value
-        console.log(filters)
     }
 
     return (
@@ -50,10 +49,9 @@ const AgenciasLista = () => {
                         <label htmlFor="porcentagem">Tipo</label>
                         <select className="form-control" name="tipo" onChange={handleSearch}>
                             <option value="">Selecionar</option>
-                            <option value="Comum">Associado</option>
-                            <option value="Master">Master</option>
-                            <option value="Filial">Filial</option>
-                            <option value="Matriz">Matriz</option>
+                            <option value="Comum">Franquia Comum</option>
+                            <option value="Master">Franquia Master</option>
+                            <option value="Filial">Franquia Filial</option>
                         </select>
                     </div>
                     {/*<div className="form-group">*/}
@@ -81,11 +79,17 @@ const AgenciasLista = () => {
             <div className="containerList">
                 <AgenciasTable
                     columns={columns}
-                    data={data && data.data ? data.data : []}
+                    data={data && data.data ? data.data.filter(item => 
+                        item.tipo !== "Matriz" && 
+                        (item.tipo === "Franquia" || 
+                         item.tipo?.includes("Franquia") || 
+                         item.conta?.tipoDaConta?.tipoDaConta?.includes("Franquia"))
+                    ) : []}
                     setId={setUserId}
                     setInfo={setUserInfo}
                     modaltoggle={modalToggle}
                     type={getType()}
+                    revalidate={refetch}
                 />
             </div>
             <Footer />

@@ -5,16 +5,18 @@ const AssociadoOptions = ({ voucher }) => {
     return (
         <>
             {data && data.data ?
-                data.data.map((item, index) => (
-                    <option
-                        value={item.nomeFantasia}
-                        id={item.nomeFantasia}
-                        key={index}
-                    >
-                        {item.nomeFantasia}
-                    </option>
-                ))
-                : <option disabled>Nenhuma Agência Disponivel</option>
+                data.data
+                    .filter(item => item.tipo === 'Associado') // Filtrar apenas associados
+                    .map((item, index) => (
+                        <option
+                            value={item.nome}
+                            id={item.nome}
+                            key={index}
+                        >
+                            {item.nomeFantasia} ({item.nome})
+                        </option>
+                    ))
+                : <option disabled>Nenhum Associado Disponível</option>
             }
         </>
     )

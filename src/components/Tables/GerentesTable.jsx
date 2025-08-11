@@ -12,7 +12,9 @@ const GerentesTable = ({
     data,
     setId,
     setInfo,
-    modaltoggle, type }) => {
+    modaltoggle, 
+    type,
+    revalidate }) => {
 
     const formattedColumns = formatColumns(columns);
     const snap = useSnapshot(filters.table);
@@ -42,7 +44,6 @@ const GerentesTable = ({
                 };
             }
         }).filter(Boolean);
-        console.log(filters)
         table.setGlobalFilter(snap?.search);
         setColumnFilters(filters);
     }, [table, snap]);
@@ -83,9 +84,13 @@ const GerentesTable = ({
                                     value={row.original.idPlano}
                                     modal={modaltoggle}
                                 />
-                                {type === "Matriz" ?
-                                    <Buttons type="Bloq" userId={row.original.idUsuario} />
-                                    : null}
+                                {type === "Matriz" ? (
+                                    <Buttons 
+                                        type={row.original.bloqueado ? "Unbloq" : "Bloq"} 
+                                        userId={row.original.idUsuario} 
+                                        revalidate={revalidate} 
+                                    />
+                                ) : null}
                             </td>
                         </tr>
                     ))}

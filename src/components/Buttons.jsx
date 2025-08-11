@@ -16,7 +16,6 @@ const Buttons = ({ type, value, modal, setInfo, info, setId, url, userId, confir
 
     const handleButtonClick = () => {
         if (type === "Edit") {
-            console.log("INFO", info)
             if (setId) {
                 setId(value)
             }
@@ -29,18 +28,30 @@ const Buttons = ({ type, value, modal, setInfo, info, setId, url, userId, confir
         }
         else if (type === 'Bloq') {
             bloqUser(userId)
-            setTimeout(() => {
-                window.location.reload();
-            }, 100)
-            console.log(userId)
+                .then(() => {
+                    if (revalidate) {
+                        revalidate(); // Usar revalidate se disponível
+                    } else {
+                        window.location.reload();
+                    }
+                })
+                .catch((error) => {
+                    // Erro já tratado na função bloqUser
+                });
             return;
         }
         else if (type === 'Unbloq') {
             unBloqUser(userId)
-            setTimeout(() => {
-                window.location.reload();
-            }, 100)
-            console.log(userId)
+                .then(() => {
+                    if (revalidate) {
+                        revalidate(); // Usar revalidate se disponível  
+                    } else {
+                        window.location.reload();
+                    }
+                })
+                .catch((error) => {
+                    // Erro já tratado na função unBloqUser
+                });
             return;
         }
         else if (type === 'Eye') {
@@ -57,7 +68,6 @@ const Buttons = ({ type, value, modal, setInfo, info, setId, url, userId, confir
             return
         }
         else if (type === 'Info') {
-            console.log("INFO", info)
             if (setId) {
                 setId(value)
             }

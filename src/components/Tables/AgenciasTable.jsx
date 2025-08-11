@@ -12,7 +12,9 @@ const AgenciasTable = ({
     data,
     setId,
     setInfo,
-    modaltoggle, type }) => {
+    modaltoggle, 
+    type,
+    revalidate }) => {
     const snap = useSnapshot(filters.table);
 
     const [columnFilters, setColumnFilters] = useState([])
@@ -81,9 +83,21 @@ const AgenciasTable = ({
                                     value={row.original.idPlano}
                                     modal={modaltoggle}
                                 />
-                                {type === "Matriz" ?
-                                    <Buttons type="Bloq" userId={row.original.idUsuario} />
-                                    : null}
+                                {type === "Matriz" ? (
+                                    row.original.bloqueado === true ? (
+                                        <Buttons
+                                            type="Unbloq"
+                                            userId={row.original.idUsuario}
+                                            revalidate={revalidate}
+                                        />
+                                    ) : (
+                                        <Buttons
+                                            type="Bloq"
+                                            userId={row.original.idUsuario}
+                                            revalidate={revalidate}
+                                        />
+                                    )
+                                ) : null}
                             </td>
                         </tr>
                     ))}

@@ -13,7 +13,7 @@ export function getName() {
 }
 
 export function getType() {
-  if (state.user.tipo) {
-    return state.user.conta.tipoDaConta.descricao;
+  if (state.user && state.user.tipo) {
+    return state.user.tipo;
   }
 }

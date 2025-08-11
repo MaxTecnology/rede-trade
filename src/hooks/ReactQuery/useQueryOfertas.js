@@ -21,7 +21,6 @@ export const useQueryOfertas = (
                 }
             });
             
-            // console.log('🌐 Buscando ofertas com filtros:', url); // Comentado para produção
             return getApiData(url);
         },
         staleTime: 5 * 60 * 1000, // 5 minutos

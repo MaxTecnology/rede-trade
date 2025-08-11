@@ -9,8 +9,8 @@ export const filterStart = (row, columnId, filterStatuses) => {
 export const filterEnd = (row, columnId, filterStatuses) => {
     const cellDate = Date.parse(row.getValue(columnId));
     const filterDate = Date.parse(filterStatuses);
-    if (cellDate >= filterDate) {
-        return false;
+    if (cellDate <= filterDate) {
+        return true;
     }
-    return true
+    return false;
 };

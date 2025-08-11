@@ -65,8 +65,15 @@ export const columns = [
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
+            const bloqueado = row.original?.bloqueado;
             const status = row.original?.status;
             
+            // Prioridade: se bloqueado, mostrar bloqueado
+            if (bloqueado === true) {
+                return '🔒 Bloqueado';
+            }
+            
+            // Caso contrário, mostrar status normal
             if (status === true || status === 'true' || 
                 status === 'Ativo' || status === 'Atendendo') {
                 return '🟢 Ativo';
@@ -80,8 +87,9 @@ export const columns = [
         header: 'Reputação',
         cell: ({ row }) => {
             const reputacao = row.original?.reputacao || 0;
-            const stars = '⭐'.repeat(Math.floor(reputacao));
-            return `${reputacao} ${stars}`;
+            const fullStars = '⭐'.repeat(Math.floor(reputacao));
+            const emptyStars = '☆'.repeat(5 - Math.floor(reputacao));
+            return fullStars + emptyStars;
         }
     }
 ];
@@ -93,8 +101,8 @@ export const processarDadosTabela = (dados, filtros = {}) => {
     let dadosFiltrados = dados.filter(item => {
         if (!item) return false;
         
-        // Filtrar bloqueados
-        if (item.bloqueado === true) return false;
+        // NOTA: Removido filtro de bloqueados para permitir que Matriz/Gerente vejam usuários bloqueados na lista
+        // e possam desbloqueá-los. Cards públicos ainda filtram bloqueados.
         
         // Filtrar contas inativas
         if (item.statusConta === false) return false;

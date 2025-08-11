@@ -14,7 +14,9 @@ const AssociadosTable = ({
     info,
     setId,
     setInfo,
-    modaltoggle, type }) => {
+    modaltoggle, 
+    type,
+    revalidate }) => {
 
     const snap = useSnapshot(filters.table);
 
@@ -84,16 +86,18 @@ const AssociadosTable = ({
                                     value={row.original.idPlano}
                                     modal={modaltoggle}
                                 />
-                                {type === "Matriz" ? (
+                                {(type === "Matriz" || type === "Gerente") ? (
                                     row.original.bloqueado === true ? (
                                         <Buttons
                                             type="Unbloq"
                                             userId={row.original.idUsuario}
+                                            revalidate={revalidate}
                                         />
                                     ) : (
                                         <Buttons
                                             type="Bloq"
                                             userId={row.original.idUsuario}
+                                            revalidate={revalidate}
                                         />
                                     )
                                 ) : null}

@@ -11,6 +11,7 @@ import { FaPlus, FaCog, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 import { toast } from "sonner";
 import { ColorRing } from 'react-loader-spinner';
+import { getType } from "@/hooks/getId";
 
 const UsuariosMeus = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const UsuariosMeus = () => {
     const [userInfo, setUserInfo] = useState();
     const [userId, setUserId] = useState();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const userType = getType();
 
     useEffect(() => {
         activePage("usuarios");
@@ -31,7 +33,7 @@ const UsuariosMeus = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Colunas específicas para subcontas
+    // Colunas específicas para subcontas - diferentes para Matriz
     const subcontasColumns = [
         {
             accessorKey: 'numeroSubConta',
@@ -45,6 +47,12 @@ const UsuariosMeus = () => {
             accessorKey: 'email',
             header: 'E-mail',
         },
+        // Só mostrar proprietário para usuários Matriz
+        ...(userType === 'Matriz' ? [{
+            accessorKey: 'contaPai.nomeFranquia',
+            header: 'Proprietário',
+            cell: (value) => value.getValue() || 'N/A',
+        }] : []),
         {
             accessorKey: 'statusConta',
             header: 'Status',
@@ -189,6 +197,11 @@ const UsuariosMeus = () => {
                             <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
                                 <strong>Email:</strong> {subconta.email}
                             </p>
+                            {userType === 'Matriz' && (
+                                <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
+                                    <strong>Proprietário:</strong> {subconta.contaPai?.nomeFranquia || 'N/A'}
+                                </p>
+                            )}
                             <p style={{ margin: '0 0 4px 0', fontSize: '14px' }}>
                                 <strong>Status:</strong> 
                                 <span style={{
@@ -271,6 +284,11 @@ const UsuariosMeus = () => {
                             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #dee2e6' }}>
                                 Email
                             </th>
+                            {userType === 'Matriz' && (
+                                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #dee2e6' }}>
+                                    Proprietário
+                                </th>
+                            )}
                             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #dee2e6' }}>
                                 Status
                             </th>
@@ -297,6 +315,11 @@ const UsuariosMeus = () => {
                                 <td style={{ padding: '12px' }}>
                                     {subconta.email}
                                 </td>
+                                {userType === 'Matriz' && (
+                                    <td style={{ padding: '12px' }}>
+                                        {subconta.contaPai?.nomeFranquia || 'N/A'}
+                                    </td>
+                                )}
                                 <td style={{ padding: '12px' }}>
                                     <span style={{
                                         backgroundColor: subconta.statusConta ? '#d4edda' : '#f8d7da',
@@ -375,7 +398,7 @@ const UsuariosMeus = () => {
             )}
             
             <div className="containerHeader">
-                Lista de Subcontas
+                {userType === 'Matriz' ? 'Todas as Subcontas do Sistema' : 'Lista de Subcontas'}
                 <span style={{ 
                     fontSize: '14px', 
                     color: '#6c757d', 

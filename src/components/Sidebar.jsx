@@ -115,7 +115,23 @@ const Sidebar = () => {
   const canShowMenuItem = (menuItem) => {
     const requiredPermissions = menuPermissions[menuItem];
     
-    // Se não há permissões definidas, mostra para todos
+    // 🎯 LÓGICA ESPECÍFICA PARA ASSOCIADOS - Lista de menus permitidos
+    if (userType === "Associado") {
+      const menusPermitidosAssociado = [
+        'INICIO', 
+        'ASSOCIADOS', 
+        'TRANSACOES', 
+        'OFERTAS', 
+        'CREDITOS', 
+        'VOUCHER', 
+        'EXTRATOS', 
+        'CONTAS', 
+        'USUARIOS'
+      ];
+      return menusPermitidosAssociado.includes(menuItem);
+    }
+    
+    // Se não há permissões definidas, mostra para todos (não-Associados)
     if (!requiredPermissions || requiredPermissions.length === 0) return true;
     
     // LÓGICA ESPECIAL: PLANOS e CATEGORIAS são exclusivos da Matriz
@@ -245,7 +261,7 @@ const Sidebar = () => {
         {canShowMenuItem('EXTRATOS') && (
           <li
             className={state.activePage === "extratos" ? "active" : ""}
-            onClick={() => modalHandler("Estratos")}
+            onClick={() => modalHandler("Extratos")}
           >
             <FaFileInvoiceDollar className="sideContentIcon" />
             <p>EXTRATOS</p>

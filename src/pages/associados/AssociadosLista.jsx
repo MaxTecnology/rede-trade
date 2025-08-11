@@ -21,7 +21,6 @@ const AssociadosLista = () => {
     
     // Função personalizada para abrir modal com refetch
     const openModalWithRefresh = () => {
-        console.log('🔄 Forçando refetch antes de abrir modal...');
         refetch(); // Forçar refetch antes de abrir modal
         setTimeout(() => {
             modalToggle();
@@ -394,6 +393,7 @@ const AssociadosLista = () => {
                             modaltoggle={openModalWithRefresh}
                             type={getType()}
                             categorias={categorias?.categorias || []}
+                            revalidate={refetch}
                         />
                     </div>
                 ) : (

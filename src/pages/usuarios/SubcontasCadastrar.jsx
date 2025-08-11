@@ -29,10 +29,6 @@ const SubcontasCadastrar = () => {
             try {
                 // Verificar primeiro o estado global (Valtio)
                 if (userInfo && userInfo.conta && userInfo.conta.idConta) {
-                    console.log('✅ Usuário válido no estado global:', {
-                        idConta: userInfo.conta.idConta,
-                        nome: userInfo.nome
-                    });
                     setUserValidation({ isValid: true, message: '' });
                     return;
                 }
@@ -56,10 +52,6 @@ const SubcontasCadastrar = () => {
                     return;
                 }
 
-                console.log('✅ Usuário válido no localStorage:', {
-                    idConta: userData.conta.idConta,
-                    nome: userData.nome
-                });
                 setUserValidation({ isValid: true, message: '' });
             } catch (error) {
                 console.error('❌ Erro na validação:', error);
@@ -83,11 +75,6 @@ const SubcontasCadastrar = () => {
             if (userInfo && userInfo.conta && userInfo.conta.idConta) {
                 userData = userInfo;
                 idConta = userInfo.conta.idConta;
-                console.log('🔍 Usando dados do estado global:', {
-                    idConta: idConta,
-                    nomeUsuario: userData.nome,
-                    fonte: 'Estado Global (Valtio)'
-                });
             } else {
                 // Fallback para localStorage
                 const userDataString = localStorage.getItem('userRedeTrade');
@@ -106,11 +93,6 @@ const SubcontasCadastrar = () => {
                 }
 
                 idConta = userData.conta.idConta;
-                console.log('🔍 Usando dados do localStorage:', {
-                    idConta: idConta,
-                    nomeUsuario: userData.nome,
-                    fonte: 'LocalStorage'
-                });
             }
 
             const token = localStorage.getItem('tokenRedeTrade');
@@ -162,12 +144,10 @@ const SubcontasCadastrar = () => {
                 formData.append('imagem', imagemInput.files[0]);
             }
 
-            console.log('📋 Criando subconta...');
             
             const result = await createSubconta(formData);
             
             toast.success('Subconta criada com sucesso!');
-            console.log('✅ Subconta criada:', result);
             
             // Revalidar queries e navegar para lista
             revalidate(['sub-contas']);

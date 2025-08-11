@@ -39,7 +39,6 @@ export const loginUser = (event, setLoading, revalidate) => {
             const token = data.data.token
             const user = data.data.user
             localStorage.setItem('tokenRedeTrade', token);
-            console.log("USER DATA", data)
             revalidate("login")
             state.logged = true
             state.user = user
@@ -49,7 +48,6 @@ export const loginUser = (event, setLoading, revalidate) => {
         },
         error: (err) => {
             setLoading(false)
-            console.log(err)
             return "Erro ao realizar login"
         },
     });
@@ -57,10 +55,8 @@ export const loginUser = (event, setLoading, revalidate) => {
 
 export const getApiData = async (url, setState) => {
     const fullUrl = `${mainUrl}${url}`;
-    // console.log(`DEBUG: getApiData - Chamando URL: ${fullUrl}`); // Comentado para produção
     return axios.get(fullUrl, getConfig())
         .then((response) => {
-            // console.log(`DEBUG: getApiData - Resposta recebida para ${fullUrl}:`, response.data); // Comentado para produção
             if (setState) {
                 setState(response.data)
             }
@@ -109,7 +105,6 @@ export const requestCredit = async (event, url) => {
     console.table(data)
     await axios.post(`${mainUrl}${url}`, data, getConfig())
         .then(response => {
-            console.log(response)
         })
         .catch(() => {
             throw "Algo de errado aconteceu"
@@ -129,7 +124,6 @@ export const aproveCreditos = async (id, modalHandler, setState) => {
             return "Credito aprovado com sucesso!"
         },
         error: (err) => {
-            console.log(err)
             return "Erro ao aprovar Crédito"
         },
     })
@@ -147,7 +141,6 @@ export const negateCreditos = async (id, modalHandler, setState) => {
             return "Credito negado com sucesso!"
         },
         error: (err) => {
-            console.log(err)
             return "Erro ao negar Crédito"
         },
     })
@@ -166,7 +159,6 @@ export const forwardCreditos = async (id, modalHandler, setState) => {
             return "Credito encaminhado com sucesso!"
         },
         error: (err) => {
-            console.log(err)
             return "Erro ao encaminhar Crédito"
         },
     })
@@ -181,7 +173,6 @@ export const deleteCreditos = async (id, modalHandler, setState) => {
             return "Solicitação deletada com sucesso!"
         },
         error: (err) => {
-            console.log(err)
             return "Erro ao deletar solicitação"
         },
     })
@@ -199,7 +190,6 @@ export const atualizarCreditos = async (event, id, modalHandler, setState) => {
             return "Solicitação editada com sucesso!"
         },
         error: (err) => {
-            console.log(err)
             return "Erro ao deletar Crédito"
         },
     })
@@ -210,11 +200,8 @@ export const createItem = async (event, url) => {
     const formData = new FormData(event.target)
     const object = formHandler(formData)
 
-    console.log("OBJETO", object)
-    console.log("URL", `${mainUrl}${url}`)
     await axios.post(`${mainUrl}${url}`, object, getConfig())
         .then(response => {
-            console.log(response)
         })
         .catch(() => {
             throw "Algo de errado aconteceu"
@@ -229,11 +216,8 @@ export const createItemWithImage = async (event, url) => {
     const imagem = await uploadFile(formData.get("imagens"))
     formData.set("imagens", imagem)
     const object = formHandler(formData)
-    console.log("OBJETO", object)
-    console.log("URL", `${mainUrl}${url}`)
     await axios.post(`${mainUrl}${url}`, object, getConfig())
         .then(response => {
-            console.log(response)
         })
         .catch(() => {
             throw "Algo de errado aconteceu"
@@ -243,35 +227,27 @@ export const createItemWithImage = async (event, url) => {
 export const createOferta = async (event, url) => {
     event.preventDefault()
     const formData = new FormData(event.target)
-    const imagem = await uploadFile(formData.get("imagens"))
-    formData.set("imagens", imagem)
+    
+    // Fazer upload da imagem se houver
+    if (formData.get("imagens") && formData.get("imagens").name) {
+        const imagem = await uploadFile(formData.get("imagens"))
+        formData.set("imagens", imagem)
+    }
+    
+    // Formatar vencimento
     formData.set("vencimento", formatarData(formData.get("vencimento")))
-    var object = {};
-    formData.forEach((value, key) => {
-        if (value === "true") {
-            object[key] = true;
-            return;
+    
+    // Enviar FormData diretamente para o backend (não converter para objeto)
+    const config = {
+        ...getConfig(),
+        headers: {
+            ...getConfig().headers,
+            'Content-Type': 'multipart/form-data'
         }
-        if (value === "false") {
-            object[key] = false;
-            return;
-        }
-        if (key === "imagens") {
-            object[key] = [value]
-            return;
-        }
-
-        // Verifica se o valor não é uma string vazia antes de tentar a conversão numérica
-        const numericValue = value !== "" ? (isNaN(value) ? value : parseFloat(value)) : value;
-
-        // Atribui o valor ao objeto
-        object[key] = numericValue;
-    });
-    console.log("OBJETO", object)
-    console.log("URL", `${mainUrl}${url}`)
-    await axios.post(`${mainUrl}${url}`, object, getConfig())
+    }
+    
+    await axios.post(`${mainUrl}${url}`, formData, config)
         .then(response => {
-            console.log(response)
             event.target.reset()
         })
         .catch(() => {
@@ -289,7 +265,6 @@ export const createSubAccount = async (event) => {
     return
     await axios.post(`${mainUrl}contas/criar-subconta/${state.user.idUsuario}`, object, getConfig())
         .then(response => {
-            console.log(response)
             event.target.reset()
         })
         .catch(() => {
@@ -322,16 +297,12 @@ export const createUser = async (event, url) => {
     delete object.plano
     delete object.formaPagamento
 
-    console.log("O QUE FOI ENVIADO")
-    console.table(object)
     const response = await axios.post(`${mainUrl}${url}`, object, getConfig());
     if (!response) {
         throw new Error("Erro ao criar usuário, por favor cheque os campos e tente novamente")
     }
     event.target.reset();
-    console.log('Usuário criado:', response.data);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Forma de pagamento:", accountType)
     const userAccount = await axios.post(`${mainUrl}contas/criar-conta-para-usuario/${response.data.idUsuario}`, {
         "planoId": planoId,
         'tipoDaConta': accountType,
@@ -346,11 +317,10 @@ export const createUser = async (event, url) => {
         "diaFechamentoFatura": dataVencimentoFatura,
         "dataVencimentoFatura": dataVencimentoFatura,
         "nomeFranquia": nomeFranquia,
-    }, getConfig()).catch((error) => console.log(error))
+    }, getConfig()).catch((error) => { /* Erro já tratado pelo catch principal */ })
     if (!userAccount) {
         throw new Error("Erro ao criar conta do usuário, por favor entrar em contato com suporte")
     }
-    console.log("Conta criada", userAccount)
     const payPlan = await axios.post(`${mainUrl}contas/pagamento-do-plano/${response.data.idUsuario}`, {
         "formaPagamento": formaPagamento || 0,
         "idPlano": planoId,
@@ -358,12 +328,10 @@ export const createUser = async (event, url) => {
     if (!payPlan) {
         throw new Error("Erro ao cobrar plano do usuário, por favor entrar em contato com suporte")
     }
-    console.log("Plano pago")
-    const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${userAccount.data.idConta}/${accountManager}`, {}, getConfig()).catch((error) => console.log(error))
+    const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${userAccount.data.idConta}/${accountManager}`, {}, getConfig()).catch((error) => { /* Erro já tratado */ })
     if (!addManager) {
         throw new Error("Erro ao adicionar gerente a conta, por favor entre em contato com suporte")
     }
-    console.log("Gerente adicionado")
 }
 
 export const createT = async (event) => {
@@ -410,13 +378,10 @@ export const editUser = async (event) => {
     delete object.dataVencimentoFatura
     delete object.taxaRepasseMatriz
 
-    console.log("O QUE FOI ENVIADO", object)
-    console.log(`url : ${mainUrl}usuarios/atualizar-usuario-completo/${idUsuario}`)
     const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario-completo/${idUsuario}`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao editar usuário, por favor cheque os campos e tente novamente")
     }
-    console.log("planoId", planoId)
     const account = axios.put(`${mainUrl}contas/atualizar-conta/${contaId}`, {
         "planoId": planoId,
         'tipoDaConta': tipo,
@@ -428,14 +393,13 @@ export const editUser = async (event) => {
         "dataVencimentoFatura": dataVencimentoFatura,
         "nomeFranquia": nomeFranquia,
         "taxaRepasseMatriz": taxaRepasseMatriz,
-    }, getConfig()).catch(error => console.log(error))
+    }, getConfig()).catch(error => { /* Erro já tratado */ })
     if (!account) {
         throw new Error("Erro ao editar usuário")
     }
 
     axios.get(`${mainUrl}contas/listar-contas`)
         .then(response => {
-            console.log(response)
         })
         .catch(error => {
             console.log(error)
@@ -463,7 +427,6 @@ export const editItem = async (event, url, setState, oferta) => {
     if (oferta) {
         object.imagem = [object.imagem]
     }
-    console.log("O QUE FOI ENVIADO", object)
     const response = await axios.put(`${mainUrl}${url}`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao editar item, por favor cheque os campos e tente novamente")
@@ -474,10 +437,8 @@ export const editItem = async (event, url, setState, oferta) => {
 }
 
 export const deleteItem = (url, revalidate, message, titulo) => {
-    console.log(url)
     axios.delete(`${mainUrl}${url}`, getConfig())
         .then(response => {
-            console.log(response)
             popup(message, titulo)
             revalidate()
         })
@@ -485,65 +446,65 @@ export const deleteItem = (url, revalidate, message, titulo) => {
 
 export const deleteCredito = (url, item) => {
     axios.put(`${mainUrl}${url}`, item, getConfig())
-        .then((result) => console.log(result))
+        .then((result) => { /* Sucesso */ })
 }
 
 export const aprove = (url, item) => {
     axios.put(`${mainUrl}${url}`, item, getConfig())
-        .then((result) => console.log(result))
+        .then((result) => { /* Sucesso */ })
 }
 
 export const negate = (url, item) => {
     axios.put(`${mainUrl}${url}`, item, getConfig())
-        .then((result) => console.log(result))
+        .then((result) => { /* Sucesso */ })
 }
 
 export const bloqUser = (userId) => {
-    console.log(userId);
-    const url = `usuarios/atualizar-usuario/${userId}`
-    const item = {
-        "bloqueado": true,
-        "status": false
-    }
-    console.log(item)
-    axios.put(`${mainUrl}${url}`, item, getConfig())
-        .then((result) => console.log(result))
-        .catch(error => console.log(error))
+    const url = `usuarios/bloquear-usuario/${userId}`
+    return axios.post(`${mainUrl}${url}`, {}, getConfig())
+        .then((result) => {
+            toast.success('Usuário bloqueado com sucesso!');
+            return result;
+        })
+        .catch(error => {
+            console.error('Erro ao bloquear usuário:', error);
+            toast.error('Erro ao bloquear usuário');
+            throw error;
+        });
 }
 
 export const unBloqUser = (userId) => {
-    console.log(userId);
-    const url = `usuarios/atualizar-usuario/${userId}`
-    const item = {
-        "bloqueado": false,
-        "status": false
-    }
-    console.log(item)
-    axios.put(`${mainUrl}${url}`, item, getConfig())
-        .then((result) => console.log(result))
-        .catch(error => console.log(error))
+    const url = `usuarios/desbloquear-usuario/${userId}`
+    return axios.post(`${mainUrl}${url}`, {}, getConfig())
+        .then((result) => {
+            toast.success('Usuário desbloqueado com sucesso!');
+            return result;
+        })
+        .catch(error => {
+            console.error('Erro ao desbloquear usuário:', error);
+            toast.error('Erro ao desbloquear usuário');
+            throw error;
+        });
 }
 
 // EXTORNO
 export const refound = async (id, revalidate) => {
     axios.post(`${mainUrl}transacoes/encaminhar-estorno/${id}`, getConfig())
         .then(result => {
-            console.log(result)
             revalidate()
             toast.success("Extorno solicitado com sucesso")
         })
-        .catch(error => console.log(error))
+        .catch(error => console.error('Erro ao solicitar extorno:', error))
 }
 
 export const sendRefound = async (id, revalidate) => {
     axios.post(`${mainUrl}transacoes/encaminhar-estorno-matriz/${id}`, getConfig())
         .then(result => {
-            console.log(result)
             revalidate()
             toast.success("Extorno encaminhado com sucesso")
         })
         .catch(error => {
-            console.log(error)
+            console.error('Erro ao encaminhar extorno:', error)
             toast.error("Erro ao encaminhar")
         })
 }
@@ -551,12 +512,11 @@ export const sendRefound = async (id, revalidate) => {
 export const aproveRefound = async (id, revalidate) => {
     axios.post(`${mainUrl}transacoes/estornar-transacao/${id}`, getConfig())
         .then(result => {
-            console.log(result)
             revalidate()
             toast.success("Extorno aprovado com sucesso")
         })
         .catch(error => {
-            console.log(error)
+            console.error('Erro ao aprovar extorno:', error)
             toast.error("Erro ao aprovar")
         })
 }

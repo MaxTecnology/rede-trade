@@ -230,9 +230,6 @@ const AssociadoInfo = () => {
                             <div className='flex items-center gap-2' style={{ marginBottom: '10px' }}>
                                 <span style={{ fontWeight: 'bold' }}>⭐ Reputação: </span>
                                 <StarRating rating={associado.reputacao || 0} />
-                                <span style={{ marginLeft: '8px', color: '#666' }}>
-                                    ({associado.reputacao || 0}/5)
-                                </span>
                             </div>
                         </div>
 

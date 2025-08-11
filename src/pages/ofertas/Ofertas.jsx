@@ -20,15 +20,11 @@ const Ofertas = () => {
 
     // Funções para gerenciar filtros
     const aplicarFiltros = (novosFiltros) => {
-        console.log('🔍 Aplicando filtros de ofertas:', novosFiltros);
-        
         setFiltros(novosFiltros);
         setCurrentPage(1); // Reset para primeira página quando aplicar filtros
     };
 
     const limparFiltros = () => {
-        console.log('🧹 Limpando filtros de ofertas');
-        
         setFiltros({});
         setCurrentPage(1);
     };
@@ -36,9 +32,6 @@ const Ofertas = () => {
     // Usar ofertas diretamente do backend (já filtradas)
     const ofertas = data?.ofertas || [];
 
-    console.log('🎯 Ofertas recebidas da página', currentPage, ':', ofertas.length);
-    console.log('🔍 Filtros ativos:', filtros);
-    console.log('📊 Meta dados:', data?.meta);
 
     // Backend já retorna apenas ofertas ativas e não vencidas
     const currentCards = ofertas;

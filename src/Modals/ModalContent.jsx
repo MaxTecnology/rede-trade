@@ -124,7 +124,7 @@ const ModalContent = ({ modalItem, modalFunction }) => {
                 );
             } else {
                 component.push(
-                    { name: 'Meus Extratos', icon: <FaFileLines />, route: "/estratosMeus" },
+                    { name: 'Meu Extrato', icon: <FaFileLines />, route: "/estratosMeus" },
                 );
             }
             break;
@@ -145,13 +145,20 @@ const ModalContent = ({ modalItem, modalFunction }) => {
             break;
         // Adicione casos para outras categorias aqui
         case 'Usuarios':
-            component = [
-                { name: 'Meus Dados', icon: <FaUserCog />, route: "/usuariosDados" },
-                { name: 'Usuários', icon: <FaUsers />, route: "/usuariosLista" },
-                { name: 'Gerenciar Subcontas', icon: <FaUserEdit />, route: "/usuariosEditar" },
-                { name: 'Nova Subconta', icon: <FaUserPlus />, route: "/subcontasCadastrar" },
-
-            ];
+            if (userType === 'Associado') {
+                component = [
+                    { name: 'Meus Dados', icon: <FaUserCog />, route: "/usuariosDados" },
+                    { name: 'Usuários', icon: <FaUsers />, route: "/usuariosLista" },
+                    { name: 'Cadastrar Novo Usuário', icon: <FaUserPlus />, route: "/subcontasCadastrar" },
+                ];
+            } else {
+                component = [
+                    { name: 'Meus Dados', icon: <FaUserCog />, route: "/usuariosDados" },
+                    { name: 'Usuários', icon: <FaUsers />, route: "/usuariosLista" },
+                    { name: 'Gerenciar Subcontas', icon: <FaUserEdit />, route: "/usuariosEditar" },
+                    { name: 'Nova Subconta', icon: <FaUserPlus />, route: "/subcontasCadastrar" },
+                ];
+            }
             break;
         // Adicione casos para outras categorias aqui
         case 'Planos':

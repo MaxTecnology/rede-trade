@@ -10,7 +10,7 @@ import GerenteSearch from "@/components/Search/GerenteSearch";
 import { getType } from "@/hooks/getId";
 
 const GerentesLista = () => {
-    const { data, isLoading, error } = useQueryGerentes();
+    const { data, isLoading, error, refetch } = useQueryGerentes();
     const [modalIsOpen, modalToggle] = useModal();
     const [userInfo, setUserInfo] = useState();
     const [userId, setUserId] = useState();
@@ -126,6 +126,7 @@ const GerentesLista = () => {
                     setInfo={setUserInfo}
                     modaltoggle={modalToggle}
                     type={getType()}
+                    revalidate={refetch}
                 />
             </div>
             <Footer />

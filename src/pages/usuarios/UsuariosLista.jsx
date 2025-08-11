@@ -13,7 +13,8 @@ import { getType } from "@/hooks/getId";
 const UsuariosLista = () => {
     const { data } = useQueryUsuarios()
     const type = getType()
-    const { data: myUsers } = useQueryMeusUsuarios()
+    // Só executa o hook se não for usuário Matriz
+    const { data: myUsers } = useQueryMeusUsuarios({ enabled: type !== "Matriz" })
     const [modalIsOpen, modalToggle] = useModal(false);
     const [userInfo, setUserInfo] = useState()
     const [userId, setUserId] = useState()
@@ -21,8 +22,7 @@ const UsuariosLista = () => {
     useEffect(() => {
         activePage("usuarios")
     }, []);
-    console.log(type)
-    console.log(myUsers)
+    
     const tableData = type === "Matriz" ? data?.data : myUsers
     return (
         <div className="container">
