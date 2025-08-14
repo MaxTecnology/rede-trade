@@ -566,13 +566,13 @@ const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     </label>
                 </div>
                 {/* NOVO: Mostrar nome do arquivo selecionado */}
-                {imagem && (
+                {/* {imagem && (
                     <div className="form-group">
                         <small className="text-muted">
                             📎 Arquivo selecionado: {imagem.name} ({(imagem.size / 1024 / 1024).toFixed(2)}MB)
                         </small>
                     </div>
-                )}
+                )} */}
                 <div className="form-group">
                     <label className="required-field-label">Nome</label>
                     <input

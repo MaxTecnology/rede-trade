@@ -5,7 +5,7 @@ import Modal from 'react-modal'; // Importe o react-modal
 
 Modal.setAppElement('#root'); // Defina o elemento raiz da sua aplicação para o modal
 
-const PlanosFields = ({ type, defaultValue }) => {
+const PlanosFields = ({ type, defaultValue, disabled = false }) => {
     const { data } = useQueryPlanos()
     const [selected, setSelected] = useState(null);
     const [defaultPlano, setDefaultPlano] = useState(null);
@@ -26,6 +26,8 @@ const PlanosFields = ({ type, defaultValue }) => {
                     defaultValue={defaultValue && defaultValue.conta ? defaultValue.conta.planoId : ""}
                     onChange={(e) => setSelected(JSON.parse(e.target.value))}
                     required
+                    disabled={disabled}
+                    className={disabled ? "readOnly" : ""}
                 >
                     <option value="" disabled>
                         Selecione

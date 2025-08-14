@@ -369,7 +369,7 @@ export const editUser = async (event) => {
     delete object.limiteVendaMensal
     delete object.limiteVendaTotal
     delete object.nomeFranquia
-    delete object.gerente
+    // NÃO DELETAR object.gerente - precisa ser enviado para o backend
     delete object.tipo
     delete object.planoId
     delete object.contaId
@@ -406,7 +406,45 @@ export const editUser = async (event) => {
         })
 }
 
-export const updateUser = () => { }
+export const updateUser = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    // Se há imagem, fazer upload
+    if (formData.get("imagem")) {
+        if (formData.get("imagem").name === "") {
+            formData.delete("imagem")
+        } else {
+            const imagem = await uploadFile(formData.get("imagem"))
+            formData.set("imagem", imagem)
+        }
+    }
+    
+    const object = formHandler(formData)
+    
+    // Para a página de "Meus Dados", vamos usar a rota de atualizar-usuario-completo
+    const { idUsuario, ...dadosParaAtualizar } = object
+    
+    // Buscar ID do usuário do estado
+    const userId = state.user?.idUsuario
+    
+    if (!userId) {
+        throw new Error("ID do usuário não encontrado")
+    }
+    
+    const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario-completo/${userId}`, dadosParaAtualizar, getConfig())
+    
+    if (!response) {
+        throw new Error("Erro ao atualizar dados, por favor tente novamente")
+    }
+    
+    // Atualizar estado local com novos dados
+    if (response.data) {
+        state.user = { ...state.user, ...response.data }
+    }
+    
+    return response.data
+}
 
 export const editItem = async (event, url, setState, oferta) => {
     event.preventDefault();

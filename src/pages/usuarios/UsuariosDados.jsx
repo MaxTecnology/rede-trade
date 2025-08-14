@@ -24,6 +24,9 @@ const UsuariosDados = () => {
     const [reference, setReference] = useState(true)
     const [loading, setLoading] = useState(false)
     
+    // Verificar se é usuário do tipo Associado (só pode editar email e imagem)
+    const isAssociado = getType() === 'Associado';
+    
     useEffect(() => {
         activePage("usuarios")
     }, []);
@@ -257,7 +260,7 @@ const UsuariosDados = () => {
                             <div className="formDivider">
                                 <p>Agência</p>
                             </div>
-                            <PlanosFields type={getType()} defaultValue={userInfo} />
+                            <PlanosFields type={getType()} defaultValue={userInfo} disabled={isAssociado} />
                             <div className="form-group">
                                 <label className="required">Data Vencimento Fatura</label>
                                 <select required
@@ -279,15 +282,24 @@ const UsuariosDados = () => {
                 =============================================================== */}
                 <div className="form-group">
                     <label>Gerente de Conta</label>
-                    <select defaultValue={userInfo.conta?.gerenteContaId || "Indefinido"} className="readOnly" required disabled>
-                        <option value={userInfo.conta?.gerenteContaId || "Indefinido"}>
-                            {userInfo.conta?.gerenteContaId || "Indefinido"}
+                    <select className="readOnly" required disabled>
+                        <option>
+                            {userInfo.conta?.gerenteConta?.nomeFantasia || 
+                             userInfo.conta?.gerenteConta?.nome || 
+                             "Sem Gerente"}
                         </option>
                     </select>
                 </div>
                 <div className="form-group">
                     <label className="required">Taxa Gerente Conta em %</label>
-                    <input type="number" className="readOnly" readOnly required />
+                    <input 
+                        type="number" 
+                        className="readOnly" 
+                        readOnly 
+                        required 
+                        value={userInfo.conta?.gerenteConta?.taxaComissaoGerente || "0"}
+                        onChange={() => {}} // Função vazia para input controlado readOnly
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo de Operação</label>
@@ -340,7 +352,15 @@ const UsuariosDados = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Nome</label>
-                    <input type="text" name="nome" required defaultValue={userInfo.nome || ""} />
+                    <input 
+                        type="text" 
+                        name="nome" 
+                        required 
+                        defaultValue={userInfo.nome || ""} 
+                        readOnly={isAssociado}
+                        disabled={isAssociado}
+                        className={isAssociado ? "readOnly" : ""}
+                    />
                 </div>
                 <div className="form-group">
                     <label className="required">Cpf</label>
@@ -350,7 +370,10 @@ const UsuariosDados = () => {
                         type="text" 
                         name="cpf" 
                         required 
-                    />
+                        readOnly={isAssociado}
+                        disabled={isAssociado}
+                        className={isAssociado ? "readOnly" : ""}
+                    />                
                 </div>
                 <div className="form-group">
                     <label className="required ">E-mail</label>
