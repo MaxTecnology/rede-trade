@@ -2,7 +2,7 @@ import axios from "axios";
 import state from "../store";
 import { popup } from "./Popup";
 import { toast } from "sonner";
-import { uploadFile } from "../FirebaseConfig";
+// Firebase removido - agora usamos upload direto para o backend
 import { formHandler } from "../utils/functions/formHandler";
 
 // ✅ Configuração dinâmica de headers
@@ -208,21 +208,8 @@ export const createItem = async (event, url) => {
         })
 }
 
-export const createItemWithImage = async (event, url) => {
-    event.preventDefault()
-    const formData = new FormData(event.target)
-    formData.append("usuarioId", state.user.idUsuario)
-    formData.append("nomeUsuario", state.user.nomeFantasia)
-    const imagem = await uploadFile(formData.get("imagens"))
-    formData.set("imagens", imagem)
-    const object = formHandler(formData)
-    await axios.post(`${mainUrl}${url}`, object, getConfig())
-        .then(response => {
-        })
-        .catch(() => {
-            throw "Algo de errado aconteceu"
-        })
-}
+// REMOVIDO: createItemWithImage - Firebase não é mais usado
+// Use createOferta que já faz upload direto para o backend
 
 export const createOferta = async (event, url) => {
     event.preventDefault()
@@ -255,28 +242,15 @@ export const createOferta = async (event, url) => {
         })
 }
 
-export const createSubAccount = async (event) => {
-    event.preventDefault()
-    const formData = new FormData(event.target)
-    const imagem = await uploadFile(formData.get("imagem"))
-    formData.set("imagem", imagem)
-    const object = formHandler(formData)
-    console.table("OBJETO", object)
-    return
-    await axios.post(`${mainUrl}contas/criar-subconta/${state.user.idUsuario}`, object, getConfig())
-        .then(response => {
-            event.target.reset()
-        })
-        .catch(() => {
-            throw "Algo de errado aconteceu"
-        })
-}
+// REMOVIDO: createSubAccount - Firebase não é mais usado
+// Use a função createSubAccount do api/index.js que faz upload direto
 
-export const createUser = async (event, url) => {
+// REMOVIDO: createUser - Firebase não é mais usado
+// Use createAssociado do api/index.js que faz upload direto
+export const createUserLegacy = async (event, url) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const imagem = await uploadFile(formData.get("imagem"))
-    formData.set("imagem", imagem)
+    // REMOVIDO: Firebase upload - agora o backend processa FormData diretamente
 
     const object = formHandler(formData)
     const {
@@ -410,14 +384,10 @@ export const updateUser = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     
-    // Se há imagem, fazer upload
-    if (formData.get("imagem")) {
-        if (formData.get("imagem").name === "") {
-            formData.delete("imagem")
-        } else {
-            const imagem = await uploadFile(formData.get("imagem"))
-            formData.set("imagem", imagem)
-        }
+    // REMOVIDO: Firebase upload - agora o backend processa FormData diretamente
+    // Se não há imagem, remover campo vazio
+    if (formData.get("imagem") && formData.get("imagem").name === "") {
+        formData.delete("imagem")
     }
     
     const object = formHandler(formData)

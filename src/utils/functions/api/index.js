@@ -1,6 +1,6 @@
 import axios from "axios";
 import state from "@/store";
-import { uploadFile } from "@/FirebaseConfig";
+// Firebase removido - agora usamos upload direto para o backend
 import { formHandler, formatForm } from "../formHandler";
 
 const config = {
@@ -87,18 +87,13 @@ export const createAssociado = async (data) => {
     }
 };
 
-// Função legada para outros tipos (gerentes, agências)
+// Função legada para outros tipos (gerentes, agências) - FIREBASE REMOVIDO
 export const createUser = async (event, url) => {
     try {
         console.log("Dados originais:", event);
         
-        const imagem = await uploadFile(event.imagem)
-            .catch(error => {
-                console.error("Erro no upload da imagem:", error);
-                throw new Error(`Erro no upload da imagem: ${error.message}`);
-            });
-            
-        event.imagem = imagem;
+        // REMOVIDO: Firebase upload - agora o backend processa FormData diretamente
+        // A imagem deve ser enviada via FormData diretamente para o backend
         const formatedEvent = formatForm(event);
         
         const {
@@ -328,16 +323,16 @@ export async function addSubAccountPermissions(subcontaId, permissoes) {
     }
 }
 
-// Função legada mantida para compatibilidade
+// Função legada mantida para compatibilidade - FIREBASE REMOVIDO
 export async function createSubAccountLegacy(event) {
     const { email, senha, imagem, cpf, nome } = event
-    const imagemUrl = await uploadFile(imagem)
+    // REMOVIDO: Firebase upload - use createSubAccount que processa FormData diretamente
     const userData = {
         "nome": nome,
         "email": email,
         "cpf": cpf,
         "senha": senha,
-        "imagem": imagemUrl
+        "imagem": imagem // Agora deve ser processado pelo backend
     }
     console.log(userData)
     const response = await axios.post(`${mainUrl}contas/criar-subconta/${state.user.conta.idConta}`, userData, config)

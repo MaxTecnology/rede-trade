@@ -87,28 +87,28 @@ const CadastrarAssociado = () => {
             gerente: "",
             
             // Campos invisíveis/automáticos
-            reputacao: "0",
-            saldoDinheiro: "0",
-            saldoPermuta: "0",
+            reputacao: "",
+            saldoDinheiro: "",
+            saldoPermuta: "",
             nomeFranquia: snap.user?.nomeFantasia || "",
             usuarioCriadorId: snap.user?.idUsuario?.toString() || "",
             matrizId: (snap.user?.matrizId || snap.user?.idUsuario)?.toString() || "",
             tipoDeMoeda: "BRL",
             statusConta: true,
-            taxaRepasseMatriz: "0",
+            taxaRepasseMatriz: "",
             bloqueado: false,
             
-            // Campos adicionais
+            // Campos adicionais - deixar vazio para o usuário preencher
             restricoes: "",
-            limiteCredito: "0",
-            limiteVendaMensal: "0", 
-            limiteVendaTotal: "0",
-            limiteVendaEmpresa: "0",
+            limiteCredito: "",
+            limiteVendaMensal: "", 
+            limiteVendaTotal: "",
+            limiteVendaEmpresa: "",
             formaPagamento: "",
-            percentualGerente: "0",
-            valorPlano: "0",
-            percentualComissao: "0",
-            taxaAnual: "0",
+            percentualGerente: "",
+            valorPlano: "",
+            percentualComissao: "",
+            taxaAnual: "",
         },
     });
 

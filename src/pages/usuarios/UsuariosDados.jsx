@@ -21,6 +21,7 @@ import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 const UsuariosDados = () => {
     const userInfo = useSnapshot(state.user)
     const [imagemReference, setImageReference] = useState(null);
+    const [imagem, setImagem] = useState(null); // ADICIONADO: estado para o arquivo da imagem
     const [reference, setReference] = useState(true)
     const [loading, setLoading] = useState(false)
     
@@ -33,6 +34,12 @@ const UsuariosDados = () => {
 
     const revalidate = useRevalidate()
 
+    // Forçar revalidação quando componente carrega (para casos de edição externa)
+    useEffect(() => {
+        // Forçar revalidação dos dados do usuário para garantir dados atualizados
+        revalidate("login");
+    }, []); // Executar apenas uma vez ao carregar
+    
     // Verificação de segurança - se não há dados do usuário, mostrar loading
     if (!userInfo || Object.keys(userInfo).length === 0) {
         return (
@@ -71,15 +78,93 @@ const UsuariosDados = () => {
         }
     };
 
-    const imageUrl = userInfo.imagem && isURL(userInfo.imagem) ? userInfo.imagem : defaultImage;
+    // Construir URL da imagem (melhorada para lidar com caminhos relativos)
+    let imageUrl = defaultImage;
+    
+    if (userInfo.imagem) {
+        if (isURL(userInfo.imagem)) {
+            // Se já é uma URL completa (https://... ou http://...)
+            imageUrl = userInfo.imagem;
+        } else if (userInfo.imagem.startsWith('/')) {
+            // Se é um caminho relativo que começa com / (ex: /uploads/images/file.jpg)
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            imageUrl = `${baseUrl}${userInfo.imagem}`;
+        } else if (userInfo.imagem.includes('uploads/')) {
+            // Se contém uploads/ mas não começa com /
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            imageUrl = `${baseUrl}/${userInfo.imagem}`;
+        } else {
+            // Qualquer outro caso, tentar construir URL
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            imageUrl = `${baseUrl}/uploads/images/${userInfo.imagem}`;
+        }
+    }
 
     const formHandler = (event) => {
         event.preventDefault()
-        setTimeout(() => {
-            toast.promise(updateUser(event), {
+        setLoading(true)
+        
+        // Se há imagem selecionada, usar FormData. Senão, usar método original
+        if (imagem) {
+            // Preparar FormData com a nova imagem
+            const formData = new FormData(event.target);
+            formData.set('imagem', imagem); // Substituir por arquivo real
+            
+            // Função para atualizar com FormData (igual ao modal de edição)
+            const updateUserWithImage = async () => {
+                try {
+                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const userId = state.user?.idUsuario;
+                    
+                    if (!userId) {
+                        throw new Error("ID do usuário não encontrado");
+                    }
+                    
+                    const url = `${baseUrl}/usuarios/atualizar-usuario-completo/${userId}`;
+                    const token = localStorage.getItem('tokenRedeTrade');
+                    
+                    if (!token) {
+                        throw new Error('Token de autenticação não encontrado. Faça login novamente.');
+                    }
+                    
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || `Erro HTTP ${response.status}`);
+                        } else {
+                            const errorText = await response.text();
+                            throw new Error(`Erro ${response.status}: ${errorText}`);
+                        }
+                    }
+
+                    const data = await response.json();
+                    
+                    // Atualizar estado local
+                    if (data) {
+                        state.user = { ...state.user, ...data };
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('❌ Erro ao atualizar dados:', error);
+                    throw error;
+                }
+            };
+
+            toast.promise(updateUserWithImage(), {
                 loading: 'Atualizando dados...',
                 success: () => {
                     setLoading(false)
+                    setImagem(null) // Limpar arquivo selecionado
                     revalidate("login")
                     return "Dados atualizados com sucesso!"
                 },
@@ -88,8 +173,24 @@ const UsuariosDados = () => {
                     return `Erro: ${error.message}`
                 },
             })
-            setReference(true)
-        }, 100);  // Aguarde 100 milissegundos (ou o tempo específico)
+        } else {
+            // Método original quando não há imagem
+            setTimeout(() => {
+                toast.promise(updateUser(event), {
+                    loading: 'Atualizando dados...',
+                    success: () => {
+                        setLoading(false)
+                        revalidate("login")
+                        return "Dados atualizados com sucesso!"
+                    },
+                    error: (error) => {
+                        setLoading(false)
+                        return `Erro: ${error.message}`
+                    },
+                })
+                setReference(true)
+            }, 100);
+        }
     }
     return (
         <div className="container">
@@ -347,7 +448,7 @@ const UsuariosDados = () => {
                 <div className="form-group">
                     <label htmlFor="img_path" className="inputLabel">
                         <BiSolidImageAdd /> Selecione uma imagem
-                        <input type="file" id="img_path" name="imagem" accept="image/*" className="custom-file-input" onChange={(e) => imageReferenceHandler(e, setImageReference)} />
+                        <input type="file" id="img_path" name="imagem" accept="image/*" className="custom-file-input" onChange={(e) => imageReferenceHandler(e, setImageReference, setImagem)} />
                     </label>
                 </div>
                 <div className="form-group">

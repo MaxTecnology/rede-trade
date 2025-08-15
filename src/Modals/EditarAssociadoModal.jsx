@@ -29,38 +29,43 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const { data: gerentesData, refetch: refetchGerentes } = useQueryGerentes();
     const queryClient = useQueryClient();
     
-    console.log('🔍 Debug EditarAssociadoModal:', {
-        info,
-        conta: info?.conta,
-        gerenteContaId: info?.conta?.gerenteContaId,
-        gerentesData: gerentesData?.data?.length || 0,
-        gerenteAtual: gerenteSelecionado,
-        // Vamos ver se o problema está nos dados que chegam
-        contaCompleta: JSON.stringify(info?.conta, null, 2)
-    });
+    // Debug logs removidos - funcionando corretamente
+
+    // Função para verificar se é uma URL válida (igual ao UsuariosDados.jsx)
+    const isURL = (str) => {
+        try {
+            new URL(str);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
 
     useEffect(() => {
         if (isOpen && info) {
             // Forçar refetch dos gerentes para garantir dados atualizados
             refetchGerentes();
             
-            // Construir URL completa da imagem
-            let imageUrl = defaultImage; // Fallback padrão
+            // Construir URL da imagem (mesma lógica melhorada do UsuariosDados.jsx)
+            let imageUrl = defaultImage;
             
             if (info.imagem) {
-                if (info.imagem.startsWith('http')) {
-                    // URL completa (ex: http://exemplo.com/imagem.jpg)
+                if (isURL(info.imagem)) {
+                    // Se já é uma URL completa (https://... ou http://...)
                     imageUrl = info.imagem;
-                } else if (info.imagem.startsWith('/uploads')) {
-                    // Caminho relativo do servidor (ex: /uploads/images/123.jpg)
+                } else if (info.imagem.startsWith('/')) {
+                    // Se é um caminho relativo que começa com / (ex: /uploads/images/file.jpg)
                     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
                     imageUrl = `${baseUrl}${info.imagem}`;
+                } else if (info.imagem.includes('uploads/')) {
+                    // Se contém uploads/ mas não começa com /
+                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    imageUrl = `${baseUrl}/${info.imagem}`;
                 } else {
-                    // Outros casos - manter URL padrão
-                    imageUrl = defaultImage;
+                    // Qualquer outro caso, tentar construir URL
+                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    imageUrl = `${baseUrl}/uploads/images/${info.imagem}`;
                 }
-                
-                console.log('🖼️ URL da imagem construída:', imageUrl);
             }
             
             setImageReference(imageUrl);
@@ -132,23 +137,8 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     // TESTE: Vamos usar a rota de atualizar-usuario-completo que pode ser mais robusta
                     const url = `${baseUrl}/usuarios/atualizar-usuario-completo/${info.idUsuario}`;
                     
-                    // NOVO: Tentar diferentes formas de obter o token
-                    let token = localStorage.getItem('token') || 
-                               localStorage.getItem('authToken') || 
-                               localStorage.getItem('accessToken') ||
-                               sessionStorage.getItem('token') ||
-                               sessionStorage.getItem('authToken');
-                    
-                    console.log('🔑 Token encontrado:', token ? 'Sim' : 'Não');
-                    
-                    if (!token) {
-                        // Tentar pegar de qualquer chave que contenha "token"
-                        const allKeys = [...Object.keys(localStorage), ...Object.keys(sessionStorage)];
-                        const tokenKey = allKeys.find(key => key.toLowerCase().includes('token'));
-                        if (tokenKey) {
-                            token = localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey);
-                        }
-                    }
+                    // Obter token da mesma forma que o backend usa
+                    const token = localStorage.getItem('tokenRedeTrade');
                     
                     if (!token) {
                         throw new Error('Token de autenticação não encontrado. Faça login novamente.');

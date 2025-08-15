@@ -9,11 +9,23 @@ const Form_Dados = ({ form, setImagem }) => {
     const [imagemReference, setImageReference] = useState(null)
     const watch = form.watch("imagem")
     
+    // Função para verificar se é uma URL válida
+    const isURL = (str) => {
+        try {
+            new URL(str);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+
     useEffect(() => {
         if (watch && watch.length) {
-            setImageReference(watch)
+            // Se for uma URL válida, usar diretamente, senão usar padrão
+            const imageUrl = isURL(watch) ? watch : defaultImage;
+            setImageReference(imageUrl);
         } else {
-            setImageReference(null)
+            setImageReference(null);
         }
     }, [watch])
     
