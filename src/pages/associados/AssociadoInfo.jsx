@@ -4,138 +4,40 @@ import Footer from '@/components/Footer';
 import { activePage } from '@/utils/functions/setActivePage';
 import { useQueryCategorias } from '@/hooks/ReactQuery/useQueryCategorias';
 import StarRating from '@/components/Stars/StarRating';
-import ButtonMotion from '@/components/FramerMotion/ButtonMotion';
-import { BsWhatsapp, BsBrowserChrome, BsEnvelope, BsTelephone, BsGeoAlt } from 'react-icons/bs';
 import state from '@/store';
 
 const AssociadoInfo = () => {
     const navigate = useNavigate();
-    const { data: categorias, isLoading: categoriasLoading } = useQueryCategorias();
+    const { data: categorias } = useQueryCategorias();
     const [associado, setAssociado] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         activePage("associados");
         
-        // Tentar obter dados do localStorage
+        // Tentar obter dados do localStorage primeiro
         try {
             const storedData = localStorage.getItem("userCard");
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
                 setAssociado(parsedData);
-                console.log('📋 Dados do associado:', parsedData);
+            } else if (state.userCard) {
+                // Fallback para state se localStorage estiver vazio
+                setAssociado(state.userCard);
             } else {
-                // Se não há dados no localStorage, tentar obter do state
-                if (state.userCard) {
-                    setAssociado(state.userCard);
-                } else {
-                    console.warn('Nenhum dado de associado encontrado');
-                    // Redirecionar para a lista se não houver dados
-                    navigate('/associados');
-                }
+                console.warn('Nenhum dado de associado encontrado');
+                navigate('/associados');
             }
         } catch (error) {
             console.error('Erro ao carregar dados do associado:', error);
             navigate('/associados');
-        } finally {
-            setLoading(false);
         }
     }, [navigate]);
 
-    // Função para obter nome da categoria
-    const obterNomeCategoria = () => {
-        if (categoriasLoading) return 'Carregando...';
-        
-        if (!categorias || !categorias.categorias || !Array.isArray(categorias.categorias)) {
-            return 'Sem Categoria';
-        }
-
-        if (!associado?.categoriaId) {
-            return 'Sem Categoria';
-        }
-
-        const categoria = categorias.categorias.find(
-            cat => cat.idCategoria === associado.categoriaId
-        );
-
-        return categoria ? categoria.nomeCategoria : 'Categoria não encontrada';
-    };
-
-    // Função para formatar telefone
-    const formatarTelefone = (telefone) => {
-        if (!telefone) return null;
-        
-        const numero = telefone.replace(/\D/g, '');
-        
-        if (numero.length === 11) {
-            return `(${numero.slice(0,2)}) ${numero.slice(2,7)}-${numero.slice(7)}`;
-        } else if (numero.length === 10) {
-            return `(${numero.slice(0,2)}) ${numero.slice(2,6)}-${numero.slice(6)}`;
-        }
-        
-        return telefone;
-    };
-
-    // Função para abrir WhatsApp
-    const abrirWhatsApp = (telefone) => {
-        if (!telefone) return;
-        
-        const telefoneClean = telefone.replace(/\D/g, "");
-        const url = `https://wa.me/55${telefoneClean}`;
-        window.open(url, "_blank");
-    };
-
-    // Função para abrir site
-    const abrirSite = (site) => {
-        if (!site) return;
-        
-        let url = site;
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = `https://${url}`;
-        }
-        
-        window.open(url, "_blank");
-    };
-
-    // Função para formatar endereço
-    const formatarEndereco = () => {
-        if (!associado) return '';
-        
-        const partes = [];
-        
-        if (associado.logradouro) partes.push(associado.logradouro);
-        if (associado.numero) partes.push(associado.numero);
-        if (associado.complemento) partes.push(associado.complemento);
-        
-        return partes.join(', ') || 'Endereço não informado';
-    };
-
-    // Função para obter tipos de atendimento
-    const obterTiposAtendimento = () => {
-        if (!associado) return 'Não informado';
-        
-        const tipos = [];
-        
-        // Verificar diferentes formatos possíveis
-        const aceitaVoucher = associado.aceitaVoucher === true || 
-                             associado.aceitaVoucher === 'true' || 
-                             associado.aceitaVoucher === 1;
-                             
-        const aceitaOrcamento = associado.aceitaOrcamento === true || 
-                               associado.aceitaOrcamento === 'true' || 
-                               associado.aceitaOrcamento === 1;
-
-        if (aceitaVoucher) tipos.push('Voucher');
-        if (aceitaOrcamento) tipos.push('Orçamento');
-        
-        return tipos.length > 0 ? tipos.join(' / ') : 'Nenhum tipo de atendimento especificado';
-    };
-
-    // Verificar se está carregando
-    if (loading) {
+    // Se não há dados, não renderizar
+    if (!associado) {
         return (
             <div className="container">
-                <div className="containerHeader">Informações do Associado</div>
+                <div className="containerHeader">Informações Associado</div>
                 <div style={{ textAlign: 'center', padding: '40px' }}>
                     <p>Carregando...</p>
                 </div>
@@ -143,28 +45,14 @@ const AssociadoInfo = () => {
         );
     }
 
-    // Verificar se há dados do associado
-    if (!associado) {
-        return (
-            <div className="container">
-                <div className="containerHeader">Informações do Associado</div>
-                <div style={{ textAlign: 'center', padding: '40px' }}>
-                    <p>Nenhum associado selecionado</p>
-                    <ButtonMotion onClick={() => navigate('/associados')}>
-                        Voltar para Associados
-                    </ButtonMotion>
-                </div>
-            </div>
-        );
-    }
-
-    const nomeCategoria = obterNomeCategoria();
-    const imagemPadrao = "https://cdn.vectorstock.com/i/preview-1x/65/30/default-image-icon-missing-picture-page-vector-40546530.jpg";
-    const API_BASE_URL = "http://localhost:3024"; // ou process.env.REACT_APP_API_URL
+    // Obter nome da categoria
+    const nomeCategoria = categorias && categorias.categorias 
+        ? categorias.categorias.find(categoria => categoria.idCategoria === associado.categoriaId)?.nomeCategoria || "Sem Categoria" 
+        : "Sem Categoria";
 
     // Função para construir URL da imagem
     const construirUrlImagem = (imagemPath) => {
-        if (!imagemPath) return imagemPadrao;
+        if (!imagemPath) return "https://cdn.vectorstock.com/i/preview-1x/65/30/default-image-icon-missing-picture-page-vector-40546530.jpg";
         
         // Se já é uma URL completa, usar diretamente
         if (imagemPath.startsWith('http://') || imagemPath.startsWith('https://')) {
@@ -172,280 +60,106 @@ const AssociadoInfo = () => {
         }
         
         // Se é um caminho relativo, construir URL completa
-        if (imagemPath.startsWith('/uploads/')) {
-            return `${API_BASE_URL}${imagemPath}`;
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+        if (imagemPath.startsWith('/')) {
+            return `${baseUrl}${imagemPath}`;
+        } else if (imagemPath.includes('uploads/')) {
+            return `${baseUrl}/${imagemPath}`;
+        } else {
+            return `${baseUrl}/uploads/images/${imagemPath}`;
         }
-        
-        // Se não tem o prefixo /uploads/, adicionar
-        return `${API_BASE_URL}/uploads/images/${imagemPath}`;
     };
-    
-    // Verificar status
-    const statusAtivo = associado.status === true || 
-                       associado.status === 'true' || 
-                       associado.status === 'Ativo' ||
-                       associado.status === 'Atendendo';
+
+    // Função para formatar telefone
+    const formatarTelefone = (telefone) => {
+        if (!telefone) return 'Não informado';
+        return telefone;
+    };
+
+    // Função para formatar endereço
+    const formatarEndereco = () => {
+        const partes = [];
+        if (associado.logradouro) partes.push(associado.logradouro);
+        if (associado.numero) partes.push(associado.numero);
+        return partes.length > 0 ? partes.join(', ') : 'Endereço não informado';
+    };
+
+    // Função para obter tipos de atendimento
+    const obterTiposAtendimento = () => {
+        const tipos = [];
+        if (associado.atendimento || associado.tipoOperacao) {
+            tipos.push('Atendimento');
+        }
+        if (associado.aceitaVoucher) {
+            tipos.push('Voucher');
+        }
+        return tipos.length > 0 ? tipos.join(' / ') : 'Atendimento / Voucher';
+    };
+
+    // Status ativo baseado no status do associado
+    const statusAtivo = associado.status === true || associado.status === 'Ativo';
 
     return (
         <div className="container">
-            <div className="containerHeader">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                    <span>Informações do Associado</span>
-                    <ButtonMotion onClick={() => navigate('/associados')}>
-                        Voltar
-                    </ButtonMotion>
-                </div>
-            </div>
-
+            <div className="containerHeader">Ver mais Associado</div>
             <div className="associadoInfoContainer">
                 <h1>{associado.nomeFantasia || associado.nome || 'Nome não informado'}</h1>
-                
-                <div className="associadoInfo">
-                    {/* Imagem do associado */}
-                    <div className='associadoImage'>
+                <div className="associadoInfo ofertasInfo">
+                    <div className="associadoImage">
                         <img 
                             src={construirUrlImagem(associado.imagem)} 
-                            alt={`Foto de ${associado.nomeFantasia || 'Associado'}`}
+                            alt={associado.nomeFantasia || associado.nome}
                             onError={(e) => {
-                                console.warn('Erro ao carregar imagem:', associado.imagem);
-                                e.target.src = imagemPadrao;
+                                e.target.src = "https://cdn.vectorstock.com/i/preview-1x/65/30/default-image-icon-missing-picture-page-vector-40546530.jpg";
                             }}
                         />
                     </div>
-
-                    {/* Informações detalhadas */}
                     <div className="associadoInfoItens">
-                        {/* Categoria */}
-                        <h2 className="associadoInfoCategoria">
-                            📋 {nomeCategoria}
+                        <h2 className="associadoInfoCategoria ofertasInfoH2">
+                            {nomeCategoria}
                         </h2>
-
-                        {/* Status */}
+                        
+                        <div className="ofertasInfoInfo">
+                            <h3>Informações:</h3>
+                            <p><span>Scor de Atendimento:</span> <StarRating rating={associado.reputacao || 5} /></p>
+                            {associado.nomeContato && (
+                                <p><span>Nome:</span> {associado.nomeContato}</p>
+                            )}
+                            {(associado.telefone || associado.celular) && (
+                                <p><span>Telefone:</span> {formatarTelefone(associado.telefone || associado.celular)}</p>
+                            )}
+                            {associado.email && (
+                                <p><span>Email:</span> {associado.email}</p>
+                            )}
+                            <p><span>Endereço:</span> {formatarEndereco()}</p>
+                            {associado.bairro && (
+                                <p><span>Bairro:</span> {associado.bairro}</p>
+                            )}
+                            {associado.cidade && (
+                                <p><span>Cidade:</span> {associado.cidade}{associado.estado && `, ${associado.estado}`}</p>
+                            )}
+                            {associado.site && (
+                                <p><span>Site:</span> {associado.site}</p>
+                            )}
+                        </div>
+                        
+                        <div>
+                            <h3>Descrição</h3>
+                            <p>{associado.descricao || 'Desenvolvimento de soluções tecnológicas para pequenas empresas'}</p>
+                        </div>
+                        
+                        <div>
+                            <h3>Atendimento</h3>
+                            <p><span>Tipo:</span> {obterTiposAtendimento()}</p>
+                            <p><span>Restrições:</span> {associado.restricao || 'Não'}</p>
+                        </div>
+                        
                         <h2 className={statusAtivo ? "associadoInfoStatus" : "associadoInfoStatus disabled"}>
-                            {statusAtivo ? "🟢 Atendendo" : "🔴 Não atendendo"}
+                            {statusAtivo ? 'Cliente Atendendo' : 'Cliente Não Atendendo'}
                         </h2>
-
-                        {/* Avaliação */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <div className='flex items-center gap-2' style={{ marginBottom: '10px' }}>
-                                <span style={{ fontWeight: 'bold' }}>⭐ Reputação: </span>
-                                <StarRating rating={associado.reputacao || 0} />
-                            </div>
-                        </div>
-
-                        {/* Descrição */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3>📝 Descrição</h3>
-                            <p style={{ 
-                                backgroundColor: '#f8f9fa', 
-                                padding: '15px', 
-                                borderRadius: '8px',
-                                minHeight: '60px',
-                                lineHeight: '1.5'
-                            }}>
-                                {associado.descricao || 'Nenhuma descrição fornecida.'}
-                            </p>
-                        </div>
-
-                        {/* Informações de contato */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3>📞 Contato</h3>
-                            <div style={{ display: 'grid', gap: '10px' }}>
-                                {associado.nomeContato && (
-                                    <p>
-                                        <span style={{ fontWeight: 'bold' }}>👤 Nome de Contato:</span> 
-                                        {associado.nomeContato}
-                                    </p>
-                                )}
-                                
-                                {/* Telefone fixo */}
-                                {associado.telefone && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <BsTelephone />
-                                        <span style={{ fontWeight: 'bold' }}>Telefone:</span>
-                                        <span>{formatarTelefone(associado.telefone)}</span>
-                                    </div>
-                                )}
-                                
-                                {/* Celular */}
-                                {associado.celular && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <BsTelephone />
-                                        <span style={{ fontWeight: 'bold' }}>Celular:</span>
-                                        <span>{formatarTelefone(associado.celular)}</span>
-                                        <button
-                                            onClick={() => abrirWhatsApp(associado.celular)}
-                                            style={{
-                                                backgroundColor: '#25D366',
-                                                color: 'white',
-                                                border: 'none',
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                fontSize: '12px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '4px'
-                                            }}
-                                        >
-                                            <BsWhatsapp size={12} />
-                                            WhatsApp
-                                        </button>
-                                    </div>
-                                )}
-                                
-                                {/* Email principal */}
-                                {associado.email && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <BsEnvelope />
-                                        <span style={{ fontWeight: 'bold' }}>Email:</span>
-                                        <a 
-                                            href={`mailto:${associado.email}`}
-                                            style={{ color: '#2d6cdf', textDecoration: 'none' }}
-                                        >
-                                            {associado.email}
-                                        </a>
-                                    </div>
-                                )}
-                                
-                                {/* Email de contato */}
-                                {associado.emailContato && associado.emailContato !== associado.email && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <BsEnvelope />
-                                        <span style={{ fontWeight: 'bold' }}>Email Contato:</span>
-                                        <a 
-                                            href={`mailto:${associado.emailContato}`}
-                                            style={{ color: '#2d6cdf', textDecoration: 'none' }}
-                                        >
-                                            {associado.emailContato}
-                                        </a>
-                                    </div>
-                                )}
-                                
-                                {/* Email secundário */}
-                                {associado.emailSecundario && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <BsEnvelope />
-                                        <span style={{ fontWeight: 'bold' }}>Email Secundário:</span>
-                                        <a 
-                                            href={`mailto:${associado.emailSecundario}`}
-                                            style={{ color: '#2d6cdf', textDecoration: 'none' }}
-                                        >
-                                            {associado.emailSecundario}
-                                        </a>
-                                    </div>
-                                )}
-                                
-                                {associado.site && (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <BsBrowserChrome />
-                                        <span style={{ fontWeight: 'bold' }}>Site:</span>
-                                        <button
-                                            onClick={() => abrirSite(associado.site)}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                color: '#2d6cdf',
-                                                border: '1px solid #2d6cdf',
-                                                padding: '4px 8px',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                fontSize: '12px'
-                                            }}
-                                        >
-                                            Acessar Site
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Endereço */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3>📍 Endereço</h3>
-                            <div style={{ display: 'grid', gap: '8px' }}>
-                                <p>
-                                    <BsGeoAlt style={{ marginRight: '8px' }} />
-                                    <span style={{ fontWeight: 'bold' }}>Logradouro:</span> {formatarEndereco()}
-                                </p>
-                                {associado.bairro && (
-                                    <p><span style={{ fontWeight: 'bold' }}>Bairro:</span> {associado.bairro}</p>
-                                )}
-                                <p>
-                                    <span style={{ fontWeight: 'bold' }}>Cidade:</span> {associado.cidade || 'Não informado'}
-                                    {associado.estado && ` - ${associado.estado}`}
-                                </p>
-                                {associado.cep && (
-                                    <p><span style={{ fontWeight: 'bold' }}>CEP:</span> {associado.cep}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Atendimento */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3>🛎️ Tipos de Atendimento</h3>
-                            <p style={{ 
-                                backgroundColor: '#e3f2fd', 
-                                padding: '12px', 
-                                borderRadius: '8px',
-                                border: '1px solid #2196f3'
-                            }}>
-                                {obterTiposAtendimento()}
-                            </p>
-                        </div>
-
-                        {/* Restrições */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3>⚠️ Restrições</h3>
-                            <p style={{ 
-                                backgroundColor: '#fff3e0', 
-                                padding: '12px', 
-                                borderRadius: '8px',
-                                border: '1px solid #ff9800',
-                                minHeight: '50px'
-                            }}>
-                                {associado.restricao || 'Nenhuma restrição informada.'}
-                            </p>
-                        </div>
-
-                        {/* Informações adicionais */}
-                        {(associado.razaoSocial || associado.cnpj || associado.inscEstadual) && (
-                            <div style={{ marginBottom: '20px' }}>
-                                <h3>🏢 Dados da Empresa</h3>
-                                <div style={{ display: 'grid', gap: '8px' }}>
-                                    {associado.razaoSocial && (
-                                        <p><span style={{ fontWeight: 'bold' }}>Razão Social:</span> {associado.razaoSocial}</p>
-                                    )}
-                                    {associado.cnpj && (
-                                        <p><span style={{ fontWeight: 'bold' }}>CNPJ:</span> {associado.cnpj}</p>
-                                    )}
-                                    {associado.inscEstadual && (
-                                        <p><span style={{ fontWeight: 'bold' }}>Inscrição Estadual:</span> {associado.inscEstadual}</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Informações da conta */}
-                        {associado.conta && (
-                            <div style={{ marginBottom: '20px' }}>
-                                <h3>💳 Informações da Conta</h3>
-                                <div style={{ display: 'grid', gap: '8px' }}>
-                                    {associado.conta.numeroConta && (
-                                        <p><span style={{ fontWeight: 'bold' }}>Número da Conta:</span> {associado.conta.numeroConta}</p>
-                                    )}
-                                    {associado.conta.nomeFranquia && (
-                                        <p><span style={{ fontWeight: 'bold' }}>Franquia:</span> {associado.conta.nomeFranquia}</p>
-                                    )}
-                                    {associado.conta.gerenteConta?.nome && (
-                                        <p><span style={{ fontWeight: 'bold' }}>Gerente:</span> {associado.conta.gerenteConta.nome}</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
-            
             <Footer />
         </div>
     );
