@@ -245,12 +245,11 @@ export const createOferta = async (event, url) => {
 // REMOVIDO: createSubAccount - Firebase não é mais usado
 // Use a função createSubAccount do api/index.js que faz upload direto
 
-// REMOVIDO: createUser - Firebase não é mais usado
-// Use createAssociado do api/index.js que faz upload direto
-export const createUserLegacy = async (event, url) => {
+// ATUALIZADO: createUser - Firebase removido, agora processa FormData diretamente
+export const createUser = async (event, url) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    // REMOVIDO: Firebase upload - agora o backend processa FormData diretamente
+    // REMOVIDO: Firebase upload via uploadFile() - agora o backend processa imagem diretamente
 
     const object = formHandler(formData)
     const {
