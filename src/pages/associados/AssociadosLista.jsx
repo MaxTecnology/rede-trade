@@ -142,62 +142,62 @@ const AssociadosLista = () => {
     };
 
     // Função para exportar dados
-    const exportarDados = (formato) => {
-        if (!dadosProcessados.length) {
-            alert('Nenhum dado para exportar');
-            return;
-        }
+    // const exportarDados = (formato) => {
+    //     if (!dadosProcessados.length) {
+    //         alert('Nenhum dado para exportar');
+    //         return;
+    //     }
 
-        try {
-            if (formato === 'csv') {
-                exportarCSV();
-            } else if (formato === 'excel') {
-                exportarExcel();
-            }
-        } catch (error) {
-            console.error('Erro ao exportar:', error);
-            alert('Erro ao exportar dados');
-        }
-    };
+    //     try {
+    //         if (formato === 'csv') {
+    //             exportarCSV();
+    //         } else if (formato === 'excel') {
+    //             exportarExcel();
+    //         }
+    //     } catch (error) {
+    //         console.error('Erro ao exportar:', error);
+    //         alert('Erro ao exportar dados');
+    //     }
+    // };
 
     // Exportar CSV
-    const exportarCSV = () => {
-        const headers = [
-            'Nome Fantasia', 'Email', 'Telefone', 'Estado', 'Cidade', 
-            'Status', 'Categoria', 'Agência', 'Conta'
-        ];
+    // const exportarCSV = () => {
+    //     const headers = [
+    //         'Nome Fantasia', 'Email', 'Telefone', 'Estado', 'Cidade', 
+    //         'Status', 'Categoria', 'Agência', 'Conta'
+    //     ];
 
-        const csvData = dadosProcessados.map(item => [
-            item.nomeFantasia || item.nome || '',
-            item.email || item.emailContato || '',
-            item.telefone || item.celular || '',
-            item.estado || '',
-            item.cidade || '',
-            (item.status === true || item.status === 'Ativo') ? 'Ativo' : 'Inativo',
-            (() => {
-                if (!item.categoriaId || !categorias?.categorias) return 'Sem categoria';
-                const cat = categorias.categorias.find(c => c.idCategoria === item.categoriaId);
-                return cat ? cat.nomeCategoria : 'Categoria não encontrada';
-            })(),
-            item.conta?.nomeFranquia || item.agencia || '',
-            item.conta?.numeroConta || ''
-        ]);
+    //     const csvData = dadosProcessados.map(item => [
+    //         item.nomeFantasia || item.nome || '',
+    //         item.email || item.emailContato || '',
+    //         item.telefone || item.celular || '',
+    //         item.estado || '',
+    //         item.cidade || '',
+    //         (item.status === true || item.status === 'Ativo') ? 'Ativo' : 'Inativo',
+    //         (() => {
+    //             if (!item.categoriaId || !categorias?.categorias) return 'Sem categoria';
+    //             const cat = categorias.categorias.find(c => c.idCategoria === item.categoriaId);
+    //             return cat ? cat.nomeCategoria : 'Categoria não encontrada';
+    //         })(),
+    //         item.conta?.nomeFranquia || item.agencia || '',
+    //         item.conta?.numeroConta || ''
+    //     ]);
 
-        const csvContent = [headers, ...csvData]
-            .map(row => row.map(field => `"${field}"`).join(';'))
-            .join('\n');
+    //     const csvContent = [headers, ...csvData]
+    //         .map(row => row.map(field => `"${field}"`).join(';'))
+    //         .join('\n');
 
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `associados_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
-        link.click();
-    };
+    //     const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    //     const link = document.createElement('a');
+    //     link.href = URL.createObjectURL(blob);
+    //     link.download = `associados_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
+    //     link.click();
+    // };
 
-    // Exportar Excel (simulado como CSV)
-    const exportarExcel = () => {
-        exportarCSV(); // Por simplicidade, usar CSV como Excel
-    };
+    // // Exportar Excel (simulado como CSV)
+    // const exportarExcel = () => {
+    //     exportarCSV(); // Por simplicidade, usar CSV como Excel
+    // };
 
     // Verificar se há filtros ativos
     const hasFiltrosAtivos = Object.values(filtros).some(valor => 
@@ -293,7 +293,7 @@ const AssociadosLista = () => {
                     </div>
 
                     {/* Botões de exportação */}
-                    {dadosProcessados.length > 0 && (
+                    {/* {dadosProcessados.length > 0 && (
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <button
                                 onClick={() => exportarDados('csv')}
@@ -334,7 +334,7 @@ const AssociadosLista = () => {
                                 Excel
                             </button>
                         </div>
-                    )}
+                    )} */}
                 </div>
             </div>
 
