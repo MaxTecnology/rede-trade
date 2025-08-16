@@ -21,6 +21,13 @@ const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
     const [sucess, setSucess] = useState(false)
     const info = ofertaInfo
     var urlOferta = `ofertas/atualizar-oferta/${info.idOferta}`
+    
+    // DEBUG: Verificar dados da oferta
+    console.log('🔍 DEBUG: Dados da oferta no modal:', info);
+    console.log('🔍 DEBUG: limiteCompra especificamente:', info?.limiteCompra);
+    console.log('🔍 DEBUG: descricao especificamente:', info?.descricao);
+    console.log('🔍 DEBUG: Todas as propriedades do info:', Object.keys(info || {}));
+    console.log('🔍 DEBUG: Valores de todas as propriedades:', Object.entries(info || {}));
 
     const revalidate = useRevalidate();
 
@@ -81,8 +88,8 @@ const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
             // NOVO: Usar formHandlerComImagem para processar FormData
             const formData = formHandlerComImagem(new FormData(event.target), imagem);
             
-            // Debug opcional - descomente se precisar debugar
-            // debugFormData(formData);
+            // Debug temporário
+            debugFormData(formData);
             
             // NOVO: Função para update com imagem (adaptada para ofertas)
             const updateOfertaWithImage = async () => {
@@ -248,7 +255,7 @@ const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
                             </div>
                             <div className="form-group f1">
                                 <label className="required">Categorias</label>
-                                <select id="planoAssociado" defaultValue={info.categoria} name="categoria">
+                                <select id="planoAssociado" defaultValue={info.categoriaId} name="categoria">
                                     <option value="" disabled>
                                         Selecione
                                     </option>
@@ -272,7 +279,7 @@ const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
                                 accept="image/*" 
                                 id="img_path" 
                                 className="custom-file-input" 
-                                name='imagem' 
+                                name='imagens' 
                                 onChange={(e) => imageReferenceHandler(e, setImageReference, setImagem)} 
                             />
                         </label>

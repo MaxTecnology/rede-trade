@@ -215,16 +215,13 @@ export const createOferta = async (event, url) => {
     event.preventDefault()
     const formData = new FormData(event.target)
     
-    // Fazer upload da imagem se houver
-    if (formData.get("imagens") && formData.get("imagens").name) {
-        const imagem = await uploadFile(formData.get("imagens"))
-        formData.set("imagens", imagem)
-    }
+    // REMOVIDO: uploadFile - O backend agora processa imagem diretamente
+    // A imagem já está no FormData e será processada pelo backend
     
     // Formatar vencimento
     formData.set("vencimento", formatarData(formData.get("vencimento")))
     
-    // Enviar FormData diretamente para o backend (não converter para objeto)
+    // Enviar FormData diretamente para o backend
     const config = {
         ...getConfig(),
         headers: {
@@ -237,8 +234,9 @@ export const createOferta = async (event, url) => {
         .then(response => {
             event.target.reset()
         })
-        .catch(() => {
-            throw "Algo de errado aconteceu"
+        .catch((error) => {
+            console.error('Erro ao criar oferta:', error);
+            throw error.response?.data?.message || "Erro ao criar oferta"
         })
 }
 
@@ -327,13 +325,12 @@ export const createT = async (event) => {
 export const editUser = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
+    // REMOVIDO: uploadFile - O backend agora processa imagem diretamente
     if (formData.get("imagem")) {
         if (formData.get("imagem").name === "") {
             formData.delete("imagem")
-        } else {
-            const imagem = await uploadFile(formData.get("imagem"))
-            formData.set("imagem", imagem)
         }
+        // A imagem permanece no FormData e será processada pelo backend
     }
     const object = formHandler(formData)
 
@@ -418,13 +415,12 @@ export const updateUser = async (event) => {
 export const editItem = async (event, url, setState, oferta) => {
     event.preventDefault();
     const formData = new FormData(event.target);
+    // REMOVIDO: uploadFile - O backend agora processa imagem diretamente
     if (formData.get("imagem")) {
         if (formData.get("imagem").name === "") {
             formData.delete("imagem")
-        } else {
-            const imagem = await uploadFile(formData.get("imagem"))
-            formData.set("imagem", imagem)
         }
+        // A imagem permanece no FormData e será processada pelo backend
     }
 
     if (formData.get("vencimento")) {

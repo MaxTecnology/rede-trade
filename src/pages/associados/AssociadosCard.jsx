@@ -278,8 +278,8 @@ const AssociadosCard = ({ associado, index }) => {
         </div>
       </div>
 
-      {/* Nome e rating */}
-      <div className="associadoCardName flex justify-between">
+      {/* Nome */}
+      <div className="associadoCardName">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
@@ -292,12 +292,12 @@ const AssociadosCard = ({ associado, index }) => {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <StarRating rating={associado.reputacao || 0} />
       </div>
 
-      {/* Status */}
-      <div className={statusAtivo ? "associadoCardStatus" : "associadoCardStatus disabled"}>
-        {statusAtivo ? "Atendendo" : "Não atendendo"}
+      {/* Status com Rating */}
+      <div className={statusAtivo ? "associadoCardStatus" : "associadoCardStatus disabled"} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
+        <span>{statusAtivo ? "Atendendo" : "Não atendendo"}</span>
+        <StarRating rating={associado.reputacao || 0} />
       </div>
 
       {/* Descrição */}

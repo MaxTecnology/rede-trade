@@ -84,7 +84,7 @@ export const formHandlerComImagem = (item, arquivoImagem = null) => {
 
     // Adicionar imagem se fornecida
     if (arquivoImagem && arquivoImagem instanceof File) {
-        formData.append('imagem', arquivoImagem);
+        formData.append('imagens', arquivoImagem);
         console.log("📎 Imagem adicionada ao FormData:", arquivoImagem.name);
     }
 
@@ -204,7 +204,7 @@ export const objectToFormData = (objeto, arquivoImagem = null) => {
     });
 
     if (arquivoImagem && arquivoImagem instanceof File) {
-        formData.append('imagem', arquivoImagem);
+        formData.append('imagens', arquivoImagem);
     }
 
     return formData;

@@ -34,6 +34,13 @@ const OfertasMinhas = () => {
     const minhasOfertas = data?.ofertas || [];
 
     console.log("DEBUG: OfertasMinhas - minhasOfertas.length:", minhasOfertas.length);
+    console.log("DEBUG: OfertasMinhas - primeira oferta:", minhasOfertas[0]);
+    if (minhasOfertas[0]) {
+        console.log("DEBUG: OfertasMinhas - limiteCompra da primeira:", minhasOfertas[0]?.limiteCompra);
+        console.log("DEBUG: OfertasMinhas - descricao da primeira:", minhasOfertas[0]?.descricao);
+        console.log("DEBUG: OfertasMinhas - TODAS as propriedades da primeira oferta:", Object.keys(minhasOfertas[0]));
+        console.log("DEBUG: OfertasMinhas - Contém limiteCompra?", 'limiteCompra' in minhasOfertas[0]);
+    }
 
     if (isLoading) return <div>Carregando...</div>;
     if (error) return <div>Erro ao carregar ofertas.</div>;
@@ -53,7 +60,12 @@ const OfertasMinhas = () => {
                     columns={columns}
                     data={minhasOfertas}
                     setId={setId}
-                    setInfo={setInfo}
+                    setInfo={(ofertaData) => {
+                        console.log('🎯 DEBUG: Dados sendo passados para setInfo:', ofertaData);
+                        console.log('🎯 DEBUG: limiteCompra na ofertaData:', ofertaData?.limiteCompra);
+                        console.log('🎯 DEBUG: descricao na ofertaData:', ofertaData?.descricao);
+                        setInfo(ofertaData);
+                    }}
                     modaltoggle={modalToggle}
                     admin
                 />
