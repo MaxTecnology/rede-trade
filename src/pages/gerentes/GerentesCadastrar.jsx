@@ -48,6 +48,14 @@ const GerentesCadastrar = () => {
 
     const revalidate = useRevalidate()
 
+    // Função para converter formato brasileiro para numérico
+    const convertBrazilianToNumber = (value) => {
+        if (!value) return '';
+        return value.toString()
+            .replace(/\./g, '')  // Remove pontos (separadores de milhares)
+            .replace(',', '.');  // Troca vírgula por ponto (decimal)
+    };
+
     const formHandler = (event) => {
         event.preventDefault();
         setReference(false);
@@ -95,13 +103,20 @@ const GerentesCadastrar = () => {
                 'nomeContato', 'telefone', 'celular', 'emailContato', 'emailSecundario',
                 'logradouro', 'numero', 'cep', 'complemento', 'bairro', 'cidade', 
                 'estado', 'regiao', 'aceitaOrcamento', 'aceitaVoucher', 'tipoOperacao',
-                'dataVencimentoFatura', 'limiteCredito', 'taxaGerente'
+                'dataVencimentoFatura', 'limiteCredito', 'taxaGerente', 'planoId'
             ];
             
             camposOpcionais.forEach(campo => {
                 const valor = formOriginal.get(campo);
                 if (valor && valor.toString().trim() !== '') {
-                    formDataLimpo.append(campo, valor);
+                    // Converter valores monetários para formato numérico (apenas limiteCredito)
+                    if (campo === 'limiteCredito') {
+                        const valorConvertido = convertBrazilianToNumber(valor);
+                        formDataLimpo.append(campo, valorConvertido);
+                        console.log(`💰 ${campo}: ${valor} → ${valorConvertido}`);
+                    } else {
+                        formDataLimpo.append(campo, valor);
+                    }
                 }
             });
             
@@ -198,6 +213,15 @@ const GerentesCadastrar = () => {
         } else {
             // Método para quando não há imagem - CORRIGIDO
             const formData = new FormData(event.target);
+            
+            // Converter valores monetários para formato numérico (apenas limiteCredito)
+            const limiteCredito = formData.get('limiteCredito');
+            
+            if (limiteCredito) {
+                const limiteCreditoConvertido = convertBrazilianToNumber(limiteCredito);
+                formData.set('limiteCredito', limiteCreditoConvertido);
+                console.log(`💰 limiteCredito: ${limiteCredito} → ${limiteCreditoConvertido}`);
+            }
             
             // Adicionar campos obrigatórios que podem estar faltando
             formData.append('tipo', 'Gerente');
@@ -345,7 +369,12 @@ const GerentesCadastrar = () => {
                 <PlanosFields type={"Gerente"} />
                 <div className="form-group">
                     <label className="required">Nome da Agência</label>
-                    <input type="text" className="readOnly" readOnly required value={snap.user.nomeFantasia} />
+                    <input 
+                        type="text" 
+                        className="readOnly" 
+                        readOnly 
+                        required 
+                        value={snap.user.nomeFantasia} />
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo de Operação</label>
@@ -367,7 +396,16 @@ const GerentesCadastrar = () => {
                 </div>
                 <div className="form-group f2">
                     <label className="required">Taxa em % do Gerente</label>
-                    <RealInput name="taxaGerente" placeholder="Insira a taxa" reference={reference} required />
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        className="form-control"
+                        name="taxaGerente"
+                        placeholder="Ex: 21.65"
+                        required
+                    />
                 </div>
                 <div className="form-group f2">
                     <label className="required">Data Vencimento Fatura</label>

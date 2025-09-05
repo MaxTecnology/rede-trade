@@ -27,6 +27,7 @@ export const associadoSchema = z.object({
     descricao: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
     
     // CONTATO - Obrigatórios
+    nomeContato: z.string().min(3, "Nome de contato é obrigatório"),
     telefone: z.string().optional(),
     celular: z.string().min(14, "Celular é obrigatório"),
     emailContato: z.string().email("Email de contato inválido").min(5, "Email de contato é obrigatório"),

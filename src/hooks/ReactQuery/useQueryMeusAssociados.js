@@ -1,21 +1,52 @@
 import { useQuery } from '@tanstack/react-query';
-import { getId } from '../getId';
+import { getId, getType } from '../getId';
 import { getApiData } from '../ListasHook';
+import state from '../../store';
 
 export const useQueryMeusAssociados = () => {
     const userId = getId();
+    const userType = getType();
 
     return useQuery({
-        queryKey: ['meusAssociados', userId],
+        queryKey: ['meusAssociados', userId, userType],
         queryFn: async () => {
             if (!userId) return [];
             try {
-                // A rota correta é 'listar-usuarios', filtrando pelo ID do criador.
-                const data = await getApiData(`usuarios/listar-usuarios?usuarioCriadorId=${userId}`);
-                return data || [];
+                let url;
+                
+                // Lógica baseada no tipo de usuário
+                if (userType === 'Associado') {
+                    // Para associados: buscar colegas da mesma unidade (mesmo criador)
+                    const usuarioCriadorId = state.user?.usuarioCriadorId;
+                    if (usuarioCriadorId) {
+                        url = `usuarios/listar-usuarios?usuarioCriadorId=${usuarioCriadorId}&tipo=Associado`;
+                    } else {
+                        // Se não tem criador, retorna apenas ele mesmo
+                        url = `usuarios/listar-usuarios?idUsuario=${userId}&tipo=Associado`;
+                    }
+                } else {
+                    // Para Gerentes/Franquias/Matriz: buscar associados que eles criaram
+                    url = `usuarios/listar-usuarios?usuarioCriadorId=${userId}&tipo=Associado`;
+                }
+                
+                console.log('🔍 DEBUG: URL para meusAssociados:', url);
+                const data = await getApiData(url);
+                
+                // Se retornou objeto com propriedade data, usar ela
+                if (data && data.data && Array.isArray(data.data)) {
+                    console.log('📊 DEBUG: Associados encontrados:', data.data.length);
+                    return data.data;
+                }
+                
+                // Se retornou array diretamente
+                if (Array.isArray(data)) {
+                    console.log('📊 DEBUG: Associados encontrados (array direto):', data.length);
+                    return data;
+                }
+                
+                return [];
             } catch (error) {
-                // Se a API retornar 404 ou qualquer outro erro, tratamos como "sem associados".
-                // Isso evita quebrar a UI e poluir o console com erros esperados.
+                console.log('❌ Erro ao buscar associados:', error.message);
                 return [];
             }
         },

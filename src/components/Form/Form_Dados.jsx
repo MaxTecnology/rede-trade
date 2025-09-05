@@ -20,12 +20,35 @@ const Form_Dados = ({ form, setImagem }) => {
     };
 
     useEffect(() => {
-        if (watch && watch.length) {
-            // Se for uma URL válida, usar diretamente, senão usar padrão
-            const imageUrl = isURL(watch) ? watch : defaultImage;
-            setImageReference(imageUrl);
+        if (watch && watch.length && watch !== "imagem_selecionada") {
+            // Se for uma URL válida, usar diretamente
+            if (isURL(watch)) {
+                setImageReference(watch);
+            } else if (typeof watch === 'string') {
+                // Se é uma string mas não uma URL, construir URL completa
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                if (watch.startsWith('/')) {
+                    setImageReference(`${baseUrl}${watch}`);
+                } else if (watch.includes('uploads/')) {
+                    setImageReference(`${baseUrl}/${watch}`);
+                } else {
+                    setImageReference(`${baseUrl}/uploads/images/${watch}`);
+                }
+            } else {
+                // Fallback para imagem padrão
+                setImageReference(defaultImage);
+            }
         } else {
-            setImageReference(null);
+            // Se não há watch ou é "imagem_selecionada", manter estado atual
+            // (o imageReferenceHandler já atualizou com preview da imagem selecionada)
+            if (!watch || watch === "imagem_selecionada") {
+                // Não alterar imagemReference se já foi setado pelo handler
+                if (!imagemReference) {
+                    setImageReference(null);
+                }
+            } else {
+                setImageReference(null);
+            }
         }
     }, [watch])
     

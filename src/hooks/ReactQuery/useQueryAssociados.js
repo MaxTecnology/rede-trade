@@ -43,14 +43,23 @@ export const useQueryAssociados = (
     }
 
     async function getData() {
-        // console.log('🌐 URL da requisição:', url); // Comentado para produção
+        console.log('🌐 DEBUG: URL da requisição useQueryAssociados:', url);
         
         // Usar a rota corrigida que já tem os filtros
         const response = await getApiData(url);
         
-        // console.log('📊 Dados recebidos da API:', response); // Comentado para produção
+        console.log('📊 DEBUG: Dados recebidos da API useQueryAssociados:', response);
         
-        // A nova rota já retorna no formato correto { data: [...], meta: {...} }
+        // Filtrar apenas associados se não foi especificado tipo
+        if (response && response.data && Array.isArray(response.data)) {
+            const associados = response.data.filter(user => user.tipo === 'Associado');
+            console.log(`📊 DEBUG: Filtrados ${associados.length} associados de ${response.data.length} usuários`);
+            return {
+                ...response,
+                data: associados
+            };
+        }
+        
         return response;
     }
 

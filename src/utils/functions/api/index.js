@@ -67,11 +67,33 @@ export const createAssociado = async (data) => {
             console.error("❌ Erro ao criar associado:", error.response?.data || error);
             console.error("❌ Status:", error.response?.status);
             console.error("❌ Headers:", error.response?.headers);
+            console.error("❌ Dados enviados:", Object.keys(data));
             
-            const errorMsg = error.response?.data?.error || 
-                           error.response?.data?.message || 
-                           error.message || 
-                           "Erro desconhecido ao criar associado";
+            // Análise detalhada do erro
+            const status = error.response?.status;
+            const serverError = error.response?.data?.error || error.response?.data?.message;
+            const field = error.response?.data?.field;
+            
+            let errorMsg = "Erro desconhecido ao criar associado";
+            
+            if (status === 400 && serverError) {
+                // Erro de validação - incluir campo específico se disponível
+                errorMsg = field ? `${serverError} (campo: ${field})` : serverError;
+            } else if (status === 401) {
+                errorMsg = "Não autorizado. Faça login novamente.";
+            } else if (status === 403) {
+                errorMsg = "Permissão negada para criar associado.";
+            } else if (status === 409) {
+                errorMsg = "Email ou CPF já cadastrado.";
+            } else if (status >= 500) {
+                errorMsg = "Erro interno do servidor. Tente novamente em alguns minutos.";
+            } else if (serverError) {
+                errorMsg = serverError;
+            } else if (error.message) {
+                errorMsg = error.message;
+            }
+            
+            // NÃO recarregar a página - apenas lançar erro para ser tratado pelo componente
             throw new Error(errorMsg);
         });
         

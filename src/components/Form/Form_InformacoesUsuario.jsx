@@ -9,7 +9,7 @@ const Form_InformacoesUsuario = ({ form, type }) => {
         <>
             <FormInput required form={form} name="razaoSocial" label="Razão Social" placeholder="Razão Social" />
             <FormInput required form={form} name="nomeFantasia" label="Nome Fantasia" placeholder="Nome Fantasia" />
-            <FormInput required form={form} name="descricao" label="Descrição" placeholder="Descrição" textarea />
+            <FormInput required form={form} name="descricao" label="Descrição" placeholder="Descrição" />
             <FormSelect required form={form} name="status" label="Status" placeholder="Selecionar" items={[
                 { label: "Atendendo", value: "true" },
                 { label: "Não Atendendo", value: "false" },

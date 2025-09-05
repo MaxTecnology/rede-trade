@@ -267,6 +267,7 @@ export const createUser = async (event, url) => {
     delete object.tipo
     delete object.plano
     delete object.formaPagamento
+    // NÃO DELETAR object.taxaGerente - precisa ser enviado para o backend
 
     const response = await axios.post(`${mainUrl}${url}`, object, getConfig());
     if (!response) {

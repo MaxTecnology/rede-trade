@@ -46,6 +46,14 @@ const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
 
     const revalidate = useRevalidate();
 
+    // Função para converter formato brasileiro para numérico
+    const convertBrazilianToNumber = (value) => {
+        if (!value) return '';
+        return value.toString()
+            .replace(/\./g, '')  // Remove pontos (separadores de milhares)
+            .replace(',', '.');  // Troca vírgula por ponto (decimal)
+    };
+
     const formHandler = (event) => {
         event.preventDefault();
         setReference(false);
@@ -73,6 +81,15 @@ const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
     
                 // SEMPRE usar FormData
                 const formData = new FormData(event.target);
+                
+                // Converter valores monetários para formato numérico (apenas limiteCredito)
+                const limiteCredito = formData.get('limiteCredito');
+                
+                if (limiteCredito) {
+                    const limiteCreditoConvertido = convertBrazilianToNumber(limiteCredito);
+                    formData.set('limiteCredito', limiteCreditoConvertido);
+                    console.log(`💰 limiteCredito: ${limiteCredito} → ${limiteCreditoConvertido}`);
+                }
                 
                 // CORREÇÃO: Remover duplicações de tipo e campos hidden problemáticos
                 formData.delete('tipo'); // Remover todos os tipos
@@ -365,7 +382,7 @@ const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
                         className="readOnly" 
                         readOnly 
                         required 
-                        value={info.conta?.nomeFranquia || info.matriz?.nomeFantasia || ''} 
+                        value={info.matriz?.nomeFantasia || info.conta?.nomeFranquia || ''} 
                     />
                 </div>
 
@@ -385,18 +402,22 @@ const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group f2">
                     <label className="required-field-label">Taxa em % do Gerente</label>
-                    <RealInput
-                        defaultValue={info.conta?.taxaComissaoGerente || info.taxaGerente}
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        defaultValue={info?.taxaComissaoGerente || info.taxaGerente || ''}
+                        className="form-control"
                         name="taxaGerente"
-                        placeholder="Insira a taxa"
-                        reference={reference}
+                        placeholder="Ex: 21.65"
                         required
                     />
                 </div>
                 <div className="form-group f2">
                     <label className="required-field-label">Data Vencimento Fatura</label>
                     <select 
-                        defaultValue={info.dataVencimentoFatura || ''} 
+                        defaultValue={info.conta.dataVencimentoFatura || ''} 
                         className="form-control" 
                         name="dataVencimentoFatura"
                         required

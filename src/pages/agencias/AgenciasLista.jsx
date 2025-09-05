@@ -81,9 +81,9 @@ const AgenciasLista = () => {
                     columns={columns}
                     data={data && data.data ? data.data.filter(item => 
                         item.tipo !== "Matriz" && 
-                        (item.tipo === "Franquia" || 
-                         item.tipo?.includes("Franquia") || 
-                         item.conta?.tipoDaConta?.tipoDaConta?.includes("Franquia"))
+                        (item.tipo === "Franquia Comum" || 
+                         item.tipo === "Franquia Master" ||  
+                         item.tipo === "Franquia Filial")
                     ) : []}
                     setId={setUserId}
                     setInfo={setUserInfo}

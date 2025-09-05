@@ -3,7 +3,7 @@ import { postItem } from '../ListasHook';
 export const useQueryAgencias = () => {
     const url = "usuarios/listar-tipo-usuarios"
     const body = {
-        "tipoConta": ["Franquia Comum", "Franquia Master", "Franquia Fillial"]
+        "tipoConta": ["Franquia"]
     };
     return useQuery({
         queryKey: ['agencias'],

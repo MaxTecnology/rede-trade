@@ -56,6 +56,7 @@ const CadastrarAssociado = () => {
             descricao: "",
             
             // Contato
+            nomeContato: "",
             telefone: "",
             celular: "",
             emailContato: "",
@@ -171,24 +172,49 @@ const CadastrarAssociado = () => {
             
             setLoading(true);
             
-            const response = await toast.promise(
-                createAssociado(event),
-                {
-                    loading: 'Cadastrando Associado...',
-                    success: (data) => `Associado ${data.nome} cadastrado com sucesso!`,
-                    error: (error) => `Erro: ${error.message || 'Erro desconhecido'}`,
+            try {
+                const response = await createAssociado(event);
+                
+                // Sucesso - mostrar toast e limpar formulário
+                toast.success(`Associado ${response.nome} cadastrado com sucesso!`);
+                form.reset();
+                revalidate("associados");
+                
+                setTimeout(() => {
+                    navigate('/associadosLista');
+                }, 2000);
+                
+            } catch (error) {
+                // Erro - NÃO limpar formulário para preservar dados
+                console.error("Erro ao cadastrar associado:", error);
+                
+                // Determinar tipo de erro
+                const errorMessage = error.message || 'Erro desconhecido';
+                const isValidationError = error.message?.includes('obrigatório') || 
+                                        error.message?.includes('inválido') ||
+                                        error.message?.includes('formato');
+                
+                if (isValidationError) {
+                    // Erro de validação - manter dados no formulário
+                    toast.error(`Erro de validação: ${errorMessage}`, {
+                        duration: 5000,
+                        description: "Verifique os campos destacados e tente novamente."
+                    });
+                } else {
+                    // Outros erros - também manter dados por segurança
+                    toast.error(`Erro ao cadastrar: ${errorMessage}`, {
+                        duration: 5000,
+                        description: "Seus dados foram preservados. Tente novamente."
+                    });
                 }
-            );
-            
-            form.reset();
-            revalidate("associados");
-            
-            setTimeout(() => {
-                navigate('/associadosLista');
-            }, 2000);
-            
+                
+                // NÃO fazer reset do formulário para preservar dados
+                // form.reset(); <- REMOVIDO
+            }
         } catch (error) {
-            // Error already handled by toast.promise
+            // Catch adicional para erros inesperados
+            console.error("Erro inesperado:", error);
+            toast.error("Erro inesperado. Dados preservados, tente novamente.");
         } finally {
             setLoading(false);
         }
