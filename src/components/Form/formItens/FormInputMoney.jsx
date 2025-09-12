@@ -7,27 +7,24 @@ const handleInputChange = (event) => {
     // Remove caracteres não numéricos
     const numericValue = inputValue.replace(/[^0-9]/g, '');
 
-    // Converte para número
-    const numericAmount = parseFloat(numericValue);
+    // Converte para número e divide por 100 (igual ao RealInput)
+    const numericAmount = parseFloat(numericValue) / 100;
 
     // Verifica se o valor é zero ou vazio
     const isZeroOrEmpty = numericAmount === 0 || isNaN(numericAmount);
 
-    // Formata o valor para o formato de moeda brasileira (Real) com o símbolo "RT$"
+    // Formata o valor como número sem símbolo (igual ao RealInput)
     const formattedValue = isZeroOrEmpty
         ? new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-        }).format(0).replace('R$', 'RT$')
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(0)
         : new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-        })
-            .formatToParts(numericAmount / 100)
-            .map((part) => (part.type === 'currency' ? 'RT$' : part.value)) // Substitui "R$" por "RT$"
-            .join('');
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(numericAmount);
 
-    return formattedValue; // Retorna o valor formatado com "RT$"
+    return formattedValue; // Retorna o valor formatado sem símbolo
 };
 
 

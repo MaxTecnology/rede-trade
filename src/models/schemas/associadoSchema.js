@@ -75,11 +75,13 @@ export const associadoSchema = z.object({
     bloqueado: booleanTransform.optional(),
     
     // CAMPOS ADICIONAIS OPCIONAIS
-    restricoes: z.string().optional().or(z.literal("")),
+    restricao: z.string().optional().or(z.literal("")),
     limiteCredito: z.string().optional().or(z.literal("")),
     limiteVendaMensal: z.string().optional().or(z.literal("")),
     limiteVendaTotal: z.string().optional().or(z.literal("")),
     limiteVendaEmpresa: z.string().optional().or(z.literal("")),
+    gerente: z.string().optional().or(z.literal("")),
+    taxaGerenteConta: z.string().optional().or(z.literal("")),
     formaPagamento: z.string().optional().or(z.literal("")),
     percentualGerente: z.string().optional().or(z.literal("")),
     valorPlano: z.string().optional().or(z.literal("")),

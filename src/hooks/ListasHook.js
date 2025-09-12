@@ -356,7 +356,7 @@ export const editUser = async (event) => {
     const account = axios.put(`${mainUrl}contas/atualizar-conta/${contaId}`, {
         "planoId": planoId,
         'tipoDaConta': tipo,
-        "saldoPermuta": 0,
+        // REMOVIDO: "saldoPermuta": 0, - Deixar o backend preservar o valor atual
         "limiteCredito": limiteCredito,
         "limiteVendaMensal": limiteVendaMensal,
         "limiteVendaTotal": limiteVendaTotal,

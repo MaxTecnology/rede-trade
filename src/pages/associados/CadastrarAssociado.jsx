@@ -28,6 +28,7 @@ const CadastrarAssociado = () => {
     const [imagem, setImagem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [planos, setPlanos] = useState([]);
+    const [reference, setReference] = useState(true);
 
     
     useEffect(() => {
@@ -36,6 +37,14 @@ const CadastrarAssociado = () => {
     }, []);
 
     const revalidate = useRevalidate();
+
+    // Função para converter formato brasileiro para numérico
+    const convertBrazilianToNumber = (value) => {
+        if (!value) return '';
+        return value.toString()
+            .replace(/\./g, '')  // Remove pontos (separadores de milhares)
+            .replace(',', '.');  // Troca vírgula por ponto (decimal)
+    };
 
     const form = useForm({
         resolver: zodResolver(associadoSchema),
@@ -77,7 +86,7 @@ const CadastrarAssociado = () => {
             tipo: "Associado",
             status: "", // Começar vazio para forçar seleção
             subcategoriaId: "",
-            categoriaId: "",
+            categoriaId: "null", // string "null" para não pré-selecionar categoria
             tipoOperacao: "",
             aceitaOrcamento: "", // Começar vazio para forçar seleção
             aceitaVoucher: "", // Começar vazio para forçar seleção
@@ -100,7 +109,7 @@ const CadastrarAssociado = () => {
             bloqueado: false,
             
             // Campos adicionais - deixar vazio para o usuário preencher
-            restricoes: "",
+            restricao: "",
             limiteCredito: "",
             limiteVendaMensal: "", 
             limiteVendaTotal: "",
@@ -126,6 +135,8 @@ const CadastrarAssociado = () => {
 
     const formHandler = async (event) => {
         try {
+            setReference(false); // Para controlar RealInput durante processamento
+            
             if (imagem) {
                 event.imagem = imagem;
             }
@@ -158,14 +169,57 @@ const CadastrarAssociado = () => {
                 event.tipoOperacao = parseInt(event.tipoOperacao, 10);
             }
 
-            if (event.status === undefined || event.status === null) event.status = true;
-            if (event.mostrarNoSite === undefined || event.mostrarNoSite === null) event.mostrarNoSite = true;
-            if (event.aceitaOrcamento === undefined || event.aceitaOrcamento === null) event.aceitaOrcamento = true;
-            if (event.aceitaVoucher === undefined || event.aceitaVoucher === null) event.aceitaVoucher = true;
+            // Converter boolean fields corretamente
+            if (event.aceitaOrcamento !== undefined) {
+                event.aceitaOrcamento = event.aceitaOrcamento === true || event.aceitaOrcamento === "true";
+            }
+            if (event.aceitaVoucher !== undefined) {
+                event.aceitaVoucher = event.aceitaVoucher === true || event.aceitaVoucher === "true";
+            }
+            if (event.mostrarNoSite !== undefined) {
+                event.mostrarNoSite = event.mostrarNoSite === true || event.mostrarNoSite === "true";
+            }
+            if (event.status !== undefined) {
+                event.status = event.status === true || event.status === "true";
+            }
+            
             event.statusConta = true;
             
+            // Obter valores dos campos RealInput diretamente do DOM (já que não estão integrados com react-hook-form)
+            const camposMonetarios = ['limiteCredito', 'limiteVendaMensal', 'limiteVendaTotal', 'saldoDinheiro', 'saldoPermuta'];
+            camposMonetarios.forEach(campo => {
+                // Tentar obter o valor do input pelo name
+                const inputElement = document.querySelector(`input[name="${campo}"]`);
+                if (inputElement && inputElement.value) {
+                    const valorOriginal = inputElement.value;
+                    const valorConvertido = convertBrazilianToNumber(valorOriginal);
+                    const valorNumerico = parseFloat(valorConvertido) || 0;
+                    event[campo] = valorNumerico;
+                    console.log(`💰 ${campo}: "${valorOriginal}" → ${valorNumerico}`);
+                } else {
+                    // Se não encontrar o campo ou estiver vazio, definir como 0
+                    event[campo] = 0;
+                    console.log(`💰 ${campo}: não encontrado ou vazio → 0`);
+                }
+            });
+            
+            // Debug completo dos dados antes de enviar
+            console.log("📋 Dados finais para envio:", {
+                tipoOperacao: event.tipoOperacao,
+                aceitaOrcamento: event.aceitaOrcamento,
+                aceitaVoucher: event.aceitaVoucher,
+                limiteCredito: event.limiteCredito,
+                limiteVendaMensal: event.limiteVendaMensal,
+                limiteVendaTotal: event.limiteVendaTotal,
+                saldoDinheiro: event.saldoDinheiro,
+                saldoPermuta: event.saldoPermuta,
+                gerente: event.gerente,
+                restricao: event.restricao
+            });
+            
+            // Limpar apenas campos realmente vazios, mas preservar 0 e false
             Object.keys(event).forEach(key => {
-                if (event[key] === "" || event[key] === "undefined" || event[key] === undefined) {
+                if (event[key] === "" || event[key] === "undefined" || event[key] === null) {
                     delete event[key];
                 }
             });
@@ -178,6 +232,7 @@ const CadastrarAssociado = () => {
                 // Sucesso - mostrar toast e limpar formulário
                 toast.success(`Associado ${response.nome} cadastrado com sucesso!`);
                 form.reset();
+                setReference(true); // Resetar reference
                 revalidate("associados");
                 
                 setTimeout(() => {
@@ -215,6 +270,7 @@ const CadastrarAssociado = () => {
             // Catch adicional para erros inesperados
             console.error("Erro inesperado:", error);
             toast.error("Erro inesperado. Dados preservados, tente novamente.");
+            setReference(true); // Resetar reference em caso de erro
         } finally {
             setLoading(false);
         }
@@ -245,7 +301,7 @@ const CadastrarAssociado = () => {
                     <div className="formDivider">
                         <p>Operações</p>
                     </div>
-                    <Form_Operacoes form={form} type={"Associado"} />
+                    <Form_Operacoes form={form} type={"Associado"} reference={reference} />
                     
                     <div className="formDivider">
                         <p>Dados do usuário</p>

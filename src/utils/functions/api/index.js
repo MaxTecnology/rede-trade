@@ -29,26 +29,65 @@ export const createAssociado = async (data) => {
     try {
         console.log("🚀 Iniciando criação de associado:", data);
         
-        // Preparar FormData para envio com imagem
+        // Extrair campos específicos da conta e outros campos especiais
+        const {
+            gerente,
+            limiteCredito, 
+            limiteVendaMensal, 
+            limiteVendaTotal,
+            tipoOperacao,
+            aceitaOrcamento,
+            aceitaVoucher,
+            taxaGerenteConta,
+            ...userFields
+        } = data;
+        
+        console.log("📋 Campos extraídos:", {
+            gerente,
+            limiteCredito,
+            limiteVendaMensal,
+            limiteVendaTotal,
+            tipoOperacao,
+            aceitaOrcamento,
+            aceitaVoucher,
+            restricao: userFields.restricao,
+            userFieldsKeys: Object.keys(userFields)
+        });
+        
+        // Preparar FormData para envio com imagem (apenas dados do usuário)
         const formData = new FormData();
         
-        // Adicionar todos os campos do formulário
-        Object.keys(data).forEach(key => {
-            if (data[key] !== null && data[key] !== undefined && key !== 'imagem') {
-                formData.append(key, data[key]);
+        // Adicionar campos do usuário
+        Object.keys(userFields).forEach(key => {
+            if (userFields[key] !== null && userFields[key] !== undefined && key !== 'imagem') {
+                formData.append(key, userFields[key]);
             }
         });
         
+        // IMPORTANTE: Adicionar campos de operações que foram extraídos
+        if (tipoOperacao !== null && tipoOperacao !== undefined) {
+            formData.append('tipoOperacao', tipoOperacao);
+        }
+        if (aceitaOrcamento !== null && aceitaOrcamento !== undefined) {
+            formData.append('aceitaOrcamento', aceitaOrcamento);
+        }
+        if (aceitaVoucher !== null && aceitaVoucher !== undefined) {
+            formData.append('aceitaVoucher', aceitaVoucher);
+        }
+        if (gerente && gerente !== '') {
+            formData.append('gerente', gerente);
+        }
+        
         // Adicionar imagem se existir
-        if (data.imagem && data.imagem instanceof File) {
-            formData.append('imagem', data.imagem);
-            console.log("📸 Imagem adicionada ao FormData:", data.imagem.name);
+        if (userFields.imagem && userFields.imagem instanceof File) {
+            formData.append('imagem', userFields.imagem);
+            console.log("📸 Imagem adicionada ao FormData:", userFields.imagem.name);
         }
         
         // Garantir que é tipo Associado
         formData.set('tipo', 'Associado');
         
-        console.log("📋 Dados preparados para envio");
+        console.log("📋 Dados do usuário preparados para envio");
         
         // Configuração com content-type adequado para FormData
         const uploadConfig = {
@@ -67,7 +106,7 @@ export const createAssociado = async (data) => {
             console.error("❌ Erro ao criar associado:", error.response?.data || error);
             console.error("❌ Status:", error.response?.status);
             console.error("❌ Headers:", error.response?.headers);
-            console.error("❌ Dados enviados:", Object.keys(data));
+            console.error("❌ Dados enviados:", Object.keys(userFields));
             
             // Análise detalhada do erro
             const status = error.response?.status;
@@ -99,7 +138,41 @@ export const createAssociado = async (data) => {
         
         console.log("✅ Associado criado com sucesso:", response.data);
         console.log("✅ ID do usuário:", response.data.idUsuario);
-        console.log("✅ Conta criada:", response.data.conta ? "Sim" : "Não");
+        
+        // Se o backend criou uma conta automaticamente, atualizar com os dados da conta
+        if (response.data.conta && response.data.conta.idConta) {
+            console.log("🏦 Atualizando dados da conta:", response.data.conta.idConta);
+            
+            // Preparar dados da conta para atualização
+            const contaData = {
+                tipoOperacao: tipoOperacao || 3,
+                aceitaOrcamento: aceitaOrcamento || false,
+                aceitaVoucher: aceitaVoucher || false,
+                limiteCredito: limiteCredito || 0,
+                limiteVendaMensal: limiteVendaMensal || 0,
+                limiteVendaTotal: limiteVendaTotal || 0,
+            };
+            
+            // Se tem gerente, adicionar
+            if (gerente && gerente !== '') {
+                contaData.gerenteContaId = parseInt(gerente);
+            }
+            
+            console.log("📋 Dados da conta para atualização:", contaData);
+            
+            // Atualizar conta
+            await axios.put(
+                `${mainUrl}contas/atualizar-conta/${response.data.conta.idConta}`,
+                contaData,
+                config
+            ).catch((error) => {
+                console.error("❌ Erro ao atualizar conta:", error.response?.data || error);
+                // Não falhar a criação se a atualização da conta falhar
+                console.warn("⚠️ Usuário criado, mas dados da conta não foram atualizados");
+            });
+            
+            console.log("✅ Conta atualizada com sucesso");
+        }
         
         return response.data;
         
@@ -372,7 +445,7 @@ export async function createSubAccountLegacy(event) {
     console.table(resultado)
 
     const subconta = await axios.post(`${mainUrl}contas/subcontas/adicionar-permissao/${response.data.idSubContas}`, permissoesArray, config)
-        .catch((err) => {
+        .catch(() => {
             throw new Error("Erro ao criar usuário, por favor cheque os campos e tente novamente")
         });
     console.log("Sub-conta criada", subconta)

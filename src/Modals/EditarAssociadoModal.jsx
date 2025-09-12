@@ -127,7 +127,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
             formData.append('tipo', 'Associado'); // Força o tipo
             
             // Debug opcional - descomente se precisar debugar
-            // debugFormData(formData);
+            debugFormData(formData);
             
             // NOVO: Função para update com imagem
             const updateUserWithImage = async () => {

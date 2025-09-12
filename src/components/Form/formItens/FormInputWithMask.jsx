@@ -1,9 +1,47 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import InputMask from 'react-input-mask';
+import { useCallback } from 'react';
 
 const FormInputWithMask = ({ form, name, label, placeholder, required, mask, divClassName }) => {
+    // Função para aplicar máscara manualmente sem usar react-input-mask
+    const applyMask = useCallback((value, maskPattern) => {
+        if (!value || !maskPattern) return value;
+        
+        // Remove caracteres não numéricos
+        const cleanValue = value.replace(/\D/g, '');
+        
+        // Aplica a máscara baseada no padrão
+        if (maskPattern === '99.999.999/9999-99') {
+            // CNPJ: XX.XXX.XXX/XXXX-XX
+            return cleanValue
+                .replace(/^(\d{2})(\d)/, '$1.$2')
+                .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                .replace(/\.(\d{3})(\d)/, '.$1/$2')
+                .replace(/(\d{4})(\d)/, '$1-$2')
+                .substring(0, 18);
+        } else if (maskPattern === '(99)9999-9999') {
+            // Telefone: (XX)XXXX-XXXX
+            return cleanValue
+                .replace(/^(\d{2})(\d)/, '($1)$2')
+                .replace(/(\d{4})(\d)/, '$1-$2')
+                .substring(0, 13);
+        } else if (maskPattern === '(99)99999-9999') {
+            // Celular: (XX)XXXXX-XXXX
+            return cleanValue
+                .replace(/^(\d{2})(\d)/, '($1)$2')
+                .replace(/(\d{5})(\d)/, '$1-$2')
+                .substring(0, 14);
+        } else if (maskPattern === '99999-999') {
+            // CEP: XXXXX-XXX
+            return cleanValue
+                .replace(/^(\d{5})(\d)/, '$1-$2')
+                .substring(0, 9);
+        }
+        
+        return cleanValue;
+    }, []);
+
     return (
         <FormField
             control={form.control}
@@ -17,18 +55,15 @@ const FormInputWithMask = ({ form, name, label, placeholder, required, mask, div
                         <FormMessage />
                     </div>
                     <FormControl>
-                        <InputMask
-                            mask={mask}
-                            maskChar=""
+                        <Input 
+                            placeholder={placeholder || mask}
                             value={field.value || ''}
-                            onChange={field.onChange}
+                            onChange={(e) => {
+                                const maskedValue = applyMask(e.target.value, mask);
+                                field.onChange(maskedValue);
+                            }}
                             onBlur={field.onBlur}
-                        >
-                            {/* @ts-ignore */}
-                            <Input 
-                                placeholder={placeholder || mask}
-                            />
-                        </InputMask>
+                        />
                     </FormControl>
                 </FormItem>
             )}
