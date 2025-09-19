@@ -445,7 +445,10 @@ export const deleteItem = (url, revalidate, message, titulo) => {
         .then(response => {
             popup(message, titulo)
             revalidate()
-        })
+        }).catch(error => {
+            console.error('Erro ao deletar item:', error.response.data.error);
+            popup(error.response.data.error, "Erro ao deletar")
+        });
 }
 
 export const deleteCredito = (url, item) => {

@@ -22,15 +22,24 @@ const columns = [
         accessorKey: 'nomeSubcategoria',
         header: 'Nome da Sub Categoria',
     },
+    {
+        accessorKey: 'nomeCategoria',
+        header: 'Nome da Categoria',
+    },
 ]
 
 const filterSub = (data) => {
     // Verifica se a propriedade 'categorias' existe em data
     if (data && data.categorias) {
         // Filtra as categorias que têm subcategorias
-        const filteredCategories = data.categorias.filter(category => category.subcategorias.length > 0);
+        const filteredCategories = data.categorias.filter(category => category.subcategorias.length > 0)
         // Obtém apenas os valores das subcategorias
-        const subcategoryValues = filteredCategories.flatMap(category => category.subcategorias);
+        const subcategoryValues = filteredCategories.flatMap(category => {
+            return category.subcategorias.map(cat => {
+                cat.nomeCategoria = category.nomeCategoria;
+                return cat;
+            })
+        });
         return subcategoryValues;
     } else {
         console.error("O objeto 'data' não possui a propriedade 'categorias'.");
@@ -41,6 +50,7 @@ const filterSub = (data) => {
 const Categorias = () => {
     const revalidate = useRevalidate()
     const { data } = useQueryCategorias()
+    console.log(data)
     const [modalIsOpen, modalToggle] = useModal(false);
     const [info, setInfo] = useState({ name: "", createAT: "" })
     const [id, setId] = useState()
