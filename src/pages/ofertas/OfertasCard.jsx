@@ -11,8 +11,6 @@ const OfertasCard = ({ associado, index }) => {
     const navigate = useNavigate();
     const data = associado
 
-    console.log("DEBUG OfertasCard:", { data, status: data.status, typeOfStatus: typeof data.status });
-
     const [dias, setDias] = useState(0);
     const [horas, setHoras] = useState(0);
     const [minutos, setMinutos] = useState(0);

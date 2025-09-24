@@ -55,11 +55,6 @@ const OfertasInfo = () => {
     useEffect(() => {
         activePage("ofertas");
         
-        // DEBUG: Verificar dados da oferta
-        console.log('🔍 DEBUG OfertasInfo - storedData:', storedData);
-        console.log('🔍 DEBUG OfertasInfo - imagens:', storedData?.imagens);
-        console.log('🔍 DEBUG OfertasInfo - primeira imagem:', storedData?.imagens?.[0]);
-        console.log('🔍 DEBUG OfertasInfo - URL construída:', getImageUrl());
     }, []);
     return (
         <div className="container">
@@ -82,9 +77,9 @@ const OfertasInfo = () => {
                         </div>
                         <div className="ofertasInfoInfo">
                             <h3>Informações:</h3>
-                            <p><span>Vendido por:</span> {storedData.nomeUsuario ? storedData.nomeUsuario : "Ninguem"}</p>
+                            <p><span>Vendido por:</span> {storedData.usuario.nomeFantasia }</p>
                             <p><span>Cidade:</span> {storedData.cidade}</p>
-                            <p><span>Agência:</span> {storedData.nomeAgencia ? storedData.nomeAgencia : "Nenhuma"}</p>
+                            <p><span>Agência:</span> {storedData?.usuario?.usuarioCriador?.nome || 'Sem agência'}</p>
                             <p><span>Tipo:</span> {storedData.tipo}</p>
                         </div>
                         <div>
