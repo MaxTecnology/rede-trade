@@ -11,6 +11,10 @@ export const columns = [
         accessorKey: 'taxaComissao',
         header: 'Taxa de Comissão %',
     },
+    {
+        accessorKey: 'taxaInscricao',
+        header: 'Valor do Plano',
+    },
 ]
 
 // export const columns = [

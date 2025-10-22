@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import InputMask from 'react-input-mask';
-import { createUser, } from "@/hooks/ListasHook";
-import { ColorRing } from 'react-loader-spinner'
-import defaultImage from "@/assets/images/default_img.png"
+import { createUser } from "@/hooks/ListasHook";
+import { ColorRing } from 'react-loader-spinner';
+import defaultImage from "@/assets/images/default_img.png";
 import Footer from '@/components/Footer';
 import RealInput from "@/components/Inputs/CampoMoeda";
 import { activePage } from "@/utils/functions/setActivePage";
@@ -10,18 +10,33 @@ import { BiSolidImageAdd } from "react-icons/bi";
 import { toast } from "sonner";
 import InvisibleInputs from "@/components/Inputs/InvisibleInputs";
 import { getId } from "@/hooks/getId";
-import PlanosFields from "@/components/Form/PlanosFields";
+import Form_Agencia from "@/components/Form/Form_Agencia";
 import useRevalidate from "@/hooks/ReactQuery/useRevalidate";
 import { useSnapshot } from "valtio";
 import state from "@/store";
 import { imageReferenceHandler } from "@/utils/functions/formHandler";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 const CadastrarAgencia = () => {
     const snap = useSnapshot(state);
     const [imagemReference, setImageReference] = useState(null);
     const [imagem, setImagem] = useState(null);
-    const [reference, setReference] = useState(true)
-    const [loading, setLoading] = useState(false)
+    const [reference, setReference] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const planosForm = useForm({
+        defaultValues: {
+            planoId: "",
+            planoValor: "",
+            comissao: "",
+            planoTaxa: "",
+            formaPagamento: "",
+            dataVencimentoFatura: "",
+            nomeFranquia: snap.user?.nomeFantasia || "",
+            saldoDinheiro: "",
+            saldoPermuta: "",
+        },
+    });
 
 
     useEffect(() => {
@@ -45,6 +60,10 @@ const CadastrarAgencia = () => {
         });
     }, [snap.user]);
 
+    useEffect(() => {
+        planosForm.setValue("nomeFranquia", snap.user?.nomeFantasia || "");
+    }, [snap.user?.nomeFantasia, planosForm]);
+
     const revalidate = useRevalidate("agencias")
 
     // Função para converter formato brasileiro para numérico
@@ -55,10 +74,21 @@ const CadastrarAgencia = () => {
             .replace(',', '.');  // Troca vírgula por ponto (decimal)
     };
 
-    const formHandler = (event) => {
+    const formHandler = async (event) => {
         event.preventDefault();
+        const formElement = event.target;
         setReference(false);
         setLoading(true);
+
+        const planosValidos = await planosForm.trigger();
+        if (!planosValidos) {
+            toast.error('Revise as informações do plano antes de continuar.');
+            setReference(true);
+            setLoading(false);
+            return;
+        }
+
+        const valoresPlano = planosForm.getValues();
         
         // Obter ID do usuário logado
         const usuarioId = getId();
@@ -100,7 +130,9 @@ const CadastrarAgencia = () => {
             formDataLimpo.append('usuarioCriadorId', usuarioId.toString());
             formDataLimpo.append('gerente', usuarioId.toString());
             formDataLimpo.append('nomeFranquia', snap.user.nomeFantasia);
-            formDataLimpo.append('formaPagamento', '0');
+
+            const formaPagamentoSelecionado = formOriginal.get('formaPagamento');
+            formDataLimpo.append('formaPagamento', formaPagamentoSelecionado ?? '0');
             
             // Campos opcionais do formulário
             const camposOpcionais = [
@@ -109,20 +141,28 @@ const CadastrarAgencia = () => {
                 'logradouro', 'numero', 'cep', 'complemento', 'bairro', 'cidade', 
                 'estado', 'regiao', 'aceitaOrcamento', 'aceitaVoucher', 'tipoOperacao',
                 'dataVencimentoFatura', 'limiteCredito', 'limiteVendaMensal', 'limiteVendaTotal',
-                'taxaRepasseMatriz', 'planoId'
+                'saldoDinheiro', 'saldoPermuta',
+                'taxaRepasseMatriz', 'planoId', 'planoValor', 'comissao', 'planoTaxa'
             ];
             
             camposOpcionais.forEach(campo => {
                 const valor = formOriginal.get(campo);
                 if (valor && valor.toString().trim() !== '') {
                     // Converter valores monetários para formato numérico
-                    if (['limiteCredito', 'limiteVendaMensal', 'limiteVendaTotal'].includes(campo)) {
+                    if (['limiteCredito', 'limiteVendaMensal', 'limiteVendaTotal', 'saldoDinheiro', 'saldoPermuta'].includes(campo)) {
                         const valorConvertido = convertBrazilianToNumber(valor);
                         formDataLimpo.append(campo, valorConvertido);
                         console.log(`💰 ${campo}: ${valor} → ${valorConvertido}`);
                     } else {
                         formDataLimpo.append(campo, valor);
                     }
+                }
+            });
+
+            ['planoId', 'planoValor', 'comissao', 'planoTaxa'].forEach((campo) => {
+                const valor = valoresPlano[campo];
+                if (valor !== undefined && valor !== null && valor !== '') {
+                    formDataLimpo.set(campo, valor);
                 }
             });
             
@@ -287,7 +327,18 @@ const CadastrarAgencia = () => {
                     setImageReference(null);
                     setLoading(false);
                     revalidate("agencias");
-                    event.target.reset();
+                    formElement.reset();
+                    planosForm.reset({
+                        planoId: "",
+                        planoValor: "",
+                        comissao: "",
+                        planoTaxa: "",
+                        formaPagamento: "",
+                        dataVencimentoFatura: "",
+                        nomeFranquia: snap.user?.nomeFantasia || "",
+                        saldoDinheiro: "",
+                        saldoPermuta: "",
+                    });
                     return "Agência Cadastrada com sucesso!";
                 },
                 error: (error) => {
@@ -302,13 +353,20 @@ const CadastrarAgencia = () => {
             const formData = new FormData(event.target);
             
             // Converter valores monetários para formato numérico
-            const camposMonetarios = ['limiteCredito', 'limiteVendaMensal', 'limiteVendaTotal'];
+            const camposMonetarios = ['limiteCredito', 'limiteVendaMensal', 'limiteVendaTotal', 'saldoDinheiro', 'saldoPermuta'];
             camposMonetarios.forEach(campo => {
                 const valor = formData.get(campo);
                 if (valor) {
                     const valorConvertido = convertBrazilianToNumber(valor);
                     formData.set(campo, valorConvertido);
                     console.log(`💰 ${campo}: ${valor} → ${valorConvertido}`);
+                }
+            });
+
+            ['planoId', 'planoValor', 'comissao', 'planoTaxa'].forEach((campo) => {
+                const valor = valoresPlano[campo];
+                if (valor !== undefined && valor !== null && valor !== '') {
+                    formData.set(campo, valor);
                 }
             });
             
@@ -336,6 +394,18 @@ const CadastrarAgencia = () => {
                     setReference(true);
                     setImageReference(null);
                     setLoading(false);
+                    formElement.reset();
+                    planosForm.reset({
+                        planoId: "",
+                        planoValor: "",
+                        comissao: "",
+                        planoTaxa: "",
+                        formaPagamento: "",
+                        dataVencimentoFatura: "",
+                        nomeFranquia: snap.user?.nomeFantasia || "",
+                        saldoDinheiro: "",
+                        saldoPermuta: "",
+                    });
                     return "Agência Cadastrada com sucesso!";
                 },
                 error: (error) => {
@@ -350,8 +420,8 @@ const CadastrarAgencia = () => {
     return (
         <div className="container">
             <div className="containerHeader">Cadastrar Agência</div>
-            <form onSubmit={(event) => formHandler(event)}
-                  className="containerForm">
+            <Form {...planosForm}>
+                <form onSubmit={(event) => formHandler(event)} className="containerForm">
                 <div className="form-group f2">
                     <label className="required">Razão Social</label>
                     <input type="text" className="form-control" id="razaoSocial" name="razaoSocial" required />
@@ -488,16 +558,7 @@ const CadastrarAgencia = () => {
                 <div className="formDivider">
                     <p>Unidade</p>
                 </div>
-                <PlanosFields type={"Agencias"} />
-                <div className="form-group">
-                    <label className="required">Nome Franquia</label>
-                    <input 
-                        type="text" 
-                        className="readOnly" 
-                        readOnly 
-                        required 
-                        value={snap.user.nomeFantasia} />
-                </div>
+                <Form_Agencia form={planosForm} type={"Agencias"} />
                 <div className="formDivider">
                     <p>Operações</p>
                 </div>
@@ -519,15 +580,6 @@ const CadastrarAgencia = () => {
                 <div className="form-group">
                     <label className="required">Taxa repasse Matriz em %</label>
                     <input type="number" className="form-control" name="taxaRepasseMatriz" required />
-                </div>
-                <div className="form-group">
-                    <label className="required">Data Vencimento Fatura</label>
-                    <select required className="form-control" id="dataVencimentoFatura" name="dataVencimentoFatura" defaultValue={""}>
-                        <option value="" disabled>Selecionar</option>
-                        <option>10</option>
-                        <option>20</option>
-                        <option>30</option>
-                    </select>
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo de Operação</label>
@@ -616,9 +668,10 @@ const CadastrarAgencia = () => {
                         : <button className="purpleBtn" type="submit">Cadastrar</button>}
                 </div>
             </form>
-            <Footer />
-        </div>
-    )
+        </Form>
+        <Footer />
+    </div>
+    );
 };
 
 export default CadastrarAgencia;

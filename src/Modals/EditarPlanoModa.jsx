@@ -11,7 +11,7 @@ const appElement = document.getElementById('root');
 
 // Configure o elemento principal para o react-modal
 Modal.setAppElement(appElement);
-const EditarPlanoModal = ({ isOpen, modalToggle, url, info, body, complex }) => {
+const EditarPlanoModal = ({ isOpen, modalToggle, url, info, body, complex, showValorPlano = false }) => {
     const [error, setError] = useState(false)
     const [sucess, setSucess] = useState(false)
     const data = info
@@ -54,16 +54,18 @@ const EditarPlanoModal = ({ isOpen, modalToggle, url, info, body, complex }) => 
                         <label htmlFor="nome">Taxa de Comissão %</label>
                         <input type="number" defaultValue={data.taxaComissao} name="taxaComissao" />
                     </div>
-                    {complex ? <>
+                    {(complex || showValorPlano) ? (
                         <div className="form-group f2">
-                            <label htmlFor="nome">Taxa de Inscrição</label>
-                            <input type="number" defaultValue={data.taxaInscricao} name="taxaInscricao" />
+                            <label htmlFor="nome">Valor do Plano</label>
+                            <input type="number" step="0.01" defaultValue={data.taxaInscricao} name="taxaInscricao" />
                         </div>
+                    ) : null}
+                    {complex ? (
                         <div className="form-group f2">
                             <label htmlFor="nome">Taxa de Manutenção Anual </label>
                             <input type="number" defaultValue={data.taxaManutencaoAnual} name="taxaManutencaoAnual" />
                         </div>
-                    </> : null}
+                    ) : null}
                 </div>
 
 

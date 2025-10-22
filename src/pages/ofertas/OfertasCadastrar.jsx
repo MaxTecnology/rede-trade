@@ -155,7 +155,7 @@ const OfertasCadastrar = () => {
                 </div>
                 <div className="form-group desc">
                     <label>Observações</label>
-                    <textarea name="obs" rows={9} />
+                    <textarea name="obs" rows={9} maxLength={75} />
                 </div>
                 {/* INVISIBLE INPUT */}
                 <input readOnly style={{ display: "none" }} type="text" name="usuarioId" value={getId()} />

@@ -49,6 +49,7 @@ const PlanoAgencias = () => {
                 url={`planos/atualizar-plano/${id}`}
                 info={info}
                 body={body}
+                showValorPlano
             />
             <div className="containerHeader">Planos Agencias</div>
             <form onSubmit={(event) => formHandler(event)} className="containerSearch">
@@ -62,12 +63,22 @@ const PlanoAgencias = () => {
                         <input type="number" name="taxaComissao" placeholder="Taxa %" required />
                     </div>
                     <div className="form-group f2">
+                        <label htmlFor="taxaInscricao">Valor do Plano</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            name="taxaInscricao"
+                            placeholder="Valor em reais"
+                            required
+                        />
+                    </div>
+                    <div className="form-group f2">
                         <label htmlFor="data">Data de Criação</label>
                         <input type="text" id="data" value={getDate()} readOnly />
                     </div>
                     <input readOnly style={{ display: "none" }} type="text" name="tipoDoPlano" value={body.tipo} />
                     <input readOnly style={{ display: "none" }} type="text" name="taxaManutencaoAnual" value={0} />
-                    <input readOnly style={{ display: "none" }} type="text" name="taxaInscricao" value={0} />
 
                 </div>
                 <div className="buttonContainer">

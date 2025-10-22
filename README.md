@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 # rede-trade
 Rede trade
-=======
 <br/>
 <p align="center">
     <h3 align="center">
@@ -36,4 +34,3 @@ Projeto para a empresa RedeTrade. Feito com Lucas e Igor. Solicitado pelo Adrian
 - [Sonner](https://sonner.emilkowal.ski/)
 - [ReactTable](https://tanstack.com/table/v8)
 - [Framer Motion](https://www.framer.com/motion/)
->>>>>>> origin/master
