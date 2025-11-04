@@ -49,9 +49,8 @@ const AgenciasLista = () => {
                         <label htmlFor="porcentagem">Tipo</label>
                         <select className="form-control" name="tipo" onChange={handleSearch}>
                             <option value="">Selecionar</option>
-                            <option value="Comum">Franquia Comum</option>
-                            <option value="Master">Franquia Master</option>
-                            <option value="Filial">Franquia Filial</option>
+                            <option value="Comum">Agência Comum</option>
+                            <option value="Master">Agência Master</option>
                         </select>
                     </div>
                     {/*<div className="form-group">*/}
@@ -81,9 +80,10 @@ const AgenciasLista = () => {
                     columns={columns}
                     data={data && data.data ? data.data.filter(item => 
                         item.tipo !== "Matriz" && 
-                        (item.tipo === "Franquia Comum" || 
-                         item.tipo === "Franquia Master" ||  
-                         item.tipo === "Franquia Filial")
+                        (item.tipo === "Agencia Comum" || 
+                         item.tipo === "Agencia Master" ||  
+                         item.tipo === "Franquia Comum" ||
+                         item.tipo === "Franquia Master")
                     ) : []}
                     setId={setUserId}
                     setInfo={setUserInfo}

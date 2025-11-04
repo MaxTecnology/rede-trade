@@ -1,11 +1,46 @@
+import { useEffect, useMemo } from "react";
 import FormSelect from "./formItens/FormSelect";
 import FormInput from "./formItens/FormInput";
 import FormPlano from "./formItens/FormPlano";
-import { useState } from "react";
 import FormInputMoney from "./formItens/FormInputMoney";
 
-const Form_Agencia = ({ form, type, planos }) => {
-  const [pagamentoValue, setPagamento] = useState(100);
+const formatCurrency = (value) => {
+  if (value === null || value === undefined) return "";
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return "";
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numeric);
+};
+
+const Form_Agencia = ({ form, type, planos, defaultValues }) => {
+  useEffect(() => {
+    if (!defaultValues) return;
+
+    if (defaultValues.formaPagamentoPlano !== undefined && defaultValues.formaPagamentoPlano !== null) {
+      form.setValue("formaPagamento", String(defaultValues.formaPagamentoPlano));
+    }
+
+    if (defaultValues.dataVencimentoFatura !== undefined && defaultValues.dataVencimentoFatura !== null) {
+      form.setValue("dataVencimentoFatura", String(defaultValues.dataVencimentoFatura));
+    }
+
+    if (defaultValues.saldoDinheiro !== undefined && defaultValues.saldoDinheiro !== null) {
+      form.setValue("saldoDinheiro", formatCurrency(defaultValues.saldoDinheiro));
+    }
+
+    if (defaultValues.saldoPermuta !== undefined && defaultValues.saldoPermuta !== null) {
+      form.setValue("saldoPermuta", formatCurrency(defaultValues.saldoPermuta));
+    }
+  }, [defaultValues, form]);
+
+  const pagamentoSelecionado = form.watch("formaPagamento");
+  const exibirCamposMistos = useMemo(
+    () => String(pagamentoSelecionado || "") === "50",
+    [pagamentoSelecionado]
+  );
+
   return (
     <>
       <FormPlano type={type} form={form} planos={planos} />
@@ -15,16 +50,14 @@ const Form_Agencia = ({ form, type, planos }) => {
         name="formaPagamento"
         label="Forma de pagamento do Plano"
         placeholder="Selecionar"
-        onChange={(e) => {
-          setPagamento(e.target.value);
-        }}
         items={[
           { value: 100, label: "Permuta" },
           { value: 0, label: "Dinheiro" },
           { value: 50, label: "Permuta / Dinheiro" },
         ]}
       />
-      {pagamentoValue == 50 && (
+      <input type="hidden" name="formaPagamentoPlano" value={pagamentoSelecionado || ""} />
+      {exibirCamposMistos && (
         <>
           <FormInputMoney
             required
@@ -32,9 +65,6 @@ const Form_Agencia = ({ form, type, planos }) => {
             name="saldoDinheiro"
             label="Dinheiro"
             placeholder="R$ 0,00"
-            onInput={(e) => {
-              setPagamento(e.target.value);
-            }}
           />
 
           <FormInputMoney
@@ -43,9 +73,6 @@ const Form_Agencia = ({ form, type, planos }) => {
             name="saldoPermuta"
             label="Permuta"
             placeholder="R$ 0,00"
-            onInput={(e) => {
-              setPagamento(e.target.value);
-            }}
           />
         </>
       )}

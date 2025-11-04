@@ -260,6 +260,9 @@ export const createUser = async (event, url) => {
             // Não enviar tipoDaConta como string, já que não existe "Associado" na tabela TipoConta
             "saldoPermuta": saldoPermuta || 0,
             "saldoDinheiro": saldoDinheiro || 0,
+            "formaPagamentoPlano": formaPagamento || "0",
+            "valorPlanoPermuta": saldoPermuta || 0,
+            "valorPlanoDinheiro": saldoDinheiro || 0,
             "limiteCredito": limiteCredito || 0,
             "limiteVendaMensal": limiteVendaMensal || 0,
             "limiteVendaTotal": limiteVendaTotal || 0,

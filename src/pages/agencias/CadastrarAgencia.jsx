@@ -23,6 +23,7 @@ const CadastrarAgencia = () => {
     const [imagemReference, setImageReference] = useState(null);
     const [imagem, setImagem] = useState(null);
     const [reference, setReference] = useState(true);
+    const [tipoSelecionado, setTipoSelecionado] = useState("");
     const [loading, setLoading] = useState(false);
     const planosForm = useForm({
         defaultValues: {
@@ -65,6 +66,12 @@ const CadastrarAgencia = () => {
     }, [snap.user?.nomeFantasia, planosForm]);
 
     const revalidate = useRevalidate("agencias")
+
+    const deveExibirOperacoes = (() => {
+        if (!tipoSelecionado) return false;
+        const tipoNormalizado = tipoSelecionado.toLowerCase();
+        return tipoNormalizado.includes("associado") || tipoNormalizado.includes("cliente");
+    })();
 
     // Função para converter formato brasileiro para numérico
     const convertBrazilianToNumber = (value) => {
@@ -231,87 +238,6 @@ const CadastrarAgencia = () => {
                     const data = await response.json();
                     console.log('✅ Usuário criado:', data);
                     
-                    // Criar conta para o usuário (igual faz no createUser)
-                    if (data.idUsuario) {
-                        console.log('💳 Criando conta para o usuário ID:', data.idUsuario);
-                        
-                        const contaResponse = await fetch(`${baseUrl}/contas/criar-conta-para-usuario/${data.idUsuario}`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                "planoId": parseInt(formDataLimpo.get('planoId')) || null,
-                                'tipoDaConta': 'Franquia', // Todos os tipos de franquia usam o mesmo tipo de conta
-                                "saldoPermuta": 0,
-                                "limiteCredito": parseFloat(formDataLimpo.get('limiteCredito')) || 0,
-                                "limiteVendaMensal": parseFloat(formDataLimpo.get('limiteVendaMensal')) || 0,
-                                "limiteVendaTotal": parseFloat(formDataLimpo.get('limiteVendaTotal')) || 0,
-                                "limiteVendaEmpresa": 0,
-                                "valorVendaMensalAtual": 0,
-                                "valorVendaTotalAtual": 0,
-                                "taxaRepasseMatriz": parseFloat(formDataLimpo.get('taxaRepasseMatriz')) || 0,
-                                "diaFechamentoFatura": parseInt(formDataLimpo.get('dataVencimentoFatura')) || 10,
-                                "dataVencimentoFatura": parseInt(formDataLimpo.get('dataVencimentoFatura')) || 10,
-                                "nomeFranquia": snap.user.nomeFantasia,
-                            })
-                        });
-                        
-                        if (!contaResponse.ok) {
-                            const errorData = await contaResponse.json();
-                            console.error('❌ Erro ao criar conta:', errorData);
-                            throw new Error(`Erro ao criar conta: ${errorData.error || contaResponse.status}`);
-                        }
-                        
-                        const contaData = await contaResponse.json();
-                        console.log('✅ Conta criada:', contaData);
-                        
-                        // Processar pagamento do plano (se houver planoId)
-                        const planoId = formDataLimpo.get('planoId');
-                        if (planoId) {
-                            console.log('💰 Processando pagamento do plano:', planoId);
-                            
-                            const pagamentoResponse = await fetch(`${baseUrl}/contas/pagamento-do-plano/${data.idUsuario}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${token}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    "formaPagamento": 0,
-                                    "idPlano": parseInt(planoId),
-                                })
-                            });
-                            
-                            if (!pagamentoResponse.ok) {
-                                console.warn('⚠️ Erro ao processar pagamento do plano, mas continuando...');
-                            } else {
-                                const pagamentoData = await pagamentoResponse.json();
-                                console.log('✅ Pagamento do plano processado:', pagamentoData);
-                            }
-                        }
-                        
-                        // Adicionar gerente à conta
-                        console.log('👤 Adicionando gerente à conta:', usuarioId);
-                        
-                        const gerenteResponse = await fetch(`${baseUrl}/contas/adicionar-gerente/${contaData.idConta}/${usuarioId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({})
-                        });
-                        
-                        if (!gerenteResponse.ok) {
-                            console.warn('⚠️ Erro ao adicionar gerente, mas continuando...');
-                        } else {
-                            const gerenteData = await gerenteResponse.json();
-                            console.log('✅ Gerente adicionado à conta:', gerenteData);
-                        }
-                    }
-                    
                     return data;
                 } catch (error) {
                     console.error('❌ Erro completo:', error);
@@ -327,6 +253,7 @@ const CadastrarAgencia = () => {
                     setImageReference(null);
                     setLoading(false);
                     revalidate("agencias");
+                    setTipoSelecionado("");
                     formElement.reset();
                     planosForm.reset({
                         planoId: "",
@@ -343,6 +270,7 @@ const CadastrarAgencia = () => {
                 },
                 error: (error) => {
                     setReference(true);
+                    setTipoSelecionado("");
                     setLoading(false);
                     console.error('❌ Erro no toast:', error);
                     return `Erro: ${error.message}`;
@@ -459,11 +387,16 @@ const CadastrarAgencia = () => {
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo</label>
-                    <select required className="form-control" name="tipo" defaultValue={""}>
+                    <select
+                        required
+                        className="form-control"
+                        name="tipo"
+                        value={tipoSelecionado}
+                        onChange={(event) => setTipoSelecionado(event.target.value)}
+                    >
                         <option value="" disabled>Selecionar</option>
-                        <option value="Franquia Comum">Comum</option>
-                        <option value="Franquia Master">Master</option>
-                        <option value="Franquia Fillial">Filial</option>
+                        <option value="Agencia Comum">Comum</option>
+                        <option value="Agencia Master">Master</option>
                     </select>
                 </div>
                 <div className="formDivider">
@@ -559,53 +492,57 @@ const CadastrarAgencia = () => {
                     <p>Unidade</p>
                 </div>
                 <Form_Agencia form={planosForm} type={"Agencias"} />
-                <div className="formDivider">
-                    <p>Operações</p>
-                </div>
-                {/* ======================================================================================= */}
-                {/* Operações */}
-                {/* ======================================================================================= */}
-                <div className="form-group">
-                    <label className="required">Limite Crédito</label>
-                    <RealInput name="limiteCredito" placeholder="Insira o limite" reference={reference} required />
-                </div>
-                <div className="form-group">
-                    <label className="required">Limite de Venda Mensal</label>
-                    <RealInput name="limiteVendaMensal" placeholder="Insira o limite" reference={reference} required />
-                </div>
-                <div className="form-group">
-                    <label className="required">Limite de Venda Total</label>
-                    <RealInput name="limiteVendaTotal" placeholder="Insira o limite" reference={reference} required />
-                </div>
-                <div className="form-group">
-                    <label className="required">Taxa repasse Matriz em %</label>
-                    <input type="number" className="form-control" name="taxaRepasseMatriz" required />
-                </div>
-                <div className="form-group">
-                    <label className="required">Tipo de Operação</label>
-                    <select defaultValue={""} className="form-control" id="tipoOperacao" name="tipoOperacao" required>
-                        <option value="" disabled>Selecionar</option>
-                        <option value={1}>Compra</option>
-                        <option value={2}>Venda</option>
-                        <option value={3}>Compra/Venda</option>
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label className="required">Aceita Orçamento</label>
-                    <select defaultValue={""} className="form-control" id="aceitaOrcamento" name="aceitaOrcamento" required>
-                        <option value="" disabled>Selecionar</option>
-                        <option value={true}>Sim</option>
-                        <option value={false}>Não</option>
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label className="required">Aceita Voucher</label>
-                    <select defaultValue={""} className="form-control" id="aceitaVoucher" name="aceitaVoucher" required>
-                        <option value="" disabled>Selecionar</option>
-                        <option value={true}>Sim</option>
-                        <option value={false}>Não</option>
-                    </select>
-                </div>
+                {deveExibirOperacoes && (
+                    <>
+                        <div className="formDivider">
+                            <p>Operações</p>
+                        </div>
+                        {/* ======================================================================================= */}
+                        {/* Operações */}
+                        {/* ======================================================================================= */}
+                        <div className="form-group">
+                            <label className="required">Limite Crédito</label>
+                            <RealInput name="limiteCredito" placeholder="Insira o limite" reference={reference} required />
+                        </div>
+                        <div className="form-group">
+                            <label className="required">Limite de Venda Mensal</label>
+                            <RealInput name="limiteVendaMensal" placeholder="Insira o limite" reference={reference} required />
+                        </div>
+                        <div className="form-group">
+                            <label className="required">Limite de Venda Total</label>
+                            <RealInput name="limiteVendaTotal" placeholder="Insira o limite" reference={reference} required />
+                        </div>
+                        <div className="form-group">
+                            <label className="required">Taxa repasse Matriz em %</label>
+                            <input type="number" className="form-control" name="taxaRepasseMatriz" required />
+                        </div>
+                        <div className="form-group">
+                            <label className="required">Tipo de Operação</label>
+                            <select defaultValue={""} className="form-control" id="tipoOperacao" name="tipoOperacao" required>
+                                <option value="" disabled>Selecionar</option>
+                                <option value={1}>Compra</option>
+                                <option value={2}>Venda</option>
+                                <option value={3}>Compra/Venda</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label className="required">Aceita Orçamento</label>
+                            <select defaultValue={""} className="form-control" id="aceitaOrcamento" name="aceitaOrcamento" required>
+                                <option value="" disabled>Selecionar</option>
+                                <option value={true}>Sim</option>
+                                <option value={false}>Não</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label className="required">Aceita Voucher</label>
+                            <select defaultValue={""} className="form-control" id="aceitaVoucher" name="aceitaVoucher" required>
+                                <option value="" disabled>Selecionar</option>
+                                <option value={true}>Sim</option>
+                                <option value={false}>Não</option>
+                            </select>
+                        </div>
+                    </>
+                )}
                 {/* ======================================================================================= */}
                 {/* DADOS USUÁRIO */}
                 {/* ======================================================================================= */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Modal from 'react-modal';
 import Mascaras from '@/hooks/Mascaras';
 import { editUser } from '@/hooks/ListasHook';
@@ -13,12 +13,32 @@ import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/ut
 import InputMask from 'react-input-mask';
 import defaultImage from "@/assets/images/default_img.png"
 
+const pagamentoLabels = {
+    "100": "Permuta",
+    "50": "Permuta / Dinheiro",
+    "0": "Dinheiro",
+};
+
+const formatCurrency = (value) => {
+    if (value === null || value === undefined) return "0,00";
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return "0,00";
+    return new Intl.NumberFormat("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(numeric);
+};
+
 const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [imagemReference, setImageReference] = useState(null);
     const [imagem, setImagem] = useState(null); // NOVO: Para armazenar o arquivo
     const [reference, setReference] = useState(true)
     const [error, setError] = useState(false)
     const [sucess, setSucess] = useState(false)
+    const [tipoSelecionado, setTipoSelecionado] = useState(associadoInfo?.tipo || "");
+    const [formaPagamentoSelecionada, setFormaPagamentoSelecionada] = useState(
+        associadoInfo?.conta?.formaPagamentoPlano ? String(associadoInfo.conta.formaPagamentoPlano) : ""
+    );
     const info = associadoInfo || {}; // Proteção contra undefined
 
     useEffect(() => {
@@ -46,10 +66,24 @@ const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
             
             setImageReference(imageUrl);
             setImagem(null); // Reset do arquivo quando abrir modal
+            setTipoSelecionado(info.tipo || "");
+            setFormaPagamentoSelecionada(
+                info.conta?.formaPagamentoPlano ? String(info.conta.formaPagamentoPlano) : ""
+            );
         }
-    }, [info.imagem, isOpen]);
+    }, [info, isOpen]);
 
     const revalidate = useRevalidate()
+
+    const deveExibirOperacoes = (() => {
+        if (!tipoSelecionado) return false;
+        const tipoNormalizado = tipoSelecionado.toLowerCase();
+        return tipoNormalizado.includes("associado") || tipoNormalizado.includes("cliente");
+    })();
+
+    const exibirResumoPlano = useMemo(() => Boolean(formaPagamentoSelecionada), [formaPagamentoSelecionada]);
+    const saldoDinheiroPlano = info.conta?.valorPlanoDinheiro ?? 0;
+    const saldoPermutaPlano = info.conta?.valorPlanoPermuta ?? 0;
 
     const formHandler = (event) => {
         event.preventDefault();
@@ -263,7 +297,14 @@ const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label>Tipo</label>
-                    <select defaultValue={info.tipo || ''} className="form-control" id="tipo" name="tipo" required>
+                    <select
+                        value={tipoSelecionado}
+                        className="form-control"
+                        id="tipo"
+                        name="tipo"
+                        required
+                        onChange={(event) => setTipoSelecionado(event.target.value)}
+                    >
                         <option value="" disabled>Selecionar</option>
                         <option value="Comum">Comum</option>
                         <option value="Master">Master</option>
@@ -436,109 +477,150 @@ const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
                         required
                     />
                 </div>
-                <div className="formDivider">
-                    <p>Operações</p>
-                </div>
-                {/* Operações */}
-                <div className="form-group f2">
-                    <label className="required-field-label f2">Limite Crédito</label>
-                    <RealInput
-                        defaultValue={info.conta?.limiteCredito || ''}
-                        name="limiteCredito"
-                        placeholder="Insira o limite"
-                        reference={reference}
-                        required
-                    />
-                </div>
-                <div className="form-group f2">
-                    <label className="required-field-label">Limite de Venda Mensal</label>
-                    <RealInput
-                        defaultValue={info.conta?.limiteVendaMensal || ''}
-                        name="limiteVendaMensal"
-                        placeholder="Insira o limite"
-                        reference={reference}
-                        required
-                    />
-                </div>
-                <div className="form-group f2">
-                    <label className="required-field-label">Limite de Venda Total</label>
-                    <RealInput
-                        defaultValue={info.conta?.limiteVendaTotal || ''}
-                        name="limiteVendaTotal"
-                        placeholder="Insira o limite"
-                        reference={reference}
-                        required
-                    />
-                </div>
-                <div className="form-group f2">
-                    <label className="required-field-label">Taxa repasse Matriz em %</label>
-                    <input
-                        type="number"
-                        defaultValue={info.conta?.taxaRepasseMatriz || ''}
-                        className="form-control"
-                        id="taxaRepasseMatriz"
-                        name="taxaRepasseMatriz"
-                        required
-                    />
-                </div>
-                <div className="form-group f2">
-                    <label>Data Vencimento Fatura</label>
-                    <select
-                        defaultValue={info.dataVencimentoFatura || ''}
-                        className="form-control"
-                        id="dataVencimentoFatura"
-                        name="dataVencimentoFatura"
-                        required
-                    >
-                        <option value="" disabled>Selecionar</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                    </select>
-                </div>
-                <div className="form-group f2">
-                    <label className="required">Tipo de Operação</label>
-                    <select
-                        defaultValue={info.tipoOperacao || ''}
-                        className="form-control"
-                        id="tipoOperacao"
-                        name="tipoOperacao"
-                        required
-                    >
-                        <option value="" disabled>Selecionar</option>
-                        <option value={1}>Compra</option>
-                        <option value={2}>Venda</option>
-                        <option value={3}>Compra/Venda</option>
-                    </select>
-                </div>
-                <div className="form-group f2">
-                    <label className="required">Aceita Orçamento</label>
-                    <select
-                        defaultValue={info.aceitaOrcamento !== undefined ? info.aceitaOrcamento.toString() : ''}
-                        className="form-control"
-                        id="aceitaOrcamento"
-                        name="aceitaOrcamento"
-                        required
-                    >
-                        <option value="" disabled>Selecionar</option>
-                        <option value="true">Sim</option>
-                        <option value="false">Não</option>
-                    </select>
-                </div>
-                <div className="form-group f2">
-                    <label className="required">Aceita Voucher</label>
-                    <select
-                        defaultValue={info.aceitaVoucher !== undefined ? info.aceitaVoucher.toString() : ''}
-                        className="form-control"
-                        id="aceitaVoucher"
-                        name="aceitaVoucher"
-                        required
-                    >
-                        <option value="" disabled>Selecionar</option>
-                        <option value="true">Sim</option>
-                        <option value="false">Não</option>
-                    </select>
-                </div>
+                {exibirResumoPlano && (
+                    <>
+                        <div className="formDivider">
+                            <p>Resumo do Plano</p>
+                        </div>
+                        <div className="form-group">
+                            <label className="required-field-label">Forma de pagamento do Plano</label>
+                            <input
+                                type="text"
+                                className="form-control readOnly"
+                                readOnly
+                                value={pagamentoLabels[formaPagamentoSelecionada] || "Não informado"}
+                            />
+                            <input type="hidden" name="formaPagamentoPlano" value={formaPagamentoSelecionada || "0"} />
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required-field-label">Valor em Dinheiro</label>
+                            <input
+                                type="text"
+                                className="form-control readOnly"
+                                readOnly
+                                value={formatCurrency(saldoDinheiroPlano)}
+                            />
+                            <input type="hidden" name="saldoDinheiro" value={saldoDinheiroPlano ?? 0} />
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required-field-label">Valor em Permuta</label>
+                            <input
+                                type="text"
+                                className="form-control readOnly"
+                                readOnly
+                                value={formatCurrency(saldoPermutaPlano)}
+                            />
+                            <input type="hidden" name="saldoPermuta" value={saldoPermutaPlano ?? 0} />
+                        </div>
+                    </>
+                )}
+                {deveExibirOperacoes && (
+                    <>
+                        <div className="formDivider">
+                            <p>Operações</p>
+                        </div>
+                        {/* Operações */}
+                        <div className="form-group f2">
+                            <label className="required-field-label f2">Limite Crédito</label>
+                            <RealInput
+                                defaultValue={info.conta?.limiteCredito || ''}
+                                name="limiteCredito"
+                                placeholder="Insira o limite"
+                                reference={reference}
+                                required
+                            />
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required-field-label">Limite de Venda Mensal</label>
+                            <RealInput
+                                defaultValue={info.conta?.limiteVendaMensal || ''}
+                                name="limiteVendaMensal"
+                                placeholder="Insira o limite"
+                                reference={reference}
+                                required
+                            />
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required-field-label">Limite de Venda Total</label>
+                            <RealInput
+                                defaultValue={info.conta?.limiteVendaTotal || ''}
+                                name="limiteVendaTotal"
+                                placeholder="Insira o limite"
+                                reference={reference}
+                                required
+                            />
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required-field-label">Taxa repasse Matriz em %</label>
+                            <input
+                                type="number"
+                                defaultValue={info.conta?.taxaRepasseMatriz || ''}
+                                className="form-control"
+                                id="taxaRepasseMatriz"
+                                name="taxaRepasseMatriz"
+                                required
+                            />
+                        </div>
+                        <div className="form-group f2">
+                            <label>Data Vencimento Fatura</label>
+                            <select
+                                defaultValue={info.conta?.dataVencimentoFatura || ''}
+                                className="form-control"
+                                id="dataVencimentoFatura"
+                                name="dataVencimentoFatura"
+                                required
+                            >
+                                <option value="" disabled>Selecionar</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                            </select>
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required">Tipo de Operação</label>
+                            <select
+                                defaultValue={info.tipoOperacao || ''}
+                                className="form-control"
+                                id="tipoOperacao"
+                                name="tipoOperacao"
+                                required
+                            >
+                                <option value="" disabled>Selecionar</option>
+                                <option value={1}>Compra</option>
+                                <option value={2}>Venda</option>
+                                <option value={3}>Compra/Venda</option>
+                            </select>
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required">Aceita Orçamento</label>
+                            <select
+                                defaultValue={info.aceitaOrcamento !== undefined ? info.aceitaOrcamento.toString() : ''}
+                                className="form-control"
+                                id="aceitaOrcamento"
+                                name="aceitaOrcamento"
+                                required
+                            >
+                                <option value="" disabled>Selecionar</option>
+                                <option value="true">Sim</option>
+                                <option value="false">Não</option>
+                            </select>
+                        </div>
+                        <div className="form-group f2">
+                            <label className="required">Aceita Voucher</label>
+                            <select
+                                defaultValue={info.aceitaVoucher !== undefined ? info.aceitaVoucher.toString() : ''}
+                                className="form-control"
+                                id="aceitaVoucher"
+                                name="aceitaVoucher"
+                                required
+                            >
+                                <option value="" disabled>Selecionar</option>
+                                <option value="true">Sim</option>
+                                <option value="false">Não</option>
+                            </select>
+                        </div>
+                    </>
+                )}
                 {/* DADOS USUÁRIO */}
                 <div className="formDivider">
                     <p>Dados do usuário</p>

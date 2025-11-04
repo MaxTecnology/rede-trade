@@ -250,60 +250,11 @@ export const createUser = async (event, url) => {
     // REMOVIDO: Firebase upload via uploadFile() - agora o backend processa imagem diretamente
 
     const object = formHandler(formData)
-    const {
-        taxaRepasseMatriz, limiteCredito, limiteCreditoPermuta, limiteVendaMensal, limiteVendaTotal, limiteVendaEmpresa, diaFechamentoFatura, dataVencimentoFatura, formaPagamento, nomeFranquia, planoId, gerente: accountManager, tipo: accountType, plano: accountPlan
-    } = object
-    delete object.taxaRepasseMatriz
-    delete object.limiteCredito
-    delete object.limiteCreditoPermuta
-    delete object.limiteVendaMensal
-    delete object.limiteVendaTotal
-    delete object.limiteVendaEmpresa
-    delete object.diaFechamentoFatura
-    delete object.dataVencimentoFatura
-    delete object.nomeFranquia
-    delete object.planoId
-    delete object.gerente
-    delete object.tipo
-    delete object.plano
-    delete object.formaPagamento
-    // NÃO DELETAR object.taxaGerente - precisa ser enviado para o backend
-
     const response = await axios.post(`${mainUrl}${url}`, object, getConfig());
     if (!response) {
         throw new Error("Erro ao criar usuário, por favor cheque os campos e tente novamente")
     }
-    event.target.reset();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const userAccount = await axios.post(`${mainUrl}contas/criar-conta-para-usuario/${response.data.idUsuario}`, {
-        "planoId": planoId,
-        'tipoDaConta': accountType,
-        "saldoPermuta": 0,
-        "limiteCredito": limiteCredito,
-        "limiteVendaMensal": limiteVendaMensal,
-        "limiteVendaTotal": limiteVendaTotal,
-        "limiteVendaEmpresa": 0,
-        "valorVendaMensalAtual": 0,
-        "valorVendaTotalAtual": 0,
-        "taxaRepasseMatriz": taxaRepasseMatriz,
-        "diaFechamentoFatura": dataVencimentoFatura,
-        "dataVencimentoFatura": dataVencimentoFatura,
-        "nomeFranquia": nomeFranquia,
-    }, getConfig()).catch((error) => { /* Erro já tratado pelo catch principal */ })
-    if (!userAccount) {
-        throw new Error("Erro ao criar conta do usuário, por favor entrar em contato com suporte")
-    }
-    const payPlan = await axios.post(`${mainUrl}contas/pagamento-do-plano/${response.data.idUsuario}`, {
-        "formaPagamento": formaPagamento || 0,
-        "idPlano": planoId,
-    }, getConfig())
-    if (!payPlan) {
-        throw new Error("Erro ao cobrar plano do usuário, por favor entrar em contato com suporte")
-    }
-    const addManager = await axios.post(`${mainUrl}contas/adicionar-gerente/${userAccount.data.idConta}/${accountManager}`, {}, getConfig()).catch((error) => { /* Erro já tratado */ })
-    if (!addManager) {
-        throw new Error("Erro ao adicionar gerente a conta, por favor entre em contato com suporte")
-    }
+    return response.data;
 }
 
 export const createT = async (event) => {
@@ -335,7 +286,22 @@ export const editUser = async (event) => {
     }
     const object = formHandler(formData)
 
-    const { limiteCredito, limiteVendaMensal, limiteVendaTotal, nomeFranquia, gerente, tipo, planoId, contaId, dataVencimentoFatura, taxaRepasseMatriz, idUsuario } = object
+    const {
+        limiteCredito,
+        limiteVendaMensal,
+        limiteVendaTotal,
+        nomeFranquia,
+        gerente,
+        tipo,
+        planoId,
+        contaId,
+        dataVencimentoFatura,
+        taxaRepasseMatriz,
+        saldoPermuta,
+        saldoDinheiro,
+        formaPagamentoPlano,
+        idUsuario
+    } = object
     delete object.limiteCredito
     delete object.limiteVendaMensal
     delete object.limiteVendaTotal
@@ -348,23 +314,41 @@ export const editUser = async (event) => {
     delete object.contaId
     delete object.dataVencimentoFatura
     delete object.taxaRepasseMatriz
+    delete object.saldoPermuta
+    delete object.saldoDinheiro
+    delete object.formaPagamentoPlano
 
     const response = await axios.put(`${mainUrl}usuarios/atualizar-usuario-completo/${idUsuario}`, object, getConfig())
     if (!response) {
         throw new Error("Erro ao editar usuário, por favor cheque os campos e tente novamente")
     }
-    const account = axios.put(`${mainUrl}contas/atualizar-conta/${contaId}`, {
-        "planoId": planoId,
-        'tipoDaConta': tipo,
-        // REMOVIDO: "saldoPermuta": 0, - Deixar o backend preservar o valor atual
-        "limiteCredito": limiteCredito,
-        "limiteVendaMensal": limiteVendaMensal,
-        "limiteVendaTotal": limiteVendaTotal,
-        "diaFechamentoFatura": dataVencimentoFatura,
-        "dataVencimentoFatura": dataVencimentoFatura,
-        "nomeFranquia": nomeFranquia,
-        "taxaRepasseMatriz": taxaRepasseMatriz,
-    }, getConfig()).catch(error => { /* Erro já tratado */ })
+    const tipoNormalizado = typeof tipo === "string" ? tipo.toLowerCase() : "";
+    const isAgencia = tipoNormalizado.includes("agencia");
+
+    const contaPayload = {
+        planoId,
+        tipoDaConta: tipo,
+        limiteCredito,
+        limiteVendaMensal,
+        limiteVendaTotal,
+        diaFechamentoFatura: dataVencimentoFatura,
+        dataVencimentoFatura: dataVencimentoFatura,
+        nomeFranquia,
+        taxaRepasseMatriz,
+        formaPagamentoPlano: formaPagamentoPlano ?? "0",
+    };
+
+    if (isAgencia) {
+        contaPayload.saldoPermuta = 0;
+        contaPayload.saldoDinheiro = 0;
+        contaPayload.valorPlanoPermuta = saldoPermuta;
+        contaPayload.valorPlanoDinheiro = saldoDinheiro;
+    } else {
+        contaPayload.saldoPermuta = saldoPermuta;
+        contaPayload.saldoDinheiro = saldoDinheiro;
+    }
+
+    const account = axios.put(`${mainUrl}contas/atualizar-conta/${contaId}`, contaPayload, getConfig()).catch(error => { /* Erro já tratado */ })
     if (!account) {
         throw new Error("Erro ao editar usuário")
     }
