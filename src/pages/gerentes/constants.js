@@ -10,7 +10,6 @@ export const columns = [
     },
     {
         accessorKey: 'conta.nomeFranquia',
-        header: 'Agência',
     },
     {
         accessorKey: 'email',
