@@ -1,8 +1,10 @@
 import { proxy } from "valtio";
 import { API_URL } from "../config/api.js";
 
+const normalizedApiUrl = `${API_URL.replace(/\/$/, '')}/`;
+
 const state = proxy({
-    url: API_URL,
+    url: normalizedApiUrl,
     //url: "https://api.rt.maximizebot.com.br/",
     //url: "https://api.redetrade.com.br/",
     logged: false,

@@ -12,6 +12,7 @@ import CategoriesOptions from '@/components/Options/CategoriesOptions';
 import { toast } from 'sonner';
 import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
 import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/utils/functions/formHandler';
+import { API_URL } from '@/config/api';
 
 const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
     const [imagemReference, setImageReference] = useState(null);
@@ -46,7 +47,7 @@ const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
                     imageUrl = primeiraImagem;
                 } else if (primeiraImagem.startsWith('/uploads')) {
                     // Caminho relativo do servidor (ex: /uploads/images/123.jpg)
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL.replace(/\/api$/, '');
                     imageUrl = `${baseUrl}${primeiraImagem}`;
                 } else {
                     // URL externa ou outros casos
@@ -94,7 +95,7 @@ const MinhasOfertasModal = ({ isOpen, modalToggle, setState, ofertaInfo }) => {
             // NOVO: Função para update com imagem (adaptada para ofertas)
             const updateOfertaWithImage = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     
                     // Para ofertas, usar a rota específica de ofertas
                     const url = `${baseUrl}/${urlOferta}`;

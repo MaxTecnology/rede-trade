@@ -5,7 +5,7 @@
 
 // Configuração do servidor
 const UPLOAD_CONFIG = {
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3024',
+    baseUrl: import.meta.env.VITE_API_URL?.replace(/\/$/, '') || (typeof window !== 'undefined' ? `${window.location.origin.replace(/\/$/, '')}/api` : 'http://localhost:3024'),
     endpoint: '/usuarios/upload-imagem', // Corrigido para a rota real
     deleteEndpoint: '/usuarios/delete-imagem', // Para implementar futuramente
     maxFileSize: 5 * 1024 * 1024, // 5MB

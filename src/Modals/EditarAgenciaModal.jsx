@@ -12,6 +12,7 @@ import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
 import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/utils/functions/formHandler';
 import InputMask from 'react-input-mask';
 import defaultImage from "@/assets/images/default_img.png"
+import { API_URL } from "@/config/api";
 
 const pagamentoLabels = {
     "100": "Permuta",
@@ -54,7 +55,7 @@ const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     imageUrl = info.imagem;
                 } else if (info.imagem.startsWith('/uploads')) {
                     // Caminho relativo do servidor (ex: /uploads/images/123.jpg)
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = `${API_URL}`;
                     imageUrl = `${baseUrl}${info.imagem}`;
                 } else {
                     // Outros casos - manter URL padrão
@@ -103,7 +104,7 @@ const EditarAgenciaModal = ({ isOpen, modalToggle, associadoInfo }) => {
             // NOVO: Função para update com imagem
             const updateUserWithImage = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = `${API_URL}`;
                     
                     // Usar a rota de atualizar-usuario-completo que funciona
                     const url = `${baseUrl}/usuarios/atualizar-usuario-completo/${info.idUsuario}`;

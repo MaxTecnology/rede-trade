@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { API_URL } from "@/config/api";
 
 function truncarTexto(texto, comprimentoMaximo) {
   if (!texto || typeof texto !== 'string') return '';
@@ -202,7 +203,7 @@ const AssociadosCard = ({ associado, index }) => {
 
   // Imagem padrão e URL base da API
   const imagemPadrao = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-  const API_BASE_URL = "http://localhost:3024"; // ou process.env.REACT_APP_API_URL
+const API_BASE_URL = API_URL.replace(/\/api$/, "");
 
   // Função para construir URL da imagem
   const construirUrlImagem = (imagemPath) => {

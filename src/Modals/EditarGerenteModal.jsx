@@ -12,6 +12,7 @@ import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
 import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/utils/functions/formHandler';
 import InputMask from 'react-input-mask';
 import defaultImage from "@/assets/images/default_img.png"
+import { API_URL } from "@/config/api";
 
 const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [imagemReference, setImageReference] = useState(null);
@@ -32,7 +33,7 @@ const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 if (info.imagem.startsWith('http')) {
                     imageUrl = info.imagem;
                 } else if (info.imagem.startsWith('/uploads')) {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL.replace(/\/api$/, '');
                     imageUrl = `${baseUrl}${info.imagem}`;
                 } else {
                     imageUrl = defaultImage;
@@ -61,8 +62,7 @@ const EditarGerenteModal = ({ isOpen, modalToggle, associadoInfo }) => {
         // LÓGICA UNIFICADA: Sempre usar a mesma rota
         const updateUser = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
-                const url = `${baseUrl}/usuarios/atualizar-usuario-completo/${info.idUsuario}`;
+                const url = `${API_URL}/usuarios/atualizar-usuario-completo/${info.idUsuario}`;
                 
                 // Obter token
                 let token = localStorage.getItem('tokenRedeTrade') || 

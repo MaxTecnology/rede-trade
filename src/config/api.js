@@ -1,10 +1,15 @@
 // Configuração centralizada da API
 const getApiUrl = () => {
-  // Sempre usar VITE_API_URL se definido, senão usar localhost:3024
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
-  
-  // Garantir que sempre termine com uma barra
-  return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const envUrl = import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL.trim();
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin.replace(/\/+$/, '')}/api`;
+  }
+
+  return 'http://localhost:3024';
 };
 
 export const API_URL = getApiUrl();

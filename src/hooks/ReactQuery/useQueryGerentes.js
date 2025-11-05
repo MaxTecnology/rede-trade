@@ -1,10 +1,11 @@
 // hooks/ReactQuery/useQueryGerentes.js - Versão Limpa
 
 import { useQuery } from '@tanstack/react-query';
+import { API_URL } from '@/config/api';
 
 export const useQueryGerentes = (filters = {}) => {
   const fetchGerentes = async () => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+    const baseUrl = API_URL;
     
     // Obter token
     let token = localStorage.getItem('tokenRedeTrade') || 
