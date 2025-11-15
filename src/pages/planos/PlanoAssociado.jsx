@@ -15,11 +15,11 @@ import RTInput from "@/components/Inputs/RTInput";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 
 const PlanoAssociado = () => {
-    const { data } = useQueryPlanos();
+    const body = { tipo: "Associado" };
+    const { data } = useQueryPlanos({ tipo: body.tipo });
     const [modalIsOpen, modalToggle] = useModal(false);
     const [info, setInfo] = useState({})
     const [id, setId] = useState()
-    const body = { tipo: "Associado" }
     const revalidate = useRevalidate();
 
     var reset = true
@@ -67,7 +67,7 @@ const PlanoAssociado = () => {
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="nomePlano">Taxa de Comissão</label>
-                        <input type="number" name="taxaComissao" required placeholder="Taxa %" />
+                        <RTInput reset={reset} name="taxaComissao" required placeholder="Taxa %" />
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="taxaManutencaoAnual">Taxa de Manutenção Anual</label>

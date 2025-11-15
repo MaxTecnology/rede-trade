@@ -1,7 +1,7 @@
 import { useQueryPlanos } from '@/hooks/ReactQuery/useQueryPlanos';
 import { setPlano } from '@/pages/planos/setPlano';
 const PlanosOptions = ({ type, complex }) => {
-    const { data } = useQueryPlanos();
+    const { data } = useQueryPlanos({ tipo: type });
     const value = setPlano(data, type)
 
     return (

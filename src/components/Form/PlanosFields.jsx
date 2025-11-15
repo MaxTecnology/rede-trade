@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryPlanos } from "@/hooks/ReactQuery/useQueryPlanos";
 import { setPlano } from "@/pages/planos/setPlano";
 import Modal from 'react-modal'; // Importe o react-modal
@@ -19,10 +19,17 @@ const shouldShowValorPlano = (type) => {
 const shouldShowTaxaAnual = (type) => normalizeType(type).includes("associad");
 
 const PlanosFields = ({ type, defaultValue, disabled = false }) => {
-    const { data } = useQueryPlanos()
-    const [selectedId, setSelectedId] = useState(() => (
+    const { data } = useQueryPlanos({ tipo: type });
+    const [selectedId, setSelectedId] = useState(() =>
         defaultValue?.conta?.planoId ? String(defaultValue.conta.planoId) : ""
-    ));
+    );
+
+    useEffect(() => {
+        const novoId = defaultValue?.conta?.planoId
+            ? String(defaultValue.conta.planoId)
+            : "";
+        setSelectedId(novoId);
+    }, [defaultValue?.conta?.planoId]);
 
     const planosDisponiveis = useMemo(() => {
         if (!data) return [];

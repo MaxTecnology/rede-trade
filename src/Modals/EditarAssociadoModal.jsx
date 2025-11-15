@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Modal from 'react-modal';
-import { editUser } from '@/hooks/ListasHook';
+import { editUser, getApiData } from '@/hooks/ListasHook';
 import { closeModal } from '@/hooks/Functions';
 import { GrFormClose } from "react-icons/gr";
 import { BiSolidImageAdd } from 'react-icons/bi';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
 import PlanosFields from '@/components/Form/PlanosFields';
 import Categoria_SubCategoriaOptions from '@/components/Options/Categoria_SubCategoriaOptions';
-import GerentesOptions from '@/components/Options/GerentesOptions';
 import { useQueryGerentes } from '@/hooks/ReactQuery/useQueryGerentes';
 import { useQueryClient } from '@tanstack/react-query';
 import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/utils/functions/formHandler';
@@ -25,7 +24,16 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [sucess, setSucess] = useState(false)
     const [gerenteSelecionado, setGerenteSelecionado] = useState("");
     const [taxaGerente, setTaxaGerente] = useState("0");
-    const info = associadoInfo
+    const [infoDetalhada, setInfoDetalhada] = useState(associadoInfo);
+    const infoBase = associadoInfo || {};
+    const infoCompleto = infoDetalhada || infoBase;
+    const contaInfo = infoCompleto?.conta || infoBase?.conta || {};
+
+    const info = {
+        ...infoBase,
+        ...infoCompleto,
+        conta: contaInfo,
+    };
     const { data: gerentesData, refetch: refetchGerentes } = useQueryGerentes();
     const queryClient = useQueryClient();
     
@@ -40,6 +48,34 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
             return false;
         }
     };
+
+    useEffect(() => {
+        let ativo = true;
+        const carregarInfo = async () => {
+            if (!isOpen || !associadoInfo?.idUsuario) {
+                setInfoDetalhada(associadoInfo);
+                return;
+            }
+
+            setInfoDetalhada(associadoInfo);
+
+            try {
+                const dados = await getApiData(`usuarios/buscar-usuario/${associadoInfo.idUsuario}`);
+                if (ativo && dados) {
+                    setInfoDetalhada(dados);
+                }
+            } catch (erro) {
+                console.error('❌ Erro ao buscar detalhes do associado:', erro);
+                setInfoDetalhada(associadoInfo);
+            }
+        };
+
+        carregarInfo();
+
+        return () => {
+            ativo = false;
+        };
+    }, [isOpen, associadoInfo]);
 
     useEffect(() => {
         if (isOpen && info) {
@@ -72,12 +108,12 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
             setImagem(null); // Reset do arquivo quando abrir modal
             
             // Configurar gerente selecionado
-            const gerenteId = info.conta?.gerenteContaId;
+            const gerenteId = contaInfo?.gerenteContaId;
             console.log('🔍 Debug gerente:', {
                 gerenteId,
                 gerenteIdType: typeof gerenteId,
                 gerenteIdString: gerenteId?.toString(),
-                conta: info.conta
+                conta: info?.conta
             });
             
             if (gerenteId) {
@@ -88,22 +124,44 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 console.log('👨‍💼 Nenhum gerente selecionado');
             }
         }
-    }, [info, isOpen]);
+    }, [info, contaInfo?.gerenteContaId, isOpen, refetchGerentes]);
     
+    const normalizarTaxa = (valor) => {
+        if (valor === undefined || valor === null || Number.isNaN(Number(valor))) {
+            return "0";
+        }
+        const numero = Number(valor);
+        if (numero > 1 && numero > 100) {
+            return (numero / 100).toString();
+        }
+        if (numero > 1 && numero % 1 === 0 && numero > 10) {
+            return (numero / 100).toString();
+        }
+        return numero.toString();
+    };
+
     // Effect para atualizar taxa quando gerente mudar ou dados dos gerentes carregarem
     useEffect(() => {
         if (gerenteSelecionado && gerentesData?.data) {
             const gerente = gerentesData.data.find(g => g.idUsuario.toString() === gerenteSelecionado.toString());
-            if (gerente && gerente.taxaComissaoGerente) {
-                setTaxaGerente(gerente.taxaComissaoGerente.toString());
-                console.log('💰 Taxa do gerente carregada:', gerente.taxaComissaoGerente);
-            } else {
-                setTaxaGerente("0");
+            if (gerente && gerente.taxaComissaoGerente !== undefined && gerente.taxaComissaoGerente !== null) {
+                setTaxaGerente(normalizarTaxa(gerente.taxaComissaoGerente));
+                return;
             }
+        }
+
+        const taxaGerenteConta = contaInfo?.gerenteConta?.taxaComissaoGerente;
+        if (taxaGerenteConta !== undefined && taxaGerenteConta !== null) {
+            setTaxaGerente(normalizarTaxa(taxaGerenteConta));
+            return;
+        }
+
+        if (info?.taxaComissaoGerente !== undefined && info?.taxaComissaoGerente !== null) {
+            setTaxaGerente(normalizarTaxa(info.taxaComissaoGerente));
         } else {
             setTaxaGerente("0");
         }
-    }, [gerenteSelecionado, gerentesData]);
+    }, [gerenteSelecionado, gerentesData, contaInfo, info?.taxaComissaoGerente]);
     
     // Função para atualizar gerente selecionado
     const handleGerenteChange = (event) => {
@@ -113,6 +171,25 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     };
 
     const revalidate = useRevalidate();
+
+    const gerentesDisponiveis = useMemo(() => {
+        const listaBase = gerentesData?.data ? [...gerentesData.data] : [];
+        const gerenteAtual = contaInfo?.gerenteConta;
+
+        if (
+            gerenteAtual &&
+            gerenteAtual.idUsuario &&
+            !listaBase.some((item) => item.idUsuario === gerenteAtual.idUsuario)
+        ) {
+            listaBase.unshift({
+                idUsuario: gerenteAtual.idUsuario,
+                nome: gerenteAtual.nome || gerenteAtual.nomeContato || gerenteAtual.nomeFantasia,
+                nomeFantasia: gerenteAtual.nomeFantasia || gerenteAtual.nome,
+            });
+        }
+
+        return listaBase;
+    }, [gerentesData?.data, contaInfo?.gerenteConta]);
 
     const formHandler = (event) => {
         event.preventDefault();
@@ -280,7 +357,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Razão Social</label>
                     <input
-                        defaultValue={info.razaoSocial} 
+                        defaultValue={info?.razaoSocial} 
                         type="text" 
                         className="form-control" 
                         id="razaoSocial" 
@@ -291,7 +368,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Nome Fantasia</label>
                     <input
-                        defaultValue={info.nomeFantasia} 
+                        defaultValue={info?.nomeFantasia} 
                         type="text" 
                         className="form-control" 
                         id="nomeFantasia" 
@@ -302,7 +379,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Descrição</label>
                     <input
-                        defaultValue={info.descricao} 
+                        defaultValue={info?.descricao} 
                         type="text" 
                         className="form-control" 
                         id="descricao" 
@@ -312,7 +389,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label>Status</label>
-                    <select defaultValue={info.status} className="form-control" id="status" name="status">
+                    <select defaultValue={info?.status ? "true" : "false"} className="form-control" id="status" name="status">
                         <option value="" disabled>Selecionar</option>
                         <option value="true">Atendendo</option>
                         <option value="false">Não Atendendo</option>
@@ -323,7 +400,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <InputMask 
                         mask="99.999.999/9999-99" 
  
-                        defaultValue={info.cnpj}
+                        defaultValue={info?.cnpj}
                         type="text" 
                         className="form-control"
                         id="cnpj" 
@@ -334,7 +411,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label>Insc. Estadual</label>
                     <input
-                        defaultValue={info.inscEstadual} 
+                        defaultValue={info?.inscEstadual} 
                         type="text" 
                         className="form-control" 
                         id="inscEstadual" 
@@ -344,7 +421,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label>Insc. Municipal</label>
                     <input
-                        defaultValue={info.inscMunicipal} 
+                        defaultValue={info?.inscMunicipal} 
                         type="text" 
                         className="form-control" 
                         id="inscMunicipal" 
@@ -354,7 +431,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Restrições</label>
                     <input
-                        defaultValue={info.restricao} 
+                        defaultValue={info?.restricao} 
                         type="text" 
                         className="form-control" 
                         id="restricoes" 
@@ -365,7 +442,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <Categoria_SubCategoriaOptions defaultValue={info} required />
                 <div className="form-group">
                     <label>Mostrar no site</label>
-                    <select defaultValue={info.mostrarNoSite} className="form-control" id="mostrarNoSite" name="mostrarNoSite">
+                    <select defaultValue={info?.mostrarNoSite ? "true" : "false"} className="form-control" id="mostrarNoSite" name="mostrarNoSite">
                         <option value="" disabled>Selecionar</option>
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
@@ -373,7 +450,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label>Tipo</label>
-                    <select defaultValue={info.tipo} className="form-control" id="tipo">
+                    <select defaultValue={info?.tipo} className="form-control" id="tipo">
                         <option value="" disabled>Selecionar</option>
                         <option value="Associado">Associado</option>
                     </select>
@@ -385,7 +462,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f2">
                     <label className="required-field-label">Nome</label>
                     <input
-                        defaultValue={info.nomeContato} 
+                        defaultValue={info?.nomeContato} 
                         type="text" 
                         className="form-control" 
                         id="nomeContato" 
@@ -398,7 +475,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <InputMask 
                         mask="(99)9999-9999" 
  
-                        defaultValue={info.telefone}
+                        defaultValue={info?.telefone}
                         type="text" 
                         className="form-control"
                         id="telefone" 
@@ -421,7 +498,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f2">
                     <label className="required-field-label">E-mail</label>
                     <input
-                        defaultValue={info.emailContato} 
+                        defaultValue={info?.emailContato} 
                         type="email" 
                         className="form-control" 
                         id="emailContato" 
@@ -432,7 +509,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f2">
                     <label>E-mail secundário</label>
                     <input
-                        defaultValue={info.emailSecundario} 
+                        defaultValue={info?.emailSecundario} 
                         type="email" 
                         className="form-control" 
                         id="emailSecundario" 
@@ -442,7 +519,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f2">
                     <label>Site</label>
                     <input 
-                        defaultValue={info.site} 
+                        defaultValue={info?.site} 
                         type="text" 
                         className="form-control" 
                         id="site" 
@@ -456,7 +533,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Logradouro</label>
                     <input
-                        defaultValue={info.logradouro} 
+                        defaultValue={info?.logradouro} 
                         type="text" 
                         className="form-control" 
                         id="logradouro" 
@@ -467,7 +544,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Número</label>
                     <input
-                        defaultValue={info.numero} 
+                        defaultValue={info?.numero} 
                         type="number" 
                         className="form-control" 
                         id="numero" 
@@ -480,7 +557,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <InputMask 
                         mask="99999-999" 
  
-                        defaultValue={info.cep}
+                        defaultValue={info?.cep}
                         type="text" 
                         className="form-control"
                         id="cep" 
@@ -491,7 +568,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label>Complemento</label>
                     <input
-                        defaultValue={info.complemento} 
+                        defaultValue={info?.complemento} 
                         type="text" 
                         className="form-control" 
                         id="complemento" 
@@ -501,7 +578,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Bairro</label>
                     <input
-                        defaultValue={info.bairro} 
+                        defaultValue={info?.bairro} 
                         type="text" 
                         className="form-control" 
                         id="bairro" 
@@ -512,7 +589,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f2">
                     <label className="required-field-label">Cidade</label>
                     <input
-                        defaultValue={info.cidade} 
+                        defaultValue={info?.cidade} 
                         type="text" 
                         className="form-control" 
                         id="cidade" 
@@ -523,7 +600,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group f1">
                     <label className="required-field-label">Estado</label>
                     <input
-                        defaultValue={info.estado} 
+                        defaultValue={info?.estado} 
                         type="text" 
                         className="form-control" 
                         id="estado" 
@@ -534,7 +611,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label>Região</label>
                     <input
-                        defaultValue={info.regiao} 
+                        defaultValue={info?.regiao} 
                         type="text" 
                         className="form-control" 
                         id="regiao" 
@@ -548,20 +625,20 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <PlanosFields type={"Associado"} defaultValue={info} />
                 <div className="form-group">
                     <label>Data Vencimento Fatura</label>
-                    <select defaultValue={info.dataVencimentoFatura} className="form-control" id="dataVencimentoFatura" name="dataVencimentoFatura">
+                    <select defaultValue={contaInfo?.dataVencimentoFatura ? String(contaInfo.dataVencimentoFatura) : (info?.dataVencimentoFatura ? String(info.dataVencimentoFatura) : "")} className="form-control" id="dataVencimentoFatura" name="dataVencimentoFatura">
                         <option value="" disabled>Selecionar</option>
-                        <option>10</option>
-                        <option>20</option>
-                        <option>30</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
                     </select>
                 </div>
                 <div className="form-group">
                     <label>Dinheiro</label>
-                    <input type="text" className='readOnly' value={info.conta?.saldoDinheiro || 0} disabled/>
+                    <input type="text" className='readOnly' value={contaInfo?.saldoDinheiro ?? 0} disabled/>
                 </div>
                 <div className="form-group">
                     <label>Permuta</label>
-                    <input type="text" className='readOnly' value={info.conta?.saldoPermuta || 0} disabled/>
+                    <input type="text" className='readOnly' value={contaInfo?.saldoPermuta ?? 0} disabled/>
                 </div>
                 <div className="formDivider">
                     <p>Operações</p>
@@ -578,7 +655,11 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     >
                         <option value="" disabled>Selecionar</option>
                         <option value="">Sem Gerente</option>
-                        <GerentesOptions />
+                        {gerentesDisponiveis.map((item) => (
+                            <option value={String(item.idUsuario)} key={item.idUsuario}>
+                                {item.nomeFantasia || item.nome}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 <div className="form-group">
@@ -594,28 +675,28 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label className="required">Tipo de Operação</label>
-                    <select defaultValue={info.tipoOperacao} className="form-control" id="tipoOperacao" name="tipoOperacao">
+                    <select defaultValue={info?.tipoOperacao ? String(info.tipoOperacao) : ""} className="form-control" id="tipoOperacao" name="tipoOperacao">
                         <option value="" disabled>Selecionar</option>
-                        <option value={1}>Compra</option>
-                        <option value={2}>Venda</option>
-                        <option value={3}>Compra/Venda</option>
+                        <option value="1">Compra</option>
+                        <option value="2">Venda</option>
+                        <option value="3">Compra/Venda</option>
                     </select>
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Limite Crédito</label>
-                    <RealInput defaultValue={info.conta?.limiteCredito} name="limiteCredito" placeholder="Insira o limite" reference={reference} required />
+                    <RealInput defaultValue={contaInfo?.limiteCredito ?? 0} name="limiteCredito" placeholder="Insira o limite" reference={reference} required />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Limite de Venda Mensal</label>
-                    <RealInput defaultValue={info.conta?.limiteVendaMensal} name="limiteVendaMensal" placeholder="Insira o limite" reference={reference} required />
+                    <RealInput defaultValue={contaInfo?.limiteVendaMensal ?? 0} name="limiteVendaMensal" placeholder="Insira o limite" reference={reference} required />
                 </div>
                 <div className="form-group">
                     <label className="required-field-label">Limite de Venda Total</label>
-                    <RealInput defaultValue={info.conta?.limiteVendaTotal} name="limiteVendaTotal" placeholder="Insira o limite" reference={reference} required />
+                    <RealInput defaultValue={contaInfo?.limiteVendaTotal ?? 0} name="limiteVendaTotal" placeholder="Insira o limite" reference={reference} required />
                 </div>
                 <div className="form-group">
                     <label>Aceita Orçamento</label>
-                    <select defaultValue={info.aceitaOrcamento} className="form-control" id="aceitaOrcamento" name="aceitaOrcamento">
+                    <select defaultValue={info?.aceitaOrcamento ? "true" : "false"} className="form-control" id="aceitaOrcamento" name="aceitaOrcamento">
                         <option value="" disabled>Selecionar</option>
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
@@ -623,7 +704,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 </div>
                 <div className="form-group">
                     <label>Aceita Voucher</label>
-                    <select defaultValue={info.aceitaVoucher} className="form-control" id="aceitaVoucher" name="aceitaVoucher">
+                    <select defaultValue={info?.aceitaVoucher ? "true" : "false"} className="form-control" id="aceitaVoucher" name="aceitaVoucher">
                         <option value="" disabled>Selecionar</option>
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
@@ -665,7 +746,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label">Nome</label>
                     <input 
-                        defaultValue={info.nome} 
+                        defaultValue={info?.nome} 
                         type="text" 
                         className="form-control" 
                         id="nome" 
@@ -678,7 +759,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     <InputMask 
                         mask="999.999.999-99" 
  
-                        defaultValue={info.cpf}
+                        defaultValue={info?.cpf}
                         type="text" 
                         className="form-control"
                         id="cpf" 
@@ -689,7 +770,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                 <div className="form-group">
                     <label className="required-field-label ">E-mail</label>
                     <input 
-                        defaultValue={info.email} 
+                        defaultValue={info?.email} 
                         type="email" 
                         className="form-control" 
                         id="email" 
@@ -697,9 +778,11 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                         required 
                     />
                 </div>
-                {info.conta && <input type="hidden" name="contaId" value={info.conta.idConta} />}
-                {info.conta && <input type="hidden" name="taxaRepasseMatriz" value={info.conta.taxaRepasseMatriz} />}
-                <input type="hidden" name="idUsuario" value={info.idUsuario} />
+                {contaInfo?.idConta && <input type="hidden" name="contaId" value={contaInfo.idConta} />}
+                {contaInfo?.taxaRepasseMatriz !== undefined && (
+                    <input type="hidden" name="taxaRepasseMatriz" value={contaInfo.taxaRepasseMatriz ?? 0} />
+                )}
+                <input type="hidden" name="idUsuario" value={info?.idUsuario || infoBase?.idUsuario || ''} />
 
                 <div className="buttonContainer">
                     <ButtonMotion className='modalButtonClose' type='button' onClick={() => closeModal(modalToggle, setSucess, setError)} >

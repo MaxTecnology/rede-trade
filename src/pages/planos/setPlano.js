@@ -30,5 +30,5 @@ export const setPlano = (apiData, type) => {
         return validTargets.some((target) => planoTipo.includes(target));
     });
 
-    return planosFiltrados.length > 0 ? planosFiltrados : apiData.planos;
+    return planosFiltrados;
 };

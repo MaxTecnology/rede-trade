@@ -122,12 +122,31 @@ const CadastrarAssociado = () => {
         },
     });
 
+    const gerenteSelecionado = form.watch("gerente");
+
+    useEffect(() => {
+        const idPadrao = snap.user?.idUsuario?.toString() || "";
+        const gerenteId = gerenteSelecionado?.toString() || "";
+        const atual = form.getValues("usuarioCriadorId")?.toString() || "";
+
+        if (gerenteId && gerenteId !== atual) {
+            form.setValue("usuarioCriadorId", gerenteId);
+        } else if (!gerenteId && idPadrao && idPadrao !== atual) {
+            form.setValue("usuarioCriadorId", idPadrao);
+        }
+    }, [gerenteSelecionado, form, snap.user?.idUsuario]);
+
     const buscarPlanos = async () => {
         try {
             if (planos.length > 0) return;
             
             const response = await getApiData("planos/listar-planos");
-            setPlanos(response.data || response.planos || []);
+            const todosPlanos = response?.data || response?.planos || [];
+            const planosAssociados = todosPlanos.filter((plano) => {
+                const tipo = (plano.tipoDoPlano || "").toLowerCase();
+                return tipo === "associado" || tipo === "associados";
+            });
+            setPlanos(planosAssociados);
         } catch (error) {
             toast.error('Erro ao carregar planos');
         }

@@ -19,7 +19,7 @@ const shouldShowValorPlano = (type) => {
 const shouldShowTaxaAnual = (type) => normalizeType(type).includes("associad");
 
 const FormPlano = ({ type, form }) => {
-    const { data } = useQueryPlanos()
+    const { data } = useQueryPlanos({ tipo: type })
     const planoId = useWatch({ control: form.control, name: "planoId" });
 
     useEffect(() => {

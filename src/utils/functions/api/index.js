@@ -29,16 +29,23 @@ export const createAssociado = async (data) => {
     try {
         console.log("🚀 Iniciando criação de associado:", data);
         
-        // Extrair campos específicos da conta e outros campos especiais
+        // Capturar campos numéricos para logs sem removê-los do payload principal
+        const limiteCredito = data.limiteCredito;
+        const limiteVendaMensal = data.limiteVendaMensal;
+        const limiteVendaTotal = data.limiteVendaTotal;
+        const limiteVendaEmpresa = data.limiteVendaEmpresa;
+        const saldoDinheiro = data.saldoDinheiro;
+        const saldoPermuta = data.saldoPermuta;
+        const formaPagamento = data.formaPagamento;
+
+        // Extrair campos específicos que exigem tratamento separado
         const {
             gerente,
-            limiteCredito, 
-            limiteVendaMensal, 
-            limiteVendaTotal,
             tipoOperacao,
             aceitaOrcamento,
             aceitaVoucher,
             taxaGerenteConta,
+            planoId,
             ...userFields
         } = data;
         
@@ -47,6 +54,10 @@ export const createAssociado = async (data) => {
             limiteCredito,
             limiteVendaMensal,
             limiteVendaTotal,
+            limiteVendaEmpresa,
+            saldoDinheiro,
+            saldoPermuta,
+            formaPagamento,
             tipoOperacao,
             aceitaOrcamento,
             aceitaVoucher,
@@ -76,6 +87,13 @@ export const createAssociado = async (data) => {
         }
         if (gerente && gerente !== '') {
             formData.append('gerente', gerente);
+        }
+
+        if (planoId !== undefined && planoId !== null && planoId !== '' && planoId !== 'null') {
+            formData.append('planoId', planoId);
+        }
+        if (taxaGerenteConta !== undefined && taxaGerenteConta !== null && taxaGerenteConta !== '') {
+            formData.append('taxaGerenteConta', taxaGerenteConta);
         }
         
         // Adicionar imagem se existir
@@ -107,6 +125,7 @@ export const createAssociado = async (data) => {
             console.error("❌ Status:", error.response?.status);
             console.error("❌ Headers:", error.response?.headers);
             console.error("❌ Dados enviados:", Object.keys(userFields));
+            console.error("❌ Campos FormData:", Array.from(formData.keys()));
             
             // Análise detalhada do erro
             const status = error.response?.status;

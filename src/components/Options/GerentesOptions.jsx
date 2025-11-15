@@ -19,7 +19,7 @@ const GerentesOptions = () => {
         <>
             {data.data.map((item, index) => (
                 <option
-                    value={item.idUsuario}
+                    value={String(item.idUsuario)}
                     key={item.idUsuario || index}
                 >
                     {item.nomeFantasia || item.nome}

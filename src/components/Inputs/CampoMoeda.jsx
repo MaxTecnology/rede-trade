@@ -31,18 +31,31 @@ const RealInput = ({ name, placeholder, required, reference, defaultValue, readO
 
     useEffect(() => {
         if (reference === true) {
-            setValue("")
-            setValueStatus(true)
+            if (defaultValue !== undefined && defaultValue !== null) {
+                const valor = Number(defaultValue);
+                const formatter = new Intl.NumberFormat('pt-BR', {
+                    style: 'decimal',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
+                const valorEmReal = formatter.format(valor);
+                setValue(valorEmReal);
+                setDecimalValue(valor);
+            } else {
+                setValue("");
+                setDecimalValue("");
+            }
+            setValueStatus(true);
         } else {
-            setValueStatus(false)
+            setValueStatus(false);
         }
-    }, [reference]);
+    }, [reference, defaultValue]);
 
     useEffect(() => {
-        if (defaultValue) {
-            const valor = defaultValue
+        if (defaultValue !== undefined && defaultValue !== null) {
+            const valor = Number(defaultValue);
             const formatter = new Intl.NumberFormat('pt-BR', {
-                style: 'decimal', // Alterado para 'decimal' para remover o símbolo de moeda
+                style: 'decimal',
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
@@ -50,7 +63,7 @@ const RealInput = ({ name, placeholder, required, reference, defaultValue, readO
             setValue(valorEmReal);
             setDecimalValue(valor);
         }
-    }, [defaultValue]); // Adicionei defaultValue como dependência
+    }, [defaultValue]);
 
     return (
         <input

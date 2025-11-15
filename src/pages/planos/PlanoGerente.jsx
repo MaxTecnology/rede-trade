@@ -13,12 +13,12 @@ import { setPlano } from "./setPlano";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 
 const PlanoGerente = () => {
+    const body = { tipo: "Gerente" }
     const revalidate = useRevalidate()
-    const { data } = useQueryPlanos()
+    const { data } = useQueryPlanos({ tipo: body.tipo })
     const [modalIsOpen, modalToggle] = useModal();
     const [info, setInfo] = useState({})
     const [id, setId] = useState()
-    const body = { tipo: "Gerente" }
 
 
     useEffect(() => {

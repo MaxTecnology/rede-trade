@@ -13,12 +13,12 @@ import useRevalidate from "@/hooks/ReactQuery/useRevalidate";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 
 const PlanoAgencias = () => {
+    const body = { tipo: "Agencias" }
     const revalidate = useRevalidate()
-    const { data } = useQueryPlanos()
+    const { data } = useQueryPlanos({ tipo: body.tipo })
     const [modalIsOpen, modalToggle] = useModal();
     const [info, setInfo] = useState({})
     const [id, setId] = useState()
-    const body = { tipo: "Agencias" }
 
     // ---------- API
     useEffect(() => {
