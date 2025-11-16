@@ -44,6 +44,7 @@ const UsuariosDados = lazy(() => import('@/pages/usuarios/UsuariosDados.jsx'))
 const TransaçõesExtorno = lazy(() => import('@/pages/transacoes/TransaçõesExtorno.jsx'))
 const EstratosEstorno = lazy(() => import('@/pages/estratos/ExtratosEstorno.jsx'))
 const ResetPassword = lazy(() => import('@/pages/ResetPassword.jsx'))
+const PermissoesGrupos = lazy(() => import('@/pages/configuracoes/PermissoesGrupos.jsx'))
 export {
     Login,
     PlanoAssociado,
@@ -89,5 +90,6 @@ export {
     UsuariosDados,
     TransaçõesExtorno,
     EstratosEstorno,
-    ResetPassword
+    ResetPassword,
+    PermissoesGrupos
 };

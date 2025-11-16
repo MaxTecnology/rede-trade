@@ -2102,3 +2102,238 @@ input[type="file"] {
 .rateContainer .pessimo:hover {
   border-color: #e70505;
 }
+.permissions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.permissions-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #e0e7ff;
+}
+
+.summary-card span {
+  display: block;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+.summary-card strong {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.perm-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.permissions-page__selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.permissions-page__selector select {
+  min-width: 240px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.permissions-section__header p {
+  font-weight: 600;
+  margin-bottom: 18px;
+  font-size: 1.05rem;
+}
+
+.permissions-group-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.status-chip.success {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+  color: #15803d;
+}
+
+.status-chip.warning {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: #92400e;
+}
+
+.status-chip.neutral {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #1d4ed8;
+}
+
+.status-chip.info {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.3);
+  color: #0369a1;
+}
+
+.permissions-page__selectorLabel {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.permissions-form-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.permissions-group-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.permissions-group-meta__item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.permissions-group-meta__item span {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.permissions-group-meta__item strong {
+  font-size: 1rem;
+  color: #111827;
+}
+
+.permissions-matrix {
+  display: grid;
+  gap: 16px;
+}
+
+.perm-section {
+  border: 1px solid #edf2f7;
+  border-radius: 14px;
+  padding: 18px;
+  background: #fdfdff;
+}
+
+.perm-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.perm-section__header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.perm-section__description {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.perm-section__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.perm-section__actions button {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: #f3f4f6;
+  color: #374151;
+  transition: background 0.2s ease;
+}
+
+.perm-section__actions button:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.perm-section__actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.perm-section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.perm-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.perm-checkbox input {
+  margin-right: 8px;
+}
+
+.perm-checkbox span {
+  font-weight: 500;
+  color: #111827;
+}
+
+.perm-checkbox small {
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+.permissions-page__buttons {
+  justify-content: flex-end;
+  gap: 12px;
+}

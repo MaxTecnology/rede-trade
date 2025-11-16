@@ -36,6 +36,7 @@ import {
 } from "react-icons/bs";
 import { FaFileLines } from "react-icons/fa6";
 import { FaUndo } from "react-icons/fa";
+import { permissionsSchema } from "@/config/permissionsSchema";
 
 export const MENU_IDS = {
   INICIO: "INICIO",
@@ -53,7 +54,44 @@ export const MENU_IDS = {
   USUARIOS: "USUARIOS",
 };
 
-export const menuConfig = [
+const permissionKeySet = new Set(
+  permissionsSchema.flatMap((categoria) =>
+    categoria.items.map((item) => item.chave)
+  )
+);
+
+const sanitizePermissionsList = (list = []) => {
+  if (!Array.isArray(list)) return [];
+  const filtered = list.filter((key) => permissionKeySet.has(key));
+  return Array.from(new Set(filtered));
+};
+
+const normalizeMenuDefinition = (menu) => {
+  const children = (menu.children || []).map((child) => ({
+    ...child,
+    permissions: sanitizePermissionsList(child.permissions),
+  }));
+
+  const fallbackPermissions = children.flatMap((child) => child.permissions);
+  const explicitMenuPermissions = sanitizePermissionsList(
+    menu.permissions?.menu
+  );
+
+  const menuPermissions =
+    explicitMenuPermissions.length > 0
+      ? explicitMenuPermissions
+      : Array.from(new Set(fallbackPermissions));
+
+  return {
+    ...menu,
+    permissions: {
+      menu: menuPermissions,
+    },
+    children,
+  };
+};
+
+const rawMenuConfig = [
   {
     id: MENU_IDS.INICIO,
     label: "INÍCIO",
@@ -482,9 +520,18 @@ export const menuConfig = [
         icon: FaUserPlus,
         permissions: ["usuarios.criar", "MANAGE_ACCOUNTS"],
       },
+      {
+        id: "usuarios.permissoes",
+        label: "Grupos de Permissões",
+        route: "/configuracoes/permissoes/grupos",
+        icon: FaUserCog,
+        permissions: ["usuarios.permissoes"],
+      },
     ],
   },
 ];
+
+export const menuConfig = rawMenuConfig.map(normalizeMenuDefinition);
 
 export const menuConfigMap = menuConfig.reduce((acc, item) => {
   acc[item.id] = item;

@@ -12,6 +12,7 @@ import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 import useRevalidate from "@/hooks/ReactQuery/useRevalidate";
 import { useSnapshot } from "valtio";
 import state from "@/store";
+import { API_URL } from "@/config/api";
 
 const SubcontasCadastrar = () => {
     const navigate = useNavigate();
@@ -20,6 +21,10 @@ const SubcontasCadastrar = () => {
     const [loading, setLoading] = useState(false);
     const [imagemReference, setImageReference] = useState(null);
     const [userValidation, setUserValidation] = useState({ isValid: true, message: '' });
+    const [permissionGroups, setPermissionGroups] = useState([]);
+    const [selectedGroupId, setSelectedGroupId] = useState("");
+    const [groupsLoading, setGroupsLoading] = useState(true);
+    const [groupsError, setGroupsError] = useState(null);
 
     useEffect(() => {
         activePage("usuarios");
@@ -63,7 +68,77 @@ const SubcontasCadastrar = () => {
         };
 
         validateUser();
+        fetchPermissionGroups();
     }, [userInfo]);
+
+    const fetchPermissionGroups = async () => {
+        try {
+            setGroupsLoading(true);
+            setGroupsError(null);
+
+            const token = localStorage.getItem('tokenRedeTrade');
+            if (!token) {
+                throw new Error('Token de autenticação não encontrado. Faça login novamente.');
+            }
+
+            const response = await fetch(`${API_URL}/permissions/permission-groups?page=1&pageSize=100`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao carregar grupos de permissões.');
+            }
+
+            const data = await response.json();
+            const lista = data.data || [];
+
+            const gruposSubconta = lista.filter((group) =>
+                (group.defaultForTipo || "").toLowerCase().includes("subconta")
+            );
+
+            const ordenados = gruposSubconta.length > 0 ? gruposSubconta : lista;
+            setPermissionGroups(ordenados);
+
+            if (ordenados.length > 0) {
+                setSelectedGroupId(String(ordenados[0].id));
+            } else {
+                setSelectedGroupId("");
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar grupos:', error);
+            setGroupsError(error.message || 'Não foi possível carregar os grupos de permissão.');
+            setPermissionGroups([]);
+            setSelectedGroupId("");
+        } finally {
+            setGroupsLoading(false);
+        }
+    };
+
+    const assignPermissionGroup = async (subcontaId, groupId) => {
+        const token = localStorage.getItem('tokenRedeTrade');
+        if (!token) {
+            throw new Error('Token de autenticação não encontrado. Faça login novamente.');
+        }
+
+        const response = await fetch(`${API_URL}/permissions/usuarios/${subcontaId}/permission-group?target=subconta`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                groupId: Number(groupId),
+                escopo: "DEFAULT"
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Erro ao vincular grupo de permissões.');
+        }
+    };
 
     // Função para criar subconta
     const createSubconta = async (formData) => {
@@ -100,8 +175,7 @@ const SubcontasCadastrar = () => {
                 throw new Error('Token de autenticação não encontrado. Faça login novamente.');
             }
 
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
-            const url = `${apiUrl}/contas/criar-subconta/${idConta}`;
+            const url = `${API_URL}/contas/criar-subconta/${idConta}`;
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -124,6 +198,16 @@ const SubcontasCadastrar = () => {
             }
 
             const data = await response.json();
+
+            if (selectedGroupId) {
+                try {
+                    await assignPermissionGroup(data.idSubContas, selectedGroupId);
+                } catch (groupError) {
+                    console.error('❌ Erro ao vincular grupo de permissões:', groupError);
+                    toast.error(groupError.message || 'Subconta criada, mas não foi possível vincular o grupo selecionado.');
+                }
+            }
+
             return data;
         } catch (error) {
             console.error('❌ Erro ao criar subconta:', error);
@@ -133,6 +217,12 @@ const SubcontasCadastrar = () => {
 
     const formHandler = async (event) => {
         event.preventDefault();
+
+        if (!selectedGroupId) {
+            toast.error('Selecione um grupo de permissões antes de prosseguir.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -248,6 +338,52 @@ const SubcontasCadastrar = () => {
                         placeholder="Senha para acesso da subconta"
                         minLength="6"
                     />
+                </div>
+
+                <div className="formDivider">
+                    <p>Permissões</p>
+                </div>
+
+                <div className="form-group">
+                    <label className="required">Grupo de permissões</label>
+                    {groupsLoading ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <ColorRing
+                                visible
+                                height="33"
+                                width="33"
+                                ariaLabel="blocks-loading"
+                                colors={['#2d6cdf', '#2d6cdf', '#2d6cdf', '#2d6cdf', '#2d6cdf']}
+                            />
+                            <span>Carregando grupos...</span>
+                        </div>
+                    ) : permissionGroups.length > 0 ? (
+                        <select
+                            className="form-control"
+                            value={selectedGroupId}
+                            onChange={(event) => setSelectedGroupId(event.target.value)}
+                        >
+                            {permissionGroups.map((group) => (
+                                <option key={group.id} value={group.id}>
+                                    {group.nome}
+                                    {group.defaultForTipo ? ` • ${group.defaultForTipo}` : ""}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <div
+                            style={{
+                                backgroundColor: "#fff4e5",
+                                border: "1px solid #f0ad4e",
+                                color: "#8a6d3b",
+                                borderRadius: "8px",
+                                padding: "12px",
+                                fontSize: "14px"
+                            }}
+                        >
+                            {groupsError || "Nenhum grupo disponível. Configure os grupos em Configurações > Permissões."}
+                        </div>
+                    )}
                 </div>
 
                 {/* Contato */}

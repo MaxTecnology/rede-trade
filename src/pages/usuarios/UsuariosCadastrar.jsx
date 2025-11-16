@@ -5,8 +5,8 @@ import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import Form_Dados from "@/components/Form/Form_Dados";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormPermissions from "@/components/Form/permissions/FormPermissions";
-import { permissionSchema } from "@/models/schemas/permissionsSchema";
+import PermissionsMatrix from "@/components/Permissions/PermissionsMatrix";
+import { permissionsSchema } from "@/config/permissionsSchema";
 import { createSubAccount } from "@/utils/functions/api";
 import { toast } from "sonner";
 import { ColorRing } from "react-loader-spinner";
@@ -48,10 +48,15 @@ const UsuariosCadastrar = () => {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(formHandler)} className="containerForm">
                     <Form_Dados form={form} setImagem={setImagem} />
-                    <div className="formDivider">
+                    {/* TODO: integrar novo componente de permissões */}
+                    {/* <div className="formDivider">
                         <p>Permissões</p>
                     </div>
-                    <FormPermissions form={form} />
+                    <PermissionsMatrix
+                        schema={permissionsSchema}
+                        value={{}}
+                        onChange={() => {}}
+                    /> */}
                     <div className="buttonContainer">
                         {loading ? <ColorRing
                             visible={loading}

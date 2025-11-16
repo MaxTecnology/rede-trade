@@ -14,7 +14,7 @@ import RequireAuth from './auth/RequireAuth.jsx'
 
 
 // PAGES
-import { AgenciasLista, AssociadoInfo, Associados, AssociadosLista, CadastrarAgencia, CadastrarAssociado, CancelarVouchers, Categorias, ContasPagar, ContasReceber, Credito, CreditoAnalise, CreditoAprovar, CreditoMeus, CreditoSolicitar, EstratosEstorno, Extratos, GerentesCadastrar, GerentesLista, Home, Login, MeusExtratos, MeusVouchers, Ofertas, OfertasCadastrar, OfertasExcluir, OfertasInfo, OfertasMinhas, PDFVoucher, PlanoAgencias, PlanoAssociado, PlanoGerente, ResetPassword, SubCategorias, TransaçãoCadastrar, Transações, TransaçõesExtorno, TransaçõesMinhas, UsuariosCadastrar, UsuariosDados, UsuariosLista, UsuariosMeus, VoucherCadastrar, Vouchers, VoucherSolicitarCancelar } from './pages/index.js'
+import { AgenciasLista, AssociadoInfo, Associados, AssociadosLista, CadastrarAgencia, CadastrarAssociado, CancelarVouchers, Categorias, ContasPagar, ContasReceber, Credito, CreditoAnalise, CreditoAprovar, CreditoMeus, CreditoSolicitar, EstratosEstorno, Extratos, GerentesCadastrar, GerentesLista, Home, Login, MeusExtratos, MeusVouchers, Ofertas, OfertasCadastrar, OfertasExcluir, OfertasInfo, OfertasMinhas, PDFVoucher, PlanoAgencias, PlanoAssociado, PlanoGerente, ResetPassword, SubCategorias, TransaçãoCadastrar, Transações, TransaçõesExtorno, TransaçõesMinhas, UsuariosCadastrar, UsuariosDados, UsuariosLista, UsuariosMeus, VoucherCadastrar, Vouchers, VoucherSolicitarCancelar, PermissoesGrupos } from './pages/index.js'
 import SubcontasCadastrar from './pages/usuarios/SubcontasCadastrar.jsx'
 import SubcontasPermissoes from './pages/usuarios/SubcontasPermissoes.jsx'
 import Loading from './pages/Loading.jsx'
@@ -45,6 +45,22 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               element={
                 <Suspense fallback={<Loading />}>
                   <CadastrarAssociado />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/configuracoes/permissoes/grupos"
+              element={
+                <Suspense fallback={<Loading />}>
+                  <PermissoesGrupos />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/configuracoes/permissoes/grupos/:groupId"
+              element={
+                <Suspense fallback={<Loading />}>
+                  <PermissoesGrupos />
                 </Suspense>
               }
             />

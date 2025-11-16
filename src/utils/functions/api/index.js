@@ -380,8 +380,37 @@ function transformarDados(dados) {
     return resultado;
 }
 
+const ensureFormData = (payload) => {
+    if (typeof FormData !== "undefined" && payload instanceof FormData) {
+        return payload;
+    }
+
+    const formData = new FormData();
+    if (!payload) {
+        return formData;
+    }
+
+    Object.entries(payload).forEach(([key, value]) => {
+        if (value === undefined || value === null) {
+            return;
+        }
+
+        if (key === "imagem") {
+            if (value instanceof FileList && value.length > 0) {
+                formData.append("imagem", value[0]);
+            } else if (value instanceof Blob) {
+                formData.append("imagem", value);
+            }
+        } else {
+            formData.append(key, value);
+        }
+    });
+
+    return formData;
+};
+
 // Versão atualizada que funciona com upload direto (sem Firebase)
-export async function createSubAccount(formData) {
+export async function createSubAccount(formData, options = {}) {
     try {
         console.log("🚀 Iniciando criação de subconta");
         
@@ -393,10 +422,12 @@ export async function createSubAccount(formData) {
             }
         };
 
+        const payload = ensureFormData(formData);
+
         // Criar subconta no backend
         const response = await axios.post(
             `${mainUrl}contas/criar-subconta/${state.user.conta.idConta}`, 
-            formData, 
+            payload, 
             uploadConfig
         ).catch((error) => {
             console.error("❌ Erro ao criar subconta:", error.response?.data || error);
@@ -408,6 +439,24 @@ export async function createSubAccount(formData) {
         });
 
         console.log('✅ Subconta criada:', response.data);
+
+        if (options.permissionGroupId) {
+            try {
+                await axios.post(
+                    `${mainUrl}permissions/usuarios/${response.data.idSubContas}/permission-group?target=subconta`,
+                    {
+                        groupId: Number(options.permissionGroupId),
+                        escopo: "DEFAULT"
+                    },
+                    config
+                );
+            } catch (groupError) {
+                console.error("❌ Erro ao vincular grupo de permissões:", groupError.response?.data || groupError);
+                const message = groupError.response?.data?.error || "Subconta criada, mas não foi possível vincular o grupo selecionado.";
+                throw new Error(message);
+            }
+        }
+
         return response.data;
 
     } catch (error) {
