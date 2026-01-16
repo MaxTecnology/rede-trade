@@ -52,6 +52,28 @@ export const formatColumns = (columns, status) => {
                 cell: (value) => value.getValue() ? `RT$ ${formatarNumeroParaRT(value.getValue())}` : "Indefinido",
             };
         }
+        if (column.accessorKey === 'taxaInscricao') {
+            return {
+                ...column,
+                cell: (value) => {
+                    const cellValue = value.getValue();
+                    if (cellValue === null || cellValue === undefined || cellValue === "") {
+                        return "RT$ 0,00";
+                    }
+
+                    const numericValue =
+                        typeof cellValue === "string"
+                            ? parseFloat(cellValue)
+                            : cellValue;
+
+                    if (Number.isNaN(numericValue)) {
+                        return cellValue;
+                    }
+
+                    return `RT$ ${formatarNumeroParaRT(numericValue)}`;
+                },
+            };
+        }
         return column;
     });
 }

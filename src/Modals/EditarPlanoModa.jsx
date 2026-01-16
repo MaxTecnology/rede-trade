@@ -5,6 +5,7 @@ import { closeModal } from '../hooks/Functions';
 import { GrFormClose } from "react-icons/gr";
 import { toast } from 'sonner';
 import useRevalidate from '@/hooks/ReactQuery/useRevalidate';
+import RTInput from '@/components/Inputs/RTInput';
 
 // Defina o elemento principal da sua aplicação (geralmente '#root' para um aplicativo React)
 const appElement = document.getElementById('root');
@@ -52,18 +53,25 @@ const EditarPlanoModal = ({ isOpen, modalToggle, url, info, body, complex, showV
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="nome">Taxa de Comissão %</label>
-                        <input type="number" defaultValue={data.taxaComissao} name="taxaComissao" />
+                        <input
+                            type="number"
+                            defaultValue={data.taxaComissao}
+                            name="taxaComissao"
+                            min={0}
+                            step={0.01}
+                            inputMode="decimal"
+                        />
                     </div>
                     {(complex || showValorPlano) ? (
                         <div className="form-group f2">
                             <label htmlFor="nome">Valor do Plano</label>
-                            <input type="number" step="0.01" defaultValue={data.taxaInscricao} name="taxaInscricao" />
+                            <RTInput defaultValue={data.taxaInscricao} name="taxaInscricao" />
                         </div>
                     ) : null}
                     {complex ? (
                         <div className="form-group f2">
                             <label htmlFor="nome">Taxa de Manutenção Anual </label>
-                            <input type="number" defaultValue={data.taxaManutencaoAnual} name="taxaManutencaoAnual" />
+                            <RTInput defaultValue={data.taxaManutencaoAnual} name="taxaManutencaoAnual" />
                         </div>
                     ) : null}
                 </div>

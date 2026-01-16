@@ -48,7 +48,7 @@ const PermissionsMatrix = ({ schema, value = {}, onChange, disabled }) => {
       {schema.map((categoria) => (
         <section key={categoria.categoria} className="perm-section">
           <header className="perm-section__header">
-            <div>
+            <div className="perm-section__actions">
               <h4>{categoria.label}</h4>
               {categoria.description && (
                 <p className="perm-section__description">

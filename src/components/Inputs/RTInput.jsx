@@ -3,29 +3,54 @@ import { useEffect, useState } from 'react';
 const RTInput = ({ name, required, defaultValue }) => {
     const [value, setValue] = useState("");
 
-    const formatValue = (inputValue) => {
-        const numericValue = parseFloat(inputValue.replace(/[^\d]/g, '')) || 0;
-
-        const formattedValue = new Intl.NumberFormat("pt-BR", {
+    const formatCurrency = (numero) => {
+        return new Intl.NumberFormat("pt-BR", {
             style: "currency",
             currency: "BRL",
-        }).format(numericValue / 100);
+        })
+            .format(numero)
+            .replace("R$", "RT$");
+    };
 
-        // Substitui "R$" por "RT$" e vírgula por ponto
-        const modifiedValue = formattedValue.replace("R$", "RT$")
+    const formatValueFromInput = (inputValue) => {
+        const normalizedInput = `${inputValue ?? ""}`;
+        const numericValue = parseFloat(normalizedInput.replace(/[^\d]/g, "")) || 0;
+        return formatCurrency(numericValue / 100);
+    };
 
-        return modifiedValue;
+    const formatValueFromDefault = (defaultVal) => {
+        if (defaultVal === null || defaultVal === undefined || defaultVal === "") {
+            return "";
+        }
+
+        if (typeof defaultVal === "number") {
+            return formatCurrency(defaultVal);
+        }
+
+        const normalized = defaultVal
+            .toString()
+            .replace(/RT\$/gi, "")
+            .replace(/R\$/gi, "")
+            .replace(/\s/g, "")
+            .replace(/\./g, "")
+            .replace(",", ".");
+
+        const numericValue = parseFloat(normalized);
+
+        if (Number.isNaN(numericValue)) {
+            return formatCurrency(0);
+        }
+
+        return formatCurrency(numericValue);
     };
 
     const handleChange = (event) => {
         const inputValue = event.target.value;
-        setValue(formatValue(inputValue));
+        setValue(formatValueFromInput(inputValue));
     };
 
     useEffect(() => {
-        if (defaultValue) {
-            setValue(formatValue(defaultValue))
-        }
+        setValue(formatValueFromDefault(defaultValue));
     }, [defaultValue]);
 
     return (

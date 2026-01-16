@@ -172,24 +172,45 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
 
     const revalidate = useRevalidate();
 
+    const targetFilialId = useMemo(() => {
+        return contaInfo?.filialId
+            ?? contaInfo?.filial?.id
+            ?? info?.filialId
+            ?? info?.filial?.id
+            ?? null;
+    }, [contaInfo?.filialId, contaInfo?.filial?.id, info?.filialId, info?.filial?.id]);
+
     const gerentesDisponiveis = useMemo(() => {
-        const listaBase = gerentesData?.data ? [...gerentesData.data] : [];
+        const listaOriginal = gerentesData?.data ? [...gerentesData.data] : [];
         const gerenteAtual = contaInfo?.gerenteConta;
+
+        const listaFiltrada = targetFilialId
+            ? listaOriginal.filter((item) => {
+                const gerenteFilialId =
+                    item?.filialId ??
+                    item?.conta?.filialId ??
+                    item?.filialAuth?.id ??
+                    null;
+                return gerenteFilialId === targetFilialId;
+            })
+            : listaOriginal.filter((item) =>
+                Boolean(item?.filialId || item?.conta?.filialId || item?.filialAuth?.id)
+            );
 
         if (
             gerenteAtual &&
             gerenteAtual.idUsuario &&
-            !listaBase.some((item) => item.idUsuario === gerenteAtual.idUsuario)
+            !listaFiltrada.some((item) => item.idUsuario === gerenteAtual.idUsuario)
         ) {
-            listaBase.unshift({
+            listaFiltrada.unshift({
                 idUsuario: gerenteAtual.idUsuario,
                 nome: gerenteAtual.nome || gerenteAtual.nomeContato || gerenteAtual.nomeFantasia,
                 nomeFantasia: gerenteAtual.nomeFantasia || gerenteAtual.nome,
             });
         }
 
-        return listaBase;
-    }, [gerentesData?.data, contaInfo?.gerenteConta]);
+        return listaFiltrada;
+    }, [gerentesData?.data, contaInfo?.gerenteConta, targetFilialId]);
 
     const formHandler = (event) => {
         event.preventDefault();

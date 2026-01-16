@@ -465,63 +465,6 @@ export async function createSubAccount(formData, options = {}) {
     }
 }
 
-// Função para adicionar permissões a uma subconta
-export async function addSubAccountPermissions(subcontaId, permissoes) {
-    try {
-        const permissoesProcessadas = transformarDados(permissoes);
-        console.log('📋 Adicionando permissões:', permissoesProcessadas);
-
-        const response = await axios.post(
-            `${mainUrl}contas/subcontas/adicionar-permissao/${subcontaId}`, 
-            { permissoes: permissoesProcessadas }, 
-            config
-        ).catch((error) => {
-            console.error("❌ Erro ao adicionar permissões:", error.response?.data || error);
-            throw new Error("Erro ao adicionar permissões à subconta");
-        });
-
-        console.log("✅ Permissões adicionadas:", response.data);
-        return response.data;
-
-    } catch (error) {
-        console.error("❌ Erro ao adicionar permissões:", error);
-        throw error;
-    }
-}
-
-// Função legada mantida para compatibilidade - FIREBASE REMOVIDO
-export async function createSubAccountLegacy(event) {
-    const { email, senha, imagem, cpf, nome } = event
-    // REMOVIDO: Firebase upload - use createSubAccount que processa FormData diretamente
-    const userData = {
-        "nome": nome,
-        "email": email,
-        "cpf": cpf,
-        "senha": senha,
-        "imagem": imagem // Agora deve ser processado pelo backend
-    }
-    console.log(userData)
-    const response = await axios.post(`${mainUrl}contas/criar-subconta/${state.user.conta.idConta}`, userData, config)
-        .catch(() => {
-            throw new Error("Erro ao criar usuário, por favor cheque os campos e tente novamente")
-        });
-    console.log('Usuário criado:', response.data)
-
-    const { atendimento, compras, extratos, faturas, meusUsuarios, minhaConta, ofertas, permissoesConta, vendas, vouchers } = event
-    const permissoes = {
-        atendimento, compras, extratos, faturas, meusUsuarios, minhaConta, ofertas, permissoesConta, vendas, vouchers
-    }
-    let permissoesArray = [JSON.stringify(permissoes)]
-    const resultado = transformarDados(permissoes)
-    console.table(resultado)
-
-    const subconta = await axios.post(`${mainUrl}contas/subcontas/adicionar-permissao/${response.data.idSubContas}`, permissoesArray, config)
-        .catch(() => {
-            throw new Error("Erro ao criar usuário, por favor cheque os campos e tente novamente")
-        });
-    console.log("Sub-conta criada", subconta)
-}
-
 export async function updateCharge(id, revalidate) {
     const object = {
         status: "Quitado"

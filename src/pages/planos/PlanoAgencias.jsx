@@ -11,6 +11,7 @@ import { useQueryPlanos } from "@/hooks/ReactQuery/useQueryPlanos";
 import { setPlano } from "./setPlano";
 import useRevalidate from "@/hooks/ReactQuery/useRevalidate";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
+import RTInput from "@/components/Inputs/RTInput";
 
 const PlanoAgencias = () => {
     const body = { tipo: "Agencias" }
@@ -60,18 +61,19 @@ const PlanoAgencias = () => {
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="taxaComissao">Taxa de Comissão %</label>
-                        <input type="number" name="taxaComissao" placeholder="Taxa %" required />
+                        <input
+                            type="number"
+                            name="taxaComissao"
+                            placeholder="Taxa %"
+                            min={0}
+                            step={0.01}
+                            inputMode="decimal"
+                            required
+                        />
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="taxaInscricao">Valor do Plano</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            name="taxaInscricao"
-                            placeholder="Valor em reais"
-                            required
-                        />
+                        <RTInput name="taxaInscricao" required />
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="data">Data de Criação</label>

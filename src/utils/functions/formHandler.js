@@ -2,6 +2,33 @@
 // ====== FUNÇÃO ORIGINAL - Mantida para compatibilidade
 // ==========================================
 
+const BRAZIL_THOUSAND_PATTERN = /^\d{1,3}(\.\d{3})+(,\d+)?$/;
+
+const parseNumericString = (rawValue) => {
+    if (typeof rawValue !== "string") return null;
+    const value = rawValue.trim();
+    if (value === "") return null;
+
+    const hasComma = value.includes(",");
+    const hasDot = value.includes(".");
+
+    if (hasDot && !hasComma) {
+        const plainDecimalPattern = /^-?\d+(\.\d+)?$/;
+        if (plainDecimalPattern.test(value) && !BRAZIL_THOUSAND_PATTERN.test(value)) {
+            const parsed = parseFloat(value);
+            return Number.isNaN(parsed) ? null : parsed;
+        }
+    }
+
+    if (/^[0-9.]+(?:,[0-9]+)?$/.test(value)) {
+        const normalized = value.replace(/\./g, '').replace(',', '.');
+        const parsed = parseFloat(normalized);
+        return Number.isNaN(parsed) ? null : parsed;
+    }
+
+    return null;
+};
+
 export const formHandler = (item) => {
     var object = {};
     item.forEach((value, key) => {
@@ -31,10 +58,10 @@ export const formHandler = (item) => {
             return object[key] = numericValue;
         }
 
-        const numericValue = /^[0-9.]+(?:,[0-9]+)?$/.test(value) ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+        const numericValue = parseNumericString(value);
 
         // Atribui o valor ao objeto
-        object[key] = numericValue;
+        object[key] = numericValue ?? value;
     });
     return object;
 };
@@ -71,8 +98,8 @@ export const formHandlerComImagem = (item, arquivoImagem = null) => {
                 // Extrai o valor numérico da correspondência e substitui vírgula por ponto
                 processedValue = parseFloat(match[2].replace(/\./g, '').replace(',', '.'));
             } else {
-                processedValue = /^[0-9.]+(?:,[0-9]+)?$/.test(value) ? 
-                    parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+                const parsed = parseNumericString(value);
+                processedValue = parsed ?? value;
             }
         }
 
@@ -174,13 +201,14 @@ export const formatForm = (form) => {
         if (match) {
             // Extrai o valor numérico da correspondência e substitui vírgula por ponto
             const numericValue = parseFloat(match[2].replace(/\./g, '').replace(',', '.'));
-            return object[key] = numericValue;
+            object[key] = numericValue;
+            return;
         }
 
-        const numericValue = /^[0-9.]+(?:,[0-9]+)?$/.test(value) ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+        const numericValue = parseNumericString(value);
 
         // Atribui o valor ao objeto
-        object[key] = numericValue;
+        object[key] = numericValue ?? value;
     });
     return object;
 }

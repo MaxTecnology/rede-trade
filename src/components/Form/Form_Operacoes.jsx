@@ -27,7 +27,7 @@ const Form_Operacoes = ({ form, type, reference = true }) => {
         <>
             <FormSelect required form={form} name="gerente" label="Gerente de Conta" placeholder="Selecionar" items={[
                 { value: "", label: "Nenhum" },
-            ]} options={<GerentesOptions />} />
+            ]} options={<GerentesOptions restrictToCurrentFilial />} />
             <FormInput disabled required name="taxaGerenteConta" label="Porcentagem do Gerente" placeholder="2%" form={form} />
             <FormSelect required form={form} name="tipoOperacao" label="Tipo de Operação" placeholder="Selecionar" items={[
                 { value: 1, label: "Compra" },

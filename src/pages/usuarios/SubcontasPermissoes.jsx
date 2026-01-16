@@ -306,7 +306,7 @@ const SubcontasPermissoes = () => {
   }
 
   return (
-    <div className="container">
+    <div className="container permissions-page">
       <div className="containerHeader">
         <FaUser /> Permissões da Subconta
       </div>
@@ -329,24 +329,40 @@ const SubcontasPermissoes = () => {
         <div className="permissions-section__header">
           <p>Grupo aplicado</p>
         </div>
-        <div className="permissions-page__selector">
-          <label className="permissions-page__selectorLabel">
-            Selecionar grupo
-          </label>
-          <select
-            value={selectedGroupId || ""}
-            onChange={handleGroupChange}
-          >
-            <option value="">Selecione...</option>
-            {groups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.nome}
-              </option>
-            ))}
-          </select>
-          {selectedGroup?.descricao && (
-            <p className="permissions-page__hint">{selectedGroup.descricao}</p>
-          )}
+        <div className="permissions-form-grid">
+          <div className="form-group">
+            <label className="permissions-page__selectorLabel">
+              Selecionar grupo
+            </label>
+            <select
+              className="full-width"
+              value={selectedGroupId || ""}
+              onChange={handleGroupChange}
+            >
+              <option value="">Selecione...</option>
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.nome}
+                  {group.defaultForTipo ? ` • ${group.defaultForTipo}` : ""}
+                </option>
+              ))}
+            </select>
+            {selectedGroup?.descricao && (
+              <p className="permissions-page__hint">
+                {selectedGroup.descricao}
+              </p>
+            )}
+          </div>
+          <div className="permissions-group-meta">
+            <div className="permissions-group-meta__item">
+              <span>Grupo atual</span>
+              <strong>{selectedGroup?.nome || "Não aplicado"}</strong>
+            </div>
+            <div className="permissions-group-meta__item">
+              <span>Tipo padrão</span>
+              <strong>{selectedGroup?.defaultForTipo || "Nenhum"}</strong>
+            </div>
+          </div>
         </div>
       </div>
 

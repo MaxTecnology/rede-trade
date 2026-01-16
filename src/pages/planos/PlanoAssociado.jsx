@@ -66,8 +66,16 @@ const PlanoAssociado = () => {
                         <RTInput reset={reset} name="taxaInscricao" required />
                     </div>
                     <div className="form-group f2">
-                        <label htmlFor="nomePlano">Taxa de Comissão</label>
-                        <RTInput reset={reset} name="taxaComissao" required placeholder="Taxa %" />
+                        <label htmlFor="taxaComissao">Taxa de Comissão %</label>
+                        <input
+                            type="number"
+                            name="taxaComissao"
+                            placeholder="Taxa %"
+                            min={0}
+                            step={0.01}
+                            inputMode="decimal"
+                            required
+                        />
                     </div>
                     <div className="form-group f2">
                         <label htmlFor="taxaManutencaoAnual">Taxa de Manutenção Anual</label>
