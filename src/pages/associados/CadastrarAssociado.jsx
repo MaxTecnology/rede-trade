@@ -122,19 +122,14 @@ const CadastrarAssociado = () => {
         },
     });
 
-    const gerenteSelecionado = form.watch("gerente");
-
     useEffect(() => {
         const idPadrao = snap.user?.idUsuario?.toString() || "";
-        const gerenteId = gerenteSelecionado?.toString() || "";
         const atual = form.getValues("usuarioCriadorId")?.toString() || "";
 
-        if (gerenteId && gerenteId !== atual) {
-            form.setValue("usuarioCriadorId", gerenteId);
-        } else if (!gerenteId && idPadrao && idPadrao !== atual) {
+        if (idPadrao && idPadrao !== atual) {
             form.setValue("usuarioCriadorId", idPadrao);
         }
-    }, [gerenteSelecionado, form, snap.user?.idUsuario]);
+    }, [form, snap.user?.idUsuario]);
 
     const buscarPlanos = async () => {
         try {
