@@ -1,10 +1,11 @@
-import { useQueryAssociados } from "@/hooks/ReactQuery/useQueryAssociados";
 import { motion } from "framer-motion";
-import { useQueryMeusAssociados } from "@/hooks/ReactQuery/useQueryMeusAssociados";
+import { useQueryAssociadosResumo } from "@/hooks/ReactQuery/useQueryAssociadosResumo";
 
 const AssociadoCard_Dashboard = () => {
-  const { data: associados } = useQueryMeusAssociados();
-  const { data } = useQueryAssociados();
+  const { data } = useQueryAssociadosResumo();
+
+  const totalUnidade = data?.totalUnidade ?? 0;
+  const totalGeral = data?.totalGeral ?? 0;
 
   return (
       <motion.div
@@ -19,11 +20,11 @@ const AssociadoCard_Dashboard = () => {
           <div className="homeCardItemBody">
             <div>
               <p>Unidade</p>
-              <p>{associados && associados.length ? associados.length : 0}</p>
+              <p>{totalUnidade}</p>
             </div>
             <div>
               <p>Geral</p>
-              <p>{data && data.data ? data.data.length : 0}</p>
+              <p>{totalGeral}</p>
             </div>
           </div>
         </div>

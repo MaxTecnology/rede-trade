@@ -59,11 +59,12 @@ const Sidebar = () => {
   };
 
   const getName = () => {
-    const type = getType();
-    if (type === "Associado") {
-      return snap.user?.conta?.nomeFranquia;
-    }
-    return snap.user?.nomeFantasia;
+    return (
+      snap.user?.nomeFantasia ||
+      snap.user?.conta?.nomeFranquia ||
+      snap.user?.nome ||
+      "Rede Trade"
+    );
   };
 
   const canShowMenu = (menu) => {
@@ -97,12 +98,18 @@ const Sidebar = () => {
         >
           {sidebarClosed ? null : (
             <div className="sideUserInfo flex flex-col gap-2 md">
-              <img className="userImage" src={userImage} alt="user" />
+              <img
+                className="userImage"
+                src={userImage}
+                alt="Rede Trade"
+              />
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger>{truncarTexto(getName(), 20)}</TooltipTrigger>
+                  <TooltipTrigger className="text-center text-sm font-semibold leading-tight">
+                    {truncarTexto(getName() || "Rede Trade", 22)}
+                  </TooltipTrigger>
                   <TooltipContent>
-                    <p>{getName()}</p>
+                    <p>{getName() || "Rede Trade"}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
