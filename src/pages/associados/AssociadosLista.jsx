@@ -9,7 +9,7 @@ import { columns, processarDadosTabela } from "./constants";
 import { useQueryAssociados } from "@/hooks/ReactQuery/useQueryAssociados";
 import { useQueryCategorias } from "@/hooks/ReactQuery/useQueryCategorias";
 import useModal from "@/hooks/useModal";
-import { getType } from "@/hooks/getId";
+import { getType, getId } from "@/hooks/getId";
 import { BsDownload, BsFileEarmarkExcel, BsFiletypeCsv } from 'react-icons/bs';
 
 const AssociadosLista = () => {
@@ -85,7 +85,7 @@ const AssociadosLista = () => {
         '',                       // nomeContato  
         filtros.estado,           // estado
         filtros.cidade,           // cidade
-        '',                       // usuarioCriadorId
+        (getType() || '').toLowerCase() === 'matriz' ? '' : getId()?.toString() || '',
         1000,                     // pageSize - buscar muitos para filtrar localmente
         filtros.categoriaId,      // categoriaId
         filtros.agencia,          // agencia  
