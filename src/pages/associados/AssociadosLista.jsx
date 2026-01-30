@@ -343,6 +343,7 @@ const AssociadosLista = () => {
                 onFiltrosChange={aplicarFiltros}
                 onLimparFiltros={limparFiltros}
                 filtrosAtivos={filtros}
+                showNewButton={(getType() || '').toLowerCase() !== 'associado'}
             />
 
             {/* Indicador de filtros ativos */}

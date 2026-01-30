@@ -251,6 +251,7 @@ const Associados = () => {
                 onFiltrosChange={aplicarFiltros}
                 onLimparFiltros={limparFiltros}
                 filtrosAtivos={filtros}
+                showNewButton={(snap.user?.tipo || '').toLowerCase() !== 'associado'}
             />
             
             {/* Indicador de filtros ativos */}
