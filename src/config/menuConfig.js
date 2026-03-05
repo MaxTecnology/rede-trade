@@ -322,7 +322,7 @@ const rawMenuConfig = [
       {
         id: "creditos.aprovar",
         label: "Créditos Analisados",
-        route: "/cretidosAprovar",
+        route: "/creditosAprovar",
         icon: BsPieChartFill,
         permissions: ["creditos.aprovar", "MANAGE_ACCOUNTS", "ADMIN"],
       },
@@ -402,7 +402,7 @@ const rawMenuConfig = [
     stateKey: "planos",
     action: { type: "modal", value: MENU_IDS.PLANOS },
     permissions: {
-      menu: ["planos.ver", "MANAGE_ACCOUNTS", "ADMIN"],
+      menu: ["planos.associados", "planos.agencias", "planos.gerentes"],
     },
     allowForMatriz: true,
     children: [
@@ -411,21 +411,21 @@ const rawMenuConfig = [
         label: "Planos Associados",
         route: "/planosAssociados",
         icon: FaListAlt,
-        permissions: ["planos.ver", "MANAGE_ACCOUNTS"],
+        permissions: ["planos.associados"],
       },
       {
         id: "planos.agencias",
         label: "Planos Agências",
         route: "/planosAgencias",
         icon: FaListAlt,
-        permissions: ["planos.ver", "MANAGE_ACCOUNTS"],
+        permissions: ["planos.agencias"],
       },
       {
         id: "planos.gerentes",
         label: "Planos Gerentes",
         route: "/planosGerentes",
         icon: FaListAlt,
-        permissions: ["planos.ver", "MANAGE_ACCOUNTS"],
+        permissions: ["planos.gerentes"],
       },
     ],
   },

@@ -50,7 +50,7 @@ const CreditosTable = ({
                                     setId={setId}
                                     setInfo={setInfo}
                                     info={row.original}
-                                    value={row.original.idPlano}
+                                    value={row.original.idSolicitacaoCredito}
                                     modal={modaltoggle}
                                 />
                             </td>

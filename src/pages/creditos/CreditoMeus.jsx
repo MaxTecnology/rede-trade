@@ -7,24 +7,33 @@ import CreditosTable from "@/components/Tables/CreditosTable";
 import { columns } from "./constantCreditos";
 import { getApiData } from "@/hooks/ListasHook";
 import { getId } from "@/hooks/getId";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const CreditoMeus = () => {
-    const [data, setData] = useState([]);
     const [id, setId] = useState("");
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [reload, setReload] = useState(false)
-    const [info, setInfo] = useState()
+    const [info, setInfo] = useState();
+    const queryClient = useQueryClient();
+    const userId = getId();
 
     useEffect(() => {
-        activePage("creditos")
+        activePage("creditos");
     }, []);
+
     const modalToggle = () => {
         setModalIsOpen(!modalIsOpen);
     };
 
-    useEffect(() => {
-        getApiData("creditos/listar/" + getId(), setData)
-    }, [reload]);
+    const { data } = useQuery({
+        queryKey: ["creditos", "usuario", userId],
+        queryFn: async () => getApiData(`creditos/listar/${userId}`),
+        enabled: !!userId,
+        staleTime: 30000,
+    });
+
+    const handleActionSuccess = () => {
+        queryClient.invalidateQueries({ queryKey: ["creditos"] });
+    };
 
     return (
         <div className="container">
@@ -32,9 +41,8 @@ const CreditoMeus = () => {
                 <CreditosModal
                     isOpen={true}
                     modalToggle={modalToggle}
-                    info={info} // Substitua associadoData pelo seu objeto associado
-                    setState={setReload}
-                    admin={true}
+                    info={info}
+                    onActionSuccess={handleActionSuccess}
                 />
                 : null}
             <div className="containerHeader">Meus Créditos</div>
@@ -47,16 +55,14 @@ const CreditoMeus = () => {
                         setId={setId}
                         setInfo={setInfo}
                         modaltoggle={modalToggle}
-                        setState={setReload}
                     />
                     :
                     <CreditosTable
                         columns={columns}
-                        data={data}
+                        data={Array.isArray(data) ? data : []}
                         setId={setId}
                         setInfo={setInfo}
                         modaltoggle={modalToggle}
-                        setState={setReload}
                     />
                 }
             </div>

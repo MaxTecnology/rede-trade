@@ -7,20 +7,27 @@ import CreditosTable from "@/components/Tables/CreditosTable";
 import { columns } from "./constantCreditos";
 import { getApiData } from "@/hooks/ListasHook";
 import useModal from "@/hooks/useModal";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Credito = () => {
-    const [data, setData] = useState([]);
     const [id, setId] = useState("");
     const [modalIsOpen, modalToggle] = useModal(false);
-    const [reload, setReload] = useState(false)
-    const [info, setInfo] = useState()
-    useEffect(() => {
-        activePage("creditos")
-    }, []);
+    const [info, setInfo] = useState();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
-        getApiData("creditos/listar-todos", setData)
-    }, [reload]);
+        activePage("creditos");
+    }, []);
+
+    const { data } = useQuery({
+        queryKey: ["creditos", "todos"],
+        queryFn: async () => getApiData("creditos/listar-todos"),
+        staleTime: 30000,
+    });
+
+    const handleActionSuccess = () => {
+        queryClient.invalidateQueries({ queryKey: ["creditos"] });
+    };
 
     return (
         <div className="container">
@@ -29,8 +36,7 @@ const Credito = () => {
                     isOpen={true}
                     modalToggle={modalToggle}
                     info={info}
-                    setState={setReload}
-                    admin={true}
+                    onActionSuccess={handleActionSuccess}
                 />
                 : null}
             <div className="containerHeader">Creditos</div>
@@ -42,7 +48,6 @@ const Credito = () => {
                     setId={setId}
                     setInfo={setInfo}
                     modaltoggle={modalToggle}
-                    setState={setReload}
                 />
             </div>
             <Footer />

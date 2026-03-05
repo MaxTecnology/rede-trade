@@ -258,7 +258,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               }
             />
             <Route
-              path="/cretidosAprovar"
+              path="/creditosAprovar"
               element={
                 <Suspense fallback={<Loading />}>
                   <CreditoAprovar />

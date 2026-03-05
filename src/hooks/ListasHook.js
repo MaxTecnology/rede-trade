@@ -112,85 +112,93 @@ export const requestCredit = async (event, url) => {
 }
 
 // CRÉDITOS HANDLER
-export const aproveCreditos = async (id, modalHandler, setState) => {
+const runCreditosSuccess = (modalHandler, onSuccess) => {
+    if (typeof modalHandler === "function") {
+        modalHandler();
+    }
+    if (typeof onSuccess === "function") {
+        onSuccess();
+    }
+};
+
+export const aproveCreditos = async (id, modalHandler, onSuccess) => {
     const body = {
-        "status": "Aprovado"
+        "status": "APROVADO"
     }
     toast.promise(axios.put(`${mainUrl}creditos/finalizar-analise/${id}`, body, getConfig()), {
         loading: 'Aprovando crédito...',
-        success: (data) => {
-            modalHandler()
-            setState(true)
+        success: () => {
+            runCreditosSuccess(modalHandler, onSuccess);
             return "Credito aprovado com sucesso!"
         },
         error: (err) => {
-            return "Erro ao aprovar Crédito"
+            return err?.response?.data?.error || "Erro ao aprovar Crédito"
         },
     })
 }
 
-export const negateCreditos = async (id, modalHandler, setState) => {
+export const negateCreditos = async (id, modalHandler, onSuccess, mode = "matriz") => {
+    const isAgencia = mode === "agencia";
     const body = {
-        "status": "Negado"
+        "status": "NEGADO"
     }
-    toast.promise(axios.put(`${mainUrl}creditos/finalizar-analise/${id}`, body, getConfig()), {
+    const url = isAgencia
+        ? `${mainUrl}creditos/encaminhar/${id}`
+        : `${mainUrl}creditos/finalizar-analise/${id}`;
+
+    toast.promise(axios.put(url, body, getConfig()), {
         loading: 'Negando crédito...',
-        success: (data) => {
-            modalHandler()
-            setState(true)
+        success: () => {
+            runCreditosSuccess(modalHandler, onSuccess);
             return "Credito negado com sucesso!"
         },
         error: (err) => {
-            return "Erro ao negar Crédito"
+            return err?.response?.data?.error || "Erro ao negar Crédito"
         },
     })
 }
 
-export const forwardCreditos = async (id, modalHandler, setState) => {
+export const forwardCreditos = async (id, modalHandler, onSuccess) => {
     const body = {
-        "status": "Encaminhado para a matriz",
-        "matrizId": 1
+        "status": "ENCAMINHADO_PARA_MATRIZ"
     }
     toast.promise(axios.put(`${mainUrl}creditos/encaminhar/${id}`, body, getConfig()), {
         loading: 'Encaminhando crédito...',
-        success: (data) => {
-            modalHandler()
-            setState(true)
+        success: () => {
+            runCreditosSuccess(modalHandler, onSuccess);
             return "Credito encaminhado com sucesso!"
         },
         error: (err) => {
-            return "Erro ao encaminhar Crédito"
+            return err?.response?.data?.error || "Erro ao encaminhar Crédito"
         },
     })
 }
 
-export const deleteCreditos = async (id, modalHandler, setState) => {
+export const deleteCreditos = async (id, modalHandler, onSuccess) => {
     toast.promise(axios.delete(`${mainUrl}creditos/apagar/${id}`, getConfig()), {
         loading: 'Deletando solicitação...',
-        success: (data) => {
-            modalHandler()
-            setState(true)
+        success: () => {
+            runCreditosSuccess(modalHandler, onSuccess);
             return "Solicitação deletada com sucesso!"
         },
         error: (err) => {
-            return "Erro ao deletar solicitação"
+            return err?.response?.data?.error || "Erro ao deletar solicitação"
         },
     })
 }
 
-export const atualizarCreditos = async (event, id, modalHandler, setState) => {
+export const atualizarCreditos = async (event, id, modalHandler, onSuccess) => {
     event.preventDefault()
     const formData = new FormData(event.target)
     const data = formHandler(formData)
     toast.promise(axios.put(`${mainUrl}creditos/editar/${id}`, data, getConfig()), {
         loading: 'Editando solicitação...',
-        success: (data) => {
-            modalHandler()
-            setState(true)
+        success: () => {
+            runCreditosSuccess(modalHandler, onSuccess);
             return "Solicitação editada com sucesso!"
         },
         error: (err) => {
-            return "Erro ao deletar Crédito"
+            return err?.response?.data?.error || "Erro ao editar Crédito"
         },
     })
 }

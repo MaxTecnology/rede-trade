@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build && rm -rf /var/www/rede-trade-frontend/dist && cp -r dist /var/www/rede-trade-frontend/",
+    "deploy": "npm run build && cp -r dist /var/www/rede-trade-api/ && cp -r prisma /var/www/rede-trade-api/ && cd /var/www/rede-trade-api && npx prisma generate --schema=./prisma/schema.prisma && pm2 restart rede-trade-api --update-env",
     "preview": "vite preview --host",
     "test": "vitest",
     "test:ui": "vitest --ui",

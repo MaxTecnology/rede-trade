@@ -1,14 +1,11 @@
-import { useQueryOfertas } from "@/hooks/ReactQuery/useQueryOfertas";
-import { getId } from "@/hooks/getId";
+import { useQueryOfertasResumo } from "@/hooks/ReactQuery/useQueryOfertasResumo";
 import { motion } from "framer-motion";
 import { time } from "./constant";
 
 const OfertasCard_Dashboard = () => {
-    const { data } = useQueryOfertas()
-
-    const filter = (data) => {
-        return data.filter(item => item.usuarioId === getId()); // ✅ Melhorado com filter
-    }
+    const { data } = useQueryOfertasResumo();
+    const totalUnidade = data?.totalUnidade ?? 0;
+    const totalGeral = data?.totalGeral ?? 0;
 
     return (
         <motion.div
@@ -23,11 +20,11 @@ const OfertasCard_Dashboard = () => {
                 <div className="homeCardItemBody">
                     <div>
                         <p>Unidade</p>
-                        <p>{data && data.ofertas ? filter(data.ofertas).length : 0}</p>
+                        <p>{totalUnidade}</p>
                     </div>
                     <div>
                         <p>Geral</p>
-                        <p>{data && data.ofertas ? data.ofertas.length : 0}</p>
+                        <p>{totalGeral}</p>
                     </div>
                 </div>
             </div>

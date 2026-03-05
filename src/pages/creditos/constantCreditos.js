@@ -1,3 +1,5 @@
+import { getCreditStatusLabel } from "./creditStatus";
+
 export const columns = [
     {
         accessorKey: 'usuarioSolicitante.conta.numeroConta',
@@ -18,5 +20,6 @@ export const columns = [
     {
         accessorKey: 'status',
         header: 'Status',
+        cell: (info) => getCreditStatusLabel(info.getValue()),
     },
 ]
