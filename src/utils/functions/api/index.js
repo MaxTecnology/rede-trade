@@ -158,41 +158,6 @@ export const createAssociado = async (data) => {
         console.log("✅ Associado criado com sucesso:", response.data);
         console.log("✅ ID do usuário:", response.data.idUsuario);
         
-        // Se o backend criou uma conta automaticamente, atualizar com os dados da conta
-        if (response.data.conta && response.data.conta.idConta) {
-            console.log("🏦 Atualizando dados da conta:", response.data.conta.idConta);
-            
-            // Preparar dados da conta para atualização
-            const contaData = {
-                tipoOperacao: tipoOperacao || 3,
-                aceitaOrcamento: aceitaOrcamento || false,
-                aceitaVoucher: aceitaVoucher || false,
-                limiteCredito: limiteCredito || 0,
-                limiteVendaMensal: limiteVendaMensal || 0,
-                limiteVendaTotal: limiteVendaTotal || 0,
-            };
-            
-            // Se tem gerente, adicionar
-            if (gerente && gerente !== '') {
-                contaData.gerenteContaId = parseInt(gerente);
-            }
-            
-            console.log("📋 Dados da conta para atualização:", contaData);
-            
-            // Atualizar conta
-            await axios.put(
-                `${mainUrl}contas/atualizar-conta/${response.data.conta.idConta}`,
-                contaData,
-                config
-            ).catch((error) => {
-                console.error("❌ Erro ao atualizar conta:", error.response?.data || error);
-                // Não falhar a criação se a atualização da conta falhar
-                console.warn("⚠️ Usuário criado, mas dados da conta não foram atualizados");
-            });
-            
-            console.log("✅ Conta atualizada com sucesso");
-        }
-        
         return response.data;
         
     } catch (error) {

@@ -5,8 +5,7 @@ import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import Form_Dados from "@/components/Form/Form_Dados";
 import { zodResolver } from "@hookform/resolvers/zod";
-import PermissionsMatrix from "@/components/Permissions/PermissionsMatrix";
-import { permissionsSchema } from "@/config/permissionsSchema";
+import { permissionSchema } from "@/models/schemas/permissionsSchema";
 import { createSubAccount } from "@/utils/functions/api";
 import { toast } from "sonner";
 import { ColorRing } from "react-loader-spinner";
@@ -21,9 +20,10 @@ const UsuariosCadastrar = () => {
     const form = useForm({
         resolver: zodResolver(permissionSchema),
         defaultValues: {
+            nome: "",
             email: "",
-            password: "",
-            imagem: "",
+            senha: "",
+            imagem: undefined,
             cpf: "",
         },
     });
