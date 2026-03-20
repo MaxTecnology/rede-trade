@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { BiSolidImageAdd } from "react-icons/bi";
 import { imageReferenceHandler } from "@/utils/functions/formHandler";
 import { useEffect, useState } from "react";
+import { API_URL } from "@/config/api";
 
 const Form_Dados = ({ form, setImagem }) => {
     const [imagemReference, setImageReference] = useState(null)
@@ -26,7 +27,7 @@ const Form_Dados = ({ form, setImagem }) => {
                 setImageReference(watch);
             } else if (typeof watch === 'string') {
                 // Se é uma string mas não uma URL, construir URL completa
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                const baseUrl = API_URL;
                 if (watch.startsWith('/')) {
                     setImageReference(`${baseUrl}${watch}`);
                 } else if (watch.includes('uploads/')) {

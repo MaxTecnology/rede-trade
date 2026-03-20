@@ -16,6 +16,7 @@ import { useSnapshot } from "valtio";
 import state from "@/store";
 import useRevalidate from "@/hooks/ReactQuery/useRevalidate";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
+import { API_URL } from "@/config/api";
 
 const GerentesCadastrar = () => {
     const snap = useSnapshot(state);
@@ -135,7 +136,7 @@ const GerentesCadastrar = () => {
             
             const createUserWithImage = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     const url = `${baseUrl}/usuarios/criar-usuario`;
                     
                     // Obter token

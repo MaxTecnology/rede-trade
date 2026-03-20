@@ -12,6 +12,7 @@ import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 import { toast } from "sonner";
 import { ColorRing } from 'react-loader-spinner';
 import { getType } from "@/hooks/getId";
+import { API_URL } from "@/config/api";
 
 const UsuariosMeus = () => {
     const navigate = useNavigate();
@@ -83,7 +84,7 @@ const UsuariosMeus = () => {
             if (window.confirm(`Tem certeza que deseja excluir a subconta "${subconta.nome}"?`)) {
                 try {
                     const token = localStorage.getItem('tokenRedeTrade');
-                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const apiUrl = API_URL;
                     
                     const response = await fetch(`${apiUrl}/contas/deletar-subconta/${subconta.idSubContas}`, {
                         method: 'DELETE',

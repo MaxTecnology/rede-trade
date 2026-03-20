@@ -17,6 +17,7 @@ import state from "@/store";
 import { imageReferenceHandler } from "@/utils/functions/formHandler";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { API_URL } from "@/config/api";
 
 const CadastrarAgencia = () => {
     const snap = useSnapshot(state);
@@ -188,7 +189,7 @@ const CadastrarAgencia = () => {
             
             const createUserWithImage = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     const url = `${baseUrl}/usuarios/criar-usuario`;
                     
                     // Obter token

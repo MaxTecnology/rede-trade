@@ -6,6 +6,7 @@ import { activePage } from "@/utils/functions/setActivePage";
 import { formatarNumeroParaReal } from "@/utils/functions/formartNumber";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
 import { motion } from "framer-motion";
+import { API_URL } from "@/config/api";
 
 const OfertasCard = ({ associado, index }) => {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ const OfertasCard = ({ associado, index }) => {
     const [segundos, setSegundos] = useState(0);
 
     // Configuração da API para imagens
-    const API_BASE_URL = "http://localhost:3024"; // ou process.env.REACT_APP_API_URL
+    const API_BASE_URL = API_URL;
     const imagemPadrao = "https://cdn.vectorstock.com/i/preview-1x/65/30/default-image-icon-missing-picture-page-vector-40546530.jpg";
 
     // Função para construir URL da imagem

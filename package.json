@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "build": "vite build",
     "deploy": "vite build && rm -rf /var/www/rede-trade-frontend/dist && cp -r dist /var/www/rede-trade-frontend/",
     "preview": "vite preview --host",
     "test": "vitest",

@@ -5,6 +5,7 @@ import { activePage } from '@/utils/functions/setActivePage';
 import { useQueryCategorias } from '@/hooks/ReactQuery/useQueryCategorias';
 import StarRating from '@/components/Stars/StarRating';
 import state from '@/store';
+import { API_URL } from '@/config/api';
 
 const AssociadoInfo = () => {
     const navigate = useNavigate();
@@ -60,7 +61,7 @@ const AssociadoInfo = () => {
         }
         
         // Se é um caminho relativo, construir URL completa
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+        const baseUrl = API_URL;
         if (imagemPath.startsWith('/')) {
             return `${baseUrl}${imagemPath}`;
         } else if (imagemPath.includes('uploads/')) {

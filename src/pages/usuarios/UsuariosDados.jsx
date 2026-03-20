@@ -17,6 +17,7 @@ import useRevalidate from "@/hooks/ReactQuery/useRevalidate";
 import PlanosFields from "@/components/Form/PlanosFields";
 import { getType } from "@/hooks/getId";
 import ButtonMotion from "@/components/FramerMotion/ButtonMotion";
+import { API_URL } from "@/config/api";
 
 const UsuariosDados = () => {
     const userInfo = useSnapshot(state.user)
@@ -87,15 +88,15 @@ const UsuariosDados = () => {
             imageUrl = userInfo.imagem;
         } else if (userInfo.imagem.startsWith('/')) {
             // Se é um caminho relativo que começa com / (ex: /uploads/images/file.jpg)
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            const baseUrl = API_URL;
             imageUrl = `${baseUrl}${userInfo.imagem}`;
         } else if (userInfo.imagem.includes('uploads/')) {
             // Se contém uploads/ mas não começa com /
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            const baseUrl = API_URL;
             imageUrl = `${baseUrl}/${userInfo.imagem}`;
         } else {
             // Qualquer outro caso, tentar construir URL
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            const baseUrl = API_URL;
             imageUrl = `${baseUrl}/uploads/images/${userInfo.imagem}`;
         }
     }
@@ -113,7 +114,7 @@ const UsuariosDados = () => {
             // Função para atualizar com FormData (igual ao modal de edição)
             const updateUserWithImage = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     const userId = state.user?.idUsuario;
                     
                     if (!userId) {

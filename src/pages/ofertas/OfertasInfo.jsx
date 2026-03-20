@@ -4,6 +4,7 @@ import { formatDate } from "@/hooks/ListasHook";
 import { activePage } from "@/utils/functions/setActivePage";
 import RealInput from "@/components/Inputs/CampoMoeda";
 import defaultImage from "@/assets/images/default_img.png";
+import { API_URL } from "@/config/api";
 
 const OfertasInfo = () => {
     const [reference, setReference] = useState(true)
@@ -39,15 +40,15 @@ const OfertasInfo = () => {
             return imagePath;
         } else if (imagePath.startsWith('/')) {
             // Se é um caminho relativo que começa com /
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            const baseUrl = API_URL;
             return `${baseUrl}${imagePath}`;
         } else if (imagePath.includes('uploads/')) {
             // Se contém uploads/ mas não começa com /
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            const baseUrl = API_URL;
             return `${baseUrl}/${imagePath}`;
         } else {
             // Qualquer outro caso
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+            const baseUrl = API_URL;
             return `${baseUrl}/uploads/images/${imagePath}`;
         }
     };

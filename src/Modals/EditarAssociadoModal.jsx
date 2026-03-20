@@ -15,6 +15,7 @@ import { imageReferenceHandler, formHandlerComImagem, debugFormData } from '@/ut
 import ButtonMotion from '@/components/FramerMotion/ButtonMotion';
 import InputMask from 'react-input-mask';
 import defaultImage from "@/assets/images/default_img.png"
+import { API_URL } from "@/config/api";
 
 const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
     const [imagemReference, setImageReference] = useState(null);
@@ -91,15 +92,15 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
                     imageUrl = info.imagem;
                 } else if (info.imagem.startsWith('/')) {
                     // Se é um caminho relativo que começa com / (ex: /uploads/images/file.jpg)
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     imageUrl = `${baseUrl}${info.imagem}`;
                 } else if (info.imagem.includes('uploads/')) {
                     // Se contém uploads/ mas não começa com /
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     imageUrl = `${baseUrl}/${info.imagem}`;
                 } else {
                     // Qualquer outro caso, tentar construir URL
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     imageUrl = `${baseUrl}/uploads/images/${info.imagem}`;
                 }
             }
@@ -230,7 +231,7 @@ const EditarAssociadoModal = ({ isOpen, modalToggle, associadoInfo }) => {
             // NOVO: Função para update com imagem
             const updateUserWithImage = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3024';
+                    const baseUrl = API_URL;
                     
                     // TESTE: Vamos usar a rota de atualizar-usuario-completo que pode ser mais robusta
                     const url = `${baseUrl}/usuarios/atualizar-usuario-completo/${info.idUsuario}`;
